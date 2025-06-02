@@ -1,0 +1,40 @@
+{
+  "name": "web",
+  "version": "0.0.1",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "dev": "next dev --turbopack",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint .",
+    "format": "prettier --write .",
+    "check-types": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@sanity/asset-utils": "^2.2.1",
+    "@sanity/client": "^6.28.4",
+    "@sanity/image-url": "^1.1.0",
+    "@sanity/visual-editing": "^2.13.21",
+    "@workspace/ui": "workspace:*",
+    "babel-plugin-react-compiler": "19.0.0-beta-e993439-20250328",
+    "lucide-react": "0.487.0",
+    "next": "15.2.4",
+    "next-sanity": "^9.9.9",
+    "next-themes": "^0.4.6",
+    "react": "19.1.0",
+    "react-dom": "19.1.0",
+    "schema-dts": "^1.1.5",
+    "server-only": "^0.0.1",
+    "slugify": "^1.6.6"
+  },
+  "devDependencies": {
+    "@types/node": "^22",
+    "@types/react": "19.1.0",
+    "@types/react-dom": "19.1.0",
+    "@workspace/eslint-config": "workspace:^",
+    "@workspace/typescript-config": "workspace:*",
+    "postcss": "^8",
+    "tailwindcss": "^3.4.17"
+  }
+}
