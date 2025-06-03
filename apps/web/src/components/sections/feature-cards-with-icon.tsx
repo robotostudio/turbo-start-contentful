@@ -1,15 +1,15 @@
 import { Badge } from "@workspace/ui/components/badge";
+
 import type {
-  FeatureCard as FeatureCardType,
-  FeatureCards,
-} from "contentfulTypes";
+  FeatureCardFields,
+  FeatureCardsFields,
+  SerializedEntry,
+} from "@/lib/contentful-serializer";
 
-import type { SerializedEntry } from "@/lib/contentful-serializer";
-
-type FeatureCardsWithIconProps = SerializedEntry<FeatureCards>;
+type FeatureCardsWithIconProps = SerializedEntry<FeatureCardsFields>;
 
 type FeatureCardProps = {
-  card?: SerializedEntry<FeatureCardType>;
+  card?: SerializedEntry<FeatureCardFields>;
 };
 
 function FeatureCard({ card }: FeatureCardProps) {
@@ -50,7 +50,7 @@ export function FeatureCardsWithIcon({ fields }: FeatureCardsWithIconProps) {
         <div className="mx-auto mt-20 grid gap-8 lg:grid-cols-3">
           {cards?.map((card, index) => {
             const serializedCard =
-              card as unknown as SerializedEntry<FeatureCardType>;
+              card as unknown as SerializedEntry<FeatureCardFields>;
             return (
               <FeatureCard
                 key={`FeatureCard-${serializedCard.id}-${index}`}

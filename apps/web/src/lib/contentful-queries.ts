@@ -1,79 +1,31 @@
-import type { EntrySkeletonType } from "contentful";
-
-import type {
-  Button,
-  CallToAction,
-  Faq,
-  FaqAccordion,
-  FeatureCard,
-  FeatureCards,
-  Hero,
-  Page,
-} from "../../contentfulTypes";
 import { getClient } from "./contentful";
-import { serializeCollection, serializeEntry } from "./contentful-serializer";
-
-// Define content type skeletons based on your contentfulTypes.d.ts
-export interface ButtonSkeleton extends EntrySkeletonType {
-  contentTypeId: "button";
-  fields: Button;
-}
-
-export interface CallToActionSkeleton extends EntrySkeletonType {
-  contentTypeId: "callToAction";
-  fields: CallToAction;
-}
-
-export interface FaqSkeleton extends EntrySkeletonType {
-  contentTypeId: "faq";
-  fields: Faq;
-}
-
-export interface FaqAccordionSkeleton extends EntrySkeletonType {
-  contentTypeId: "faqAccordion";
-  fields: FaqAccordion;
-}
-
-export interface FeatureCardSkeleton extends EntrySkeletonType {
-  contentTypeId: "featureCard";
-  fields: FeatureCard;
-}
-
-export interface FeatureCardsSkeleton extends EntrySkeletonType {
-  contentTypeId: "featureCards";
-  fields: FeatureCards;
-}
-
-export interface HeroSkeleton extends EntrySkeletonType {
-  contentTypeId: "hero";
-  fields: Hero;
-}
-
-export interface PageSkeleton extends EntrySkeletonType {
-  contentTypeId: "page";
-  fields: Page;
-}
-
-// Union type for page builder blocks
-export type PageBuilderSkeleton =
-  | HeroSkeleton
-  | CallToActionSkeleton
-  | FaqAccordionSkeleton
-  | FeatureCardsSkeleton;
+import {
+  type ButtonFields,
+  type CallToActionFields,
+  type HeroFields,
+  type PageFields,
+  transformCollection,
+  transformEntry,
+} from "./contentful-serializer";
 
 /**
- * Fetch all pages with serialization
+ * Clean, simple functions for fetching and transforming Contentful data
+ * No complex skeletons or type gymnastics - just straightforward data fetching
+ */
+
+/**
+ * Fetch all pages
  */
 export async function getPages(preview = false) {
   const client = getClient(preview);
 
   try {
-    const response = await client.getEntries<PageSkeleton>({
+    const response = await client.getEntries({
       content_type: "page",
       include: 2,
     });
 
-    return serializeCollection(response);
+    return transformCollection<PageFields>(response);
   } catch (error) {
     console.error("Error fetching pages:", error);
     throw new Error("Failed to fetch pages");
@@ -103,7 +55,7 @@ export async function getPageBySlug(slug: string, preview = false) {
       return null;
     }
 
-    return serializeEntry(entry);
+    return transformEntry<PageFields>(entry);
   } catch (error) {
     console.error("Error fetching page:", error);
     throw new Error(`Failed to fetch page with slug: ${slug}`);
@@ -111,7 +63,7 @@ export async function getPageBySlug(slug: string, preview = false) {
 }
 
 /**
- * Generic function to fetch any content type with serialization
+ * Generic function to fetch any content type
  */
 export async function getContentByType(
   contentType: string,
@@ -143,7 +95,7 @@ export async function getContentByType(
     };
 
     const response = await client.getEntries(queryParams);
-    return serializeCollection(response);
+    return transformCollection(response);
   } catch (error) {
     console.error(`Error fetching content type ${contentType}:`, error);
     throw new Error(`Failed to fetch content type: ${contentType}`);
@@ -163,7 +115,7 @@ export async function searchContent(query: string, preview = false) {
       limit: 20,
     });
 
-    return serializeCollection(response);
+    return transformCollection(response);
   } catch (error) {
     console.error("Error searching content:", error);
     throw new Error("Failed to search content");
@@ -190,15 +142,15 @@ export async function getContentWithPagination(
       skip,
     });
 
-    const serialized = serializeCollection(response);
+    const transformed = transformCollection(response);
 
     return {
-      ...serialized,
+      ...transformed,
       pagination: {
         page,
         pageSize,
-        totalPages: Math.ceil(serialized.total / pageSize),
-        hasNextPage: skip + pageSize < serialized.total,
+        totalPages: Math.ceil(transformed.total / pageSize),
+        hasNextPage: skip + pageSize < transformed.total,
         hasPreviousPage: page > 1,
       },
     };

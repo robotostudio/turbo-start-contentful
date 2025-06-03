@@ -1,16 +1,43 @@
-import type { Asset, Entry, EntrySkeletonType } from "contentful";
+import type { Asset, Entry } from "contentful";
 
-// Base types for serialized content
+/**
+ * Contentful Serializer
+ *
+ * This module provides simple, clean functions to transform Contentful responses
+ * into predictable, typed data structures.
+ *
+ * Key principles:
+ * - No complex generics or abstractions
+ * - Clear function names that describe what they do
+ * - Consistent error handling with early returns
+ * - Type-safe interfaces for all content types
+ *
+ * Usage:
+ * ```ts
+ * import { transformEntry, transformAsset, transformCollection } from './contentful-serializer'
+ *
+ * // Transform a single entry
+ * const hero = transformEntry<HeroFields>(contentfulEntry)
+ *
+ * // Transform an asset
+ * const image = transformAsset(contentfulAsset)
+ *
+ * // Transform a collection
+ * const pages = transformCollection<PageFields>(contentfulCollection)
+ * ```
+ */
+
+// Simple, clean interfaces for serialized content
 export interface SerializedAsset {
   id: string;
   title: string;
-  description?: string;
+  description: string;
   url: string;
-  width?: number;
-  height?: number;
-  size?: number;
-  contentType?: string;
-  fileName?: string;
+  width: number;
+  height: number;
+  size: number;
+  contentType: string;
+  fileName: string;
 }
 
 export interface SerializedEntry<T = Record<string, any>> {
@@ -28,104 +55,89 @@ export interface SerializedCollection<T = Record<string, any>> {
   limit: number;
 }
 
-// Utility type for extracting field types
-export type ContentfulFields<T extends EntrySkeletonType> = T["fields"];
-
 /**
- * Serializes a Contentful asset into a clean, usable format
+ * Converts a Contentful asset into a clean, usable format
  */
-export function serializeAsset(asset: Asset): SerializedAsset | null {
-  if (!asset?.fields) {
-    return null;
-  }
+export function transformAsset(asset: Asset): SerializedAsset | null {
+  if (!asset?.fields?.file) return null;
 
   const { title, description, file } = asset.fields;
 
-  if (!file || typeof file === "string" || !file.url) {
-    return null;
-  }
+  if (typeof file === "string" || !file?.url) return null;
 
   const fileUrl = typeof file.url === "string" ? file.url : "";
-  const safeUrl = fileUrl.startsWith("//") ? `https:${fileUrl}` : fileUrl;
+  const url = fileUrl.startsWith("//") ? `https:${fileUrl}` : fileUrl;
+
+  const imageDetails =
+    file.details && "image" in file.details ? file.details.image : null;
+  const size = file.details && "size" in file.details ? file.details.size : 0;
 
   return {
     id: asset.sys.id,
     title: typeof title === "string" ? title : "",
-    description: typeof description === "string" ? description : undefined,
-    url: safeUrl,
-    width:
-      file.details && "image" in file.details
-        ? file.details.image?.width
-        : undefined,
-    height:
-      file.details && "image" in file.details
-        ? file.details.image?.height
-        : undefined,
-    size:
-      file.details && "size" in file.details ? file.details.size : undefined,
-    contentType:
-      typeof file.contentType === "string" ? file.contentType : undefined,
-    fileName: typeof file.fileName === "string" ? file.fileName : undefined,
+    description: typeof description === "string" ? description : "",
+    url,
+    width: imageDetails?.width || 0,
+    height: imageDetails?.height || 0,
+    size: size || 0,
+    contentType: typeof file.contentType === "string" ? file.contentType : "",
+    fileName: typeof file.fileName === "string" ? file.fileName : "",
   };
 }
 
 /**
- * Serializes a single Contentful entry into a clean format
+ * Converts a Contentful entry into a clean format
  */
-export function serializeEntry<T extends EntrySkeletonType>(
-  entry: Entry<T>,
-): SerializedEntry<ContentfulFields<T>> | null {
-  if (!entry?.fields || !entry?.sys) {
-    return null;
-  }
+export function transformEntry<T = Record<string, any>>(
+  entry: Entry<any>,
+): SerializedEntry<T> | null {
+  if (!entry?.fields || !entry?.sys) return null;
 
   return {
     id: entry.sys.id,
     contentType: entry.sys.contentType.sys.id,
     createdAt: entry.sys.createdAt,
     updatedAt: entry.sys.updatedAt,
-    fields: serializeFields(entry.fields) as ContentfulFields<T>,
+    fields: transformFields(entry.fields) as T,
   };
 }
 
 /**
- * Recursively serializes field values, handling references and assets
+ * Transforms all fields in an entry, handling nested content
  */
-function serializeFields(fields: Record<string, any>): Record<string, any> {
-  const serializedFields: Record<string, any> = {};
+function transformFields(fields: Record<string, any>): Record<string, any> {
+  const result: Record<string, any> = {};
 
   for (const [key, value] of Object.entries(fields)) {
-    serializedFields[key] = serializeFieldValue(value);
+    result[key] = transformFieldValue(value);
   }
 
-  return serializedFields;
+  return result;
 }
 
 /**
- * Serializes individual field values based on their type
+ * Transforms individual field values based on their type
  */
-function serializeFieldValue(value: any): any {
-  if (value === null || value === undefined) {
-    return null;
-  }
+function transformFieldValue(value: any): any {
+  if (!value) return null;
 
   // Handle arrays
   if (Array.isArray(value)) {
-    return value.map(serializeFieldValue).filter(Boolean);
+    return value.map(transformFieldValue).filter(Boolean);
   }
 
   // Handle Entry references
-  if (value?.sys?.type === "Entry") {
-    return serializeEntry(value);
+  if (value.sys?.type === "Entry") {
+    return transformEntry(value);
   }
 
   // Handle Asset references
-  if (value?.sys?.type === "Asset") {
-    return serializeAsset(value);
+  if (value.sys?.type === "Asset") {
+    return transformAsset(value);
   }
 
-  // Handle Link objects (unresolved references)
-  if (value?.sys?.type === "Link") {
+  // Handle unresolved links
+  if (value.sys?.type === "Link") {
     return {
       id: value.sys.id,
       linkType: value.sys.linkType,
@@ -133,39 +145,35 @@ function serializeFieldValue(value: any): any {
     };
   }
 
-  // Handle rich text content
-  if (value?.nodeType) {
-    return value; // Keep rich text as-is for now, or implement custom serialization
+  // Handle rich text (keep as-is)
+  if (value.nodeType) {
+    return value;
   }
 
-  // Handle location fields
-  if (value?.lat && value?.lon) {
+  // Handle location coordinates
+  if (value.lat && value.lon) {
     return {
       latitude: value.lat,
       longitude: value.lon,
     };
   }
 
-  // Return primitive values as-is
   return value;
 }
 
 /**
- * Serializes a collection of Contentful entries
+ * Transforms a collection of Contentful entries
  */
-export function serializeCollection<T extends EntrySkeletonType>(collection: {
-  items: Entry<T>[];
+export function transformCollection<T = Record<string, any>>(collection: {
+  items: Entry<any>[];
   total: number;
   skip: number;
   limit: number;
-}): SerializedCollection<ContentfulFields<T>> {
+}): SerializedCollection<T> {
   return {
     items: collection.items
-      .map(serializeEntry)
-      .filter(
-        (entry): entry is SerializedEntry<ContentfulFields<T>> =>
-          entry !== null,
-      ),
+      .map(transformEntry<T>)
+      .filter((entry): entry is SerializedEntry<T> => entry !== null),
     total: collection.total,
     skip: collection.skip,
     limit: collection.limit,
@@ -173,106 +181,105 @@ export function serializeCollection<T extends EntrySkeletonType>(collection: {
 }
 
 /**
- * Type-safe content type serializers factory
+ * Main function to transform any Contentful response
  */
-export function createContentTypeSerializer<T extends EntrySkeletonType>() {
-  return {
-    serializeEntry: (entry: Entry<T>) => serializeEntry(entry),
-    serializeCollection: (collection: {
-      items: Entry<T>[];
-      total: number;
-      skip: number;
-      limit: number;
-    }) => serializeCollection(collection),
-  };
-}
-
-// Serialized interfaces based on your contentfulTypes.d.ts
-export interface SerializedButton {
-  id: string;
-  contentType: string;
-  createdAt: string;
-  updatedAt: string;
-  fields: {
-    href?: string;
-    internal?: SerializedEntry;
-    label: string;
-    variant: string;
-  };
-}
-
-export interface SerializedHero {
-  id: string;
-  contentType: string;
-  createdAt: string;
-  updatedAt: string;
-  fields: {
-    badge?: string;
-    buttons?: SerializedButton[];
-    image: SerializedAsset;
-    richText?: any;
-    title: string;
-  };
-}
-
-export interface SerializedCallToAction {
-  id: string;
-  contentType: string;
-  createdAt: string;
-  updatedAt: string;
-  fields: {
-    buttons?: SerializedButton[];
-    eyebrow?: string;
-    richText?: any;
-    title: string;
-  };
-}
-
-export interface SerializedPage {
-  id: string;
-  contentType: string;
-  createdAt: string;
-  updatedAt: string;
-  fields: {
-    description: string;
-    image?: SerializedAsset;
-    pageBuilder?: Array<SerializedEntry>;
-    seoDescription?: string;
-    seoImage?: SerializedAsset;
-    seoNoIndex?: boolean;
-    seoTitle?: string;
-    slug: string;
-    title: string;
-  };
-}
-
-/**
- * Generic helper to serialize any content type safely
- */
-export function serializeContentfulResponse<T extends EntrySkeletonType>(
+export function transformContentfulData<T = Record<string, any>>(
   response: any,
-):
-  | SerializedEntry<ContentfulFields<T>>
-  | SerializedCollection<ContentfulFields<T>>
-  | null {
-  if (!response) {
-    return null;
-  }
+): SerializedEntry<T> | SerializedCollection<T> | SerializedAsset | null {
+  if (!response) return null;
 
-  // Handle single entry
+  // Single entry
   if (response.sys?.type === "Entry") {
-    return serializeEntry(response);
+    return transformEntry<T>(response);
   }
 
-  // Handle collection
+  // Collection of entries
   if (response.items && Array.isArray(response.items)) {
-    return serializeCollection(response);
+    return transformCollection<T>(response);
   }
 
-  // Handle asset
+  // Single asset
   if (response.sys?.type === "Asset") {
-    return serializeAsset(response) as any;
+    return transformAsset(response);
   }
 
   return null;
 }
+
+// Specific content type interfaces for better type safety
+export interface HeroFields {
+  badge?: string;
+  title: string;
+  richText?: any;
+  buttons?: SerializedEntry[];
+  image?: SerializedAsset;
+}
+
+export interface ButtonFields {
+  label: string;
+  href?: string;
+  internal?: SerializedEntry;
+  variant: string;
+}
+
+export interface CallToActionFields {
+  title: string;
+  eyebrow?: string;
+  richText?: any;
+  buttons?: SerializedEntry<ButtonFields>[];
+}
+
+export interface FaqFields {
+  question: string;
+  answer?: any; // Rich text content
+}
+
+export interface FaqAccordionFields {
+  title: string;
+  eyebrow?: string;
+  subtitle?: string;
+  faqs?: SerializedEntry<FaqFields>[];
+}
+
+export interface FeatureCardFields {
+  title: string;
+  icon?: SerializedAsset;
+  richText?: any; // Rich text content
+}
+
+export interface FeatureCardsFields {
+  title: string;
+  eyebrow?: string;
+  richText?: any; // Rich text content
+  cards?: SerializedEntry<FeatureCardFields>[];
+}
+
+export interface PageFields {
+  title: string;
+  slug: string;
+  description: string;
+  image?: SerializedAsset;
+  seoTitle?: string;
+  seoDescription?: string;
+  seoImage?: SerializedAsset;
+  seoNoIndex?: boolean;
+  pageBuilder?: SerializedEntry[];
+}
+
+// Type-safe transformers for specific content types
+export const transformHero = (entry: Entry<any>) =>
+  transformEntry<HeroFields>(entry);
+export const transformButton = (entry: Entry<any>) =>
+  transformEntry<ButtonFields>(entry);
+export const transformCallToAction = (entry: Entry<any>) =>
+  transformEntry<CallToActionFields>(entry);
+export const transformFaq = (entry: Entry<any>) =>
+  transformEntry<FaqFields>(entry);
+export const transformFaqAccordion = (entry: Entry<any>) =>
+  transformEntry<FaqAccordionFields>(entry);
+export const transformFeatureCard = (entry: Entry<any>) =>
+  transformEntry<FeatureCardFields>(entry);
+export const transformFeatureCards = (entry: Entry<any>) =>
+  transformEntry<FeatureCardsFields>(entry);
+export const transformPage = (entry: Entry<any>) =>
+  transformEntry<PageFields>(entry);

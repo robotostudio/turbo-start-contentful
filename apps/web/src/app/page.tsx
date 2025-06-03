@@ -35,9 +35,9 @@ export default async function Page() {
   const { pageBuilder } = res.data?.fields ?? { pageBuilder: [] };
   console.log("🚀 ~ Page ~ pageBuilder:", pageBuilder);
 
-  // const { _id, _type, pageBuilder } = homePageData ?? {};
-
-  // return <PageBuilder pageBuilder={pageBuilder} />;
+  if (!pageBuilder) {
+    return <div>No page builder found</div>;
+  }
 
   return <PageBuilder pageBuilder={pageBuilder} />;
 }

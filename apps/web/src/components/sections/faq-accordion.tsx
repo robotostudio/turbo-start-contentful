@@ -1,9 +1,11 @@
 import { Badge } from "@workspace/ui/components/badge";
-import type { FaqAccordion as FaqAccordionType } from "contentfulTypes";
 
-import type { SerializedEntry } from "@/lib/contentful-serializer";
+import type {
+  FaqAccordionFields,
+  SerializedEntry,
+} from "@/lib/contentful-serializer";
 
-type FaqAccordionProps = SerializedEntry<FaqAccordionType>;
+export type FaqAccordionProps = SerializedEntry<FaqAccordionFields>;
 
 export function FaqAccordion({ fields }: FaqAccordionProps) {
   const { eyebrow, title, subtitle, faqs } = fields;

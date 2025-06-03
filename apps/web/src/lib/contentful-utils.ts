@@ -1,11 +1,3 @@
-import type {
-  ButtonSkeleton,
-  CallToActionSkeleton,
-  FaqAccordionSkeleton,
-  FeatureCardsSkeleton,
-  HeroSkeleton,
-  PageSkeleton,
-} from "./contentful-queries";
 import type { SerializedAsset, SerializedEntry } from "./contentful-serializer";
 
 // Type guards for page builder components

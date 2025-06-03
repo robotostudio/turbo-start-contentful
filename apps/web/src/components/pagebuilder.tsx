@@ -1,11 +1,10 @@
 import type {
-  CallToAction,
-  FaqAccordion as FaqAccordionType,
-  FeatureCards,
-  Hero,
-} from "contentfulTypes";
-
-import type { SerializedEntry } from "@/lib/contentful-serializer";
+  CallToActionFields,
+  FaqAccordionFields,
+  FeatureCardsFields,
+  HeroFields,
+  SerializedEntry,
+} from "@/lib/contentful-serializer";
 
 import { CTABlock } from "./sections/cta";
 import { FaqAccordion } from "./sections/faq-accordion";
@@ -69,21 +68,21 @@ export function PageBuilder({ pageBuilder }: PageBuilderProps) {
         switch (block.contentType) {
           case "callToAction": {
             const typedProps =
-              block as unknown as SerializedEntry<CallToAction>;
+              block as unknown as SerializedEntry<CallToActionFields>;
             return <CTABlock key={block.id} {...typedProps} />;
           }
           case "faqAccordion": {
             const typedProps =
-              block as unknown as SerializedEntry<FaqAccordionType>;
+              block as unknown as SerializedEntry<FaqAccordionFields>;
             return <FaqAccordion key={block.id} {...typedProps} />;
           }
           case "hero": {
-            const typedProps = block as unknown as SerializedEntry<Hero>;
+            const typedProps = block as unknown as SerializedEntry<HeroFields>;
             return <HeroBlock key={block.id} {...typedProps} />;
           }
           case "featureCards": {
             const typedProps =
-              block as unknown as SerializedEntry<FeatureCards>;
+              block as unknown as SerializedEntry<FeatureCardsFields>;
             return <FeatureCardsWithIcon key={block.id} {...typedProps} />;
           }
           default:

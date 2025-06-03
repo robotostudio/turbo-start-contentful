@@ -1,11 +1,11 @@
 import { Badge } from "@workspace/ui/components/badge";
-import type { Hero } from "contentfulTypes";
 
-import type { SerializedEntry } from "@/lib/contentful-serializer";
+import type { HeroFields, SerializedEntry } from "@/lib/contentful-serializer";
 
+import ContentfulImage from "../contentful-image";
 import { RichText } from "../richtext";
 
-type HeroBlockProps = SerializedEntry<Hero>;
+type HeroBlockProps = SerializedEntry<HeroFields>;
 
 export function HeroBlock({ fields }: HeroBlockProps) {
   const { badge, title, richText, buttons, image } = fields;
@@ -32,10 +32,10 @@ export function HeroBlock({ fields }: HeroBlockProps) {
             /> */}
           </div>
 
-          {/* {image && (
+          {image && (
             <div className="h-96 w-full">
-              <SanityImage
-                asset={image}
+              <ContentfulImage
+                src={image.url}
                 loading="eager"
                 width={800}
                 height={800}
@@ -44,7 +44,7 @@ export function HeroBlock({ fields }: HeroBlockProps) {
                 className="max-h-96 w-full rounded-3xl object-cover"
               />
             </div>
-          )} */}
+          )}
         </div>
       </div>
     </section>

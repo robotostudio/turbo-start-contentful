@@ -1,12 +1,15 @@
 import { Badge } from "@workspace/ui/components/badge";
 import type { CallToAction } from "contentfulTypes";
 
-import type { SerializedEntry } from "@/lib/contentful-serializer";
+import type {
+  CallToActionFields,
+  SerializedEntry,
+} from "@/lib/contentful-serializer";
 
 // import { RichText } from "../richtext";
 // import { SanityButtons } from "../sanity-buttons";
 
-export type CTABlockProps = SerializedEntry<CallToAction>;
+export type CTABlockProps = SerializedEntry<CallToActionFields>;
 
 export function CTABlock({ fields }: CTABlockProps) {
   const { title, eyebrow } = fields;
