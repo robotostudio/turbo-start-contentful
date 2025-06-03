@@ -1,5 +1,4 @@
 import { Badge } from "@workspace/ui/components/badge";
-import type { CallToAction } from "contentfulTypes";
 
 import type {
   CallToActionFields,
@@ -7,7 +6,6 @@ import type {
 } from "@/lib/contentful-serializer";
 
 import { ContentfulRichText } from "../contentful-richtext";
-// import { SanityButtons } from "../sanity-buttons";
 
 export type CTABlockProps = SerializedEntry<CallToActionFields>;
 

@@ -6,7 +6,7 @@ import type {
   SerializedEntry,
 } from "@/lib/contentful-serializer";
 
-import ContentfulImage from "../contentful-image";
+import { ContentfulImage } from "../contentful-image";
 import { ContentfulRichText } from "../contentful-richtext";
 
 type FeatureCardsWithIconProps = SerializedEntry<FeatureCardsFields>;
@@ -21,8 +21,7 @@ function FeatureCard({ card }: FeatureCardProps) {
   return (
     <div className="rounded-3xl bg-accent p-8 md:min-h-[300px] md:p-8">
       <span className="mb-9 flex w-fit p-3 items-center justify-center rounded-full bg-background drop-shadow-xl">
-        {/* <SanityIcon icon={icon} /> */}
-        {icon?.url && <ContentfulImage src={icon.url} alt={title} />}
+        {icon && <ContentfulImage image={icon} />}
       </span>
 
       <div>

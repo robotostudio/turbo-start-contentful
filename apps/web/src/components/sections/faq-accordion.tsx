@@ -1,3 +1,9 @@
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@workspace/ui/components/accordion";
 import { Badge } from "@workspace/ui/components/badge";
 
 import type {
@@ -5,13 +11,14 @@ import type {
   SerializedEntry,
 } from "@/lib/contentful-serializer";
 
+import { ContentfulRichText } from "../contentful-richtext";
+
 export type FaqAccordionProps = SerializedEntry<FaqAccordionFields>;
 
 export function FaqAccordion({ fields }: FaqAccordionProps) {
   const { eyebrow, title, subtitle, faqs } = fields;
   return (
     <section id="faq" className="my-8">
-      {/* <FaqJsonLd faqs={faqs} /> */}
       <div className="container mx-auto px-4 md:px-6">
         <div className="flex w-full flex-col items-center">
           <div className="flex flex-col items-center space-y-4 text-center sm:space-y-6 md:text-center">
@@ -23,7 +30,7 @@ export function FaqAccordion({ fields }: FaqAccordionProps) {
           </div>
         </div>
         <div className="my-16 max-w-xl mx-auto">
-          {/* <Accordion
+          <Accordion
             type="single"
             collapsible
             className="w-full"
@@ -31,43 +38,22 @@ export function FaqAccordion({ fields }: FaqAccordionProps) {
           >
             {faqs?.map((faq, index) => (
               <AccordionItem
-                value={faq?._id}
-                key={`AccordionItem-${faq?._id}-${index}`}
+                value={faq?.id}
+                key={`AccordionItem-${faq?.id}-${index}`}
                 className="py-2"
               >
                 <AccordionTrigger className="py-2 text-[15px] leading-6 hover:no-underline group">
-                  {faq?.title}
+                  {faq?.fields?.question}
                 </AccordionTrigger>
                 <AccordionContent className="pb-2 text-muted-foreground">
-                  <RichText
-                    richText={faq?.richText ?? []}
+                  <ContentfulRichText
+                    richText={faq?.fields?.answer}
                     className="text-sm md:text-base"
                   />
                 </AccordionContent>
               </AccordionItem>
             ))}
-          </Accordion> */}
-
-          {/* {link?.href && (
-            <div className="w-full py-6">
-              <p className="mb-1 text-xs">{link?.title}</p>
-              <Link
-                href={link.href ?? "#"}
-                target={link.openInNewTab ? "_blank" : "_self"}
-                className="flex items-center gap-2"
-              >
-                <p className="text-[15px] font-[500] leading-6">
-                  {link?.description}
-                </p>
-                <span className="rounded-full border p-1">
-                  <ArrowUpRight
-                    size={16}
-                    className="text-[#374151] dark:text-neutral-300"
-                  />
-                </span>
-              </Link>
-            </div>
-          )} */}
+          </Accordion>
         </div>
       </div>
     </section>

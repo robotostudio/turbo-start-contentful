@@ -2,7 +2,7 @@ import { Badge } from "@workspace/ui/components/badge";
 
 import type { HeroFields, SerializedEntry } from "@/lib/contentful-serializer";
 
-import ContentfulImage from "../contentful-image";
+import { ContentfulImage } from "../contentful-image";
 import { ContentfulRichText } from "../contentful-richtext";
 
 type HeroBlockProps = SerializedEntry<HeroFields>;
@@ -35,7 +35,7 @@ export function HeroBlock({ fields }: HeroBlockProps) {
           {image && (
             <div className="h-96 w-full">
               <ContentfulImage
-                src={image.url}
+                image={image}
                 loading="eager"
                 width={800}
                 height={800}
