@@ -13,7 +13,6 @@ import type {
 } from "schema-dts";
 
 import { getBaseUrl } from "@/config";
-import { client, urlFor } from "@/lib/sanity/client";
 import { querySettingsData } from "@/lib/sanity/query";
 import type {
   QueryBlogSlugPageDataResult,
@@ -253,12 +252,12 @@ export async function CombinedJsonLd({
   includeWebsite = false,
   includeOrganization = false,
 }: CombinedJsonLdProps) {
-  const [res] = await handleErrors(client.fetch(querySettingsData));
+  // const [res] = await handleErrors(client.fetch(querySettingsData));
 
   return (
     <>
-      {includeWebsite && res && <WebSiteJsonLd settings={res} />}
-      {includeOrganization && res && <OrganizationJsonLd settings={res} />}
+      {/* {includeWebsite && res && <WebSiteJsonLd settings={res} />}
+      {includeOrganization && res && <OrganizationJsonLd settings={res} />} */}
       {article && <ArticleJsonLd article={article} settings={settings} />}
       {faqs && <FaqJsonLd faqs={faqs} />}
     </>

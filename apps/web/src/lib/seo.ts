@@ -4,7 +4,6 @@ import type { Maybe } from "@/types";
 import { capitalize } from "@/utils";
 
 import { getBaseUrl } from "../config";
-import { client } from "./sanity/client";
 import { queryGlobalSeoSettings } from "./sanity/query";
 
 interface MetaDataInput {
@@ -28,10 +27,12 @@ function getOgImage({ type, id }: { type?: string; id?: string } = {}): string {
 export async function getMetaData(data: MetaDataInput = {}): Promise<Metadata> {
   const { _type, seoDescription, seoTitle, slug, title, description, _id } =
     data ?? {};
-
   // Fetch global SEO settings
-  const globalSettings = await client.fetch(queryGlobalSeoSettings);
-  const { siteTitle, siteDescription, socialLinks } = globalSettings || {};
+  const {
+    siteTitle = "Roboto Studio Demo",
+    siteDescription = "Roboto Studio Demo",
+    socialLinks = { twitter: "@studioroboto" },
+  } = {};
 
   const baseUrl = getBaseUrl();
   const pageSlug = typeof slug === "string" ? slug : (slug?.current ?? "");
@@ -39,9 +40,7 @@ export async function getMetaData(data: MetaDataInput = {}): Promise<Metadata> {
 
   const placeholderTitle = capitalize(pageSlug);
 
-  const twitterHandle = socialLinks?.twitter
-    ? `@${socialLinks.twitter.split("/").pop()}`
-    : "@studioroboto";
+  const twitterHandle = `@${socialLinks.twitter.split("/").pop()}`;
 
   const meta = {
     title: `${seoTitle ?? title ?? placeholderTitle}`,

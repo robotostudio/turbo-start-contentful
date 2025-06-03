@@ -17,7 +17,8 @@
     "next.config.ts",
     "**/*.ts",
     "**/*.tsx",
-    ".next/types/**/*.ts"
+    ".next/types/**/*.ts",
+    "getContentfulEnvironment.js"
   ],
   "exclude": ["node_modules"]
 }

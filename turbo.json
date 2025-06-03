@@ -2,12 +2,14 @@
   "$schema": "https://turbo.build/schema.json",
   "ui": "stream",
   "globalEnv": [
-    "SANITY_API_READ_TOKEN",
-    "SANITY_API_WRITE_TOKEN",
     "VERCEL_URL",
     "VERCEL_PROJECT_PRODUCTION_URL",
     "VERCEL_ENV",
-    "NODE_ENV"
+    "NODE_ENV",
+    "CONTENTFUL_SPACE_ID",
+    "CONTENTFUL_ACCESS_TOKEN",
+    "CONTENTFUL_PREVIEW_TOKEN",
+    "CONTENTFUL_ENVIRONMENT"
   ],
   "tasks": {
     "build": {

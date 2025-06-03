@@ -1,27 +1,43 @@
+import { draftMode } from "next/headers";
+
 import { PageBuilder } from "@/components/pagebuilder";
-import { sanityFetch } from "@/lib/sanity/live";
-import { queryHomePageData } from "@/lib/sanity/query";
+import { getClient } from "@/lib/contentful";
+import { getPageBySlug } from "@/lib/contentful-queries";
 import { getMetaData } from "@/lib/seo";
+import { safeAsync } from "@/safe-async";
 
 async function fetchHomePageData() {
-  return await sanityFetch({
-    query: queryHomePageData,
+  const { isEnabled } = await draftMode();
+  const client = getClient(isEnabled);
+  const page = await client.getEntries({
+    content_type: "page",
+    limit: 1,
+    "fields.slug[match]": "/",
   });
+
+  console.log(page);
+
+  return page;
 }
 
 export async function generateMetadata() {
-  const homePageData = await fetchHomePageData();
-  return await getMetaData(homePageData?.data ?? {});
+  return getMetaData();
 }
 
 export default async function Page() {
-  const { data: homePageData } = await fetchHomePageData();
+  const { isEnabled } = await draftMode();
+  const res = await safeAsync(getPageBySlug("/", isEnabled));
 
-  if (!homePageData) {
-    return <div>No home page data</div>;
+  if (!res.success) {
+    return <div>Error: {res.error.message}</div>;
   }
 
-  const { _id, _type, pageBuilder } = homePageData ?? {};
+  const { pageBuilder } = res.data?.fields ?? { pageBuilder: [] };
+  console.log("🚀 ~ Page ~ pageBuilder:", pageBuilder);
 
-  return <PageBuilder pageBuilder={pageBuilder ?? []} id={_id} type={_type} />;
+  // const { _id, _type, pageBuilder } = homePageData ?? {};
+
+  // return <PageBuilder pageBuilder={pageBuilder} />;
+
+  return <PageBuilder pageBuilder={pageBuilder} />;
 }

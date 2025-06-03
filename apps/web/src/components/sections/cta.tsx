@@ -1,13 +1,15 @@
 import { Badge } from "@workspace/ui/components/badge";
+import type { CallToAction } from "contentfulTypes";
 
-import type { PagebuilderType } from "@/types";
+import type { SerializedEntry } from "@/lib/contentful-serializer";
 
-import { RichText } from "../richtext";
-import { SanityButtons } from "../sanity-buttons";
+// import { RichText } from "../richtext";
+// import { SanityButtons } from "../sanity-buttons";
 
-export type CTABlockProps = PagebuilderType<"cta">;
+export type CTABlockProps = SerializedEntry<CallToAction>;
 
-export function CTABlock({ richText, title, eyebrow, buttons }: CTABlockProps) {
+export function CTABlock({ fields }: CTABlockProps) {
+  const { title, eyebrow } = fields;
   return (
     <section id="features" className="my-6 md:my-16">
       <div className="container mx-auto px-4 md:px-8">
@@ -25,14 +27,14 @@ export function CTABlock({ richText, title, eyebrow, buttons }: CTABlockProps) {
               {title}
             </h2>
             <div className="text-lg text-muted-foreground">
-              <RichText richText={richText} className="text-balance" />
+              {/* <RichText richText={richText} className="text-balance" /> */}
             </div>
             <div className="flex justify-center">
-              <SanityButtons
+              {/* <SanityButtons
                 buttons={buttons}
                 buttonClassName="w-full sm:w-auto"
                 className="w-full sm:w-fit grid gap-2 sm:grid-flow-col lg:justify-start mb-8"
-              />
+              /> */}
             </div>
           </div>
         </div>

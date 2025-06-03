@@ -1,30 +1,15 @@
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@workspace/ui/components/accordion";
 import { Badge } from "@workspace/ui/components/badge";
-import { ArrowUpRight } from "lucide-react";
-import Link from "next/link";
+import type { FaqAccordion as FaqAccordionType } from "contentfulTypes";
 
-import type { PagebuilderType } from "@/types";
+import type { SerializedEntry } from "@/lib/contentful-serializer";
 
-import { FaqJsonLd } from "../json-ld";
-import { RichText } from "../richtext";
+type FaqAccordionProps = SerializedEntry<FaqAccordionType>;
 
-type FaqAccordionProps = PagebuilderType<"faqAccordion">;
-
-export function FaqAccordion({
-  eyebrow,
-  title,
-  subtitle,
-  faqs,
-  link,
-}: FaqAccordionProps) {
+export function FaqAccordion({ fields }: FaqAccordionProps) {
+  const { eyebrow, title, subtitle, faqs } = fields;
   return (
     <section id="faq" className="my-8">
-      <FaqJsonLd faqs={faqs} />
+      {/* <FaqJsonLd faqs={faqs} /> */}
       <div className="container mx-auto px-4 md:px-6">
         <div className="flex w-full flex-col items-center">
           <div className="flex flex-col items-center space-y-4 text-center sm:space-y-6 md:text-center">
@@ -36,7 +21,7 @@ export function FaqAccordion({
           </div>
         </div>
         <div className="my-16 max-w-xl mx-auto">
-          <Accordion
+          {/* <Accordion
             type="single"
             collapsible
             className="w-full"
@@ -59,9 +44,9 @@ export function FaqAccordion({
                 </AccordionContent>
               </AccordionItem>
             ))}
-          </Accordion>
+          </Accordion> */}
 
-          {link?.href && (
+          {/* {link?.href && (
             <div className="w-full py-6">
               <p className="mb-1 text-xs">{link?.title}</p>
               <Link
@@ -80,7 +65,7 @@ export function FaqAccordion({
                 </span>
               </Link>
             </div>
-          )}
+          )} */}
         </div>
       </div>
     </section>

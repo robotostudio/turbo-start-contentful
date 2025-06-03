@@ -1,20 +1,14 @@
 import { Badge } from "@workspace/ui/components/badge";
+import type { Hero } from "contentfulTypes";
 
-import type { PagebuilderType } from "@/types";
+import type { SerializedEntry } from "@/lib/contentful-serializer";
 
 import { RichText } from "../richtext";
-import { SanityButtons } from "../sanity-buttons";
-import { SanityImage } from "../sanity-image";
 
-type HeroBlockProps = PagebuilderType<"hero">;
+type HeroBlockProps = SerializedEntry<Hero>;
 
-export function HeroBlock({
-  title,
-  buttons,
-  badge,
-  image,
-  richText,
-}: HeroBlockProps) {
+export function HeroBlock({ fields }: HeroBlockProps) {
+  const { badge, title, richText, buttons, image } = fields;
   return (
     <section id="hero" className="mt-4 md:my-16">
       <div className="container mx-auto px-4 md:px-6">
@@ -25,20 +19,20 @@ export function HeroBlock({
               <h1 className="text-4xl lg:text-6xl font-semibold text-balance">
                 {title}
               </h1>
-              <RichText
+              {/* <RichText
                 richText={richText}
                 className="text-base md:text-lg font-normal"
-              />
+              /> */}
             </div>
 
-            <SanityButtons
+            {/* <SanityButtons
               buttons={buttons}
               buttonClassName="w-full sm:w-auto"
               className="w-full sm:w-fit grid gap-2 sm:grid-flow-col lg:justify-start mb-8"
-            />
+            /> */}
           </div>
 
-          {image && (
+          {/* {image && (
             <div className="h-96 w-full">
               <SanityImage
                 asset={image}
@@ -50,7 +44,7 @@ export function HeroBlock({
                 className="max-h-96 w-full rounded-3xl object-cover"
               />
             </div>
-          )}
+          )} */}
         </div>
       </div>
     </section>

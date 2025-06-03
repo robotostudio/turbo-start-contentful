@@ -1,106 +1,101 @@
-"use client";
-import { useOptimistic } from "@sanity/visual-editing/react";
-import { createDataAttribute, type SanityDocument } from "next-sanity";
-import type { ComponentType } from "react";
+import type {
+  CallToAction,
+  FaqAccordion as FaqAccordionType,
+  FeatureCards,
+  Hero,
+} from "contentfulTypes";
 
-import { dataset, projectId, studioUrl } from "@/lib/sanity/api";
-import type { QueryHomePageDataResult } from "@/lib/sanity/sanity.types";
-import type { PagebuilderType } from "@/types";
+import type { SerializedEntry } from "@/lib/contentful-serializer";
 
 import { CTABlock } from "./sections/cta";
 import { FaqAccordion } from "./sections/faq-accordion";
 import { FeatureCardsWithIcon } from "./sections/feature-cards-with-icon";
 import { HeroBlock } from "./sections/hero";
-import { ImageLinkCards } from "./sections/image-link-cards";
-import { SubscribeNewsletter } from "./sections/subscribe-newsletter";
 
-type PageBlock = NonNullable<
-  NonNullable<QueryHomePageDataResult>["pageBuilder"]
->[number];
-
-export type PageBuilderProps = {
-  pageBuilder: PageBlock[];
+type BlockComponent = {
+  contentType: string;
   id: string;
-  type: string;
+  fields: Record<string, unknown>;
 };
 
-type PageData = {
-  _id: string;
-  _type: string;
-  pageBuilder?: PageBlock[];
-};
+interface PageBuilderProps {
+  pageBuilder: BlockComponent[];
+}
 
 const BLOCK_COMPONENTS = {
-  cta: CTABlock,
+  callToAction: CTABlock,
   faqAccordion: FaqAccordion,
   hero: HeroBlock,
-  featureCardsIcon: FeatureCardsWithIcon,
-  subscribeNewsletter: SubscribeNewsletter,
-  imageLinkCards: ImageLinkCards,
+  featureCards: FeatureCardsWithIcon,
 } as const;
 
 type BlockType = keyof typeof BLOCK_COMPONENTS;
 
-export function PageBuilder({
-  pageBuilder: initialPageBuilder = [],
-  id,
-  type,
-}: PageBuilderProps) {
-  const pageBuilder = useOptimistic<PageBlock[], SanityDocument<PageData>>(
-    initialPageBuilder,
-    (currentPageBuilder, action) => {
-      if (action.id === id && action.document.pageBuilder) {
-        return action.document.pageBuilder;
-      }
+function isValidBlockType(type: string): type is BlockType {
+  return type in BLOCK_COMPONENTS;
+}
 
-      return currentPageBuilder;
-    },
+function ErrorBlock({ id, contentType }: { id: string; contentType: string }) {
+  return (
+    <div
+      key={id}
+      className="p-4 border border-red-200 rounded-md"
+      role="alert"
+      aria-label={`Component ${contentType} not found`}
+    >
+      <h2 className="text-red-600 font-medium">
+        Component not found: {contentType}
+      </h2>
+    </div>
   );
+}
+
+export function PageBuilder({ pageBuilder }: PageBuilderProps) {
+  if (!pageBuilder?.length) return null;
 
   return (
-    <main
-      className="flex flex-col gap-16 my-16 max-w-7xl mx-auto"
-      data-sanity={createDataAttribute({
-        id: id,
-        baseUrl: studioUrl,
-        projectId: projectId,
-        dataset: dataset,
-        type: type,
-        path: "pageBuilder",
-      }).toString()}
-    >
+    <div className="flex flex-col gap-8">
       {pageBuilder.map((block) => {
-        const Component = BLOCK_COMPONENTS[block._type] as ComponentType<
-          PagebuilderType<BlockType>
-        >;
-
-        if (!Component) {
+        if (!block?.contentType || !isValidBlockType(block.contentType)) {
           return (
-            <div
-              key={`${block._type}-${block._key}`}
-              className="flex items-center justify-center p-8 text-center text-muted-foreground bg-muted rounded-lg"
-            >
-              Component not found for block type: <code>{block._type}</code>
-            </div>
+            <ErrorBlock
+              key={block?.id}
+              id={block?.id}
+              contentType={block?.contentType}
+            />
           );
         }
 
-        return (
-          <div
-            key={`${block._type}-${block._key}`}
-            data-sanity={createDataAttribute({
-              id: id,
-              baseUrl: studioUrl,
-              projectId: projectId,
-              dataset: dataset,
-              type: type,
-              path: `pageBuilder[_key=="${block._key}"]`,
-            }).toString()}
-          >
-            <Component {...block} />
-          </div>
-        );
+        switch (block.contentType) {
+          case "callToAction": {
+            const typedProps =
+              block as unknown as SerializedEntry<CallToAction>;
+            return <CTABlock key={block.id} {...typedProps} />;
+          }
+          case "faqAccordion": {
+            const typedProps =
+              block as unknown as SerializedEntry<FaqAccordionType>;
+            return <FaqAccordion key={block.id} {...typedProps} />;
+          }
+          case "hero": {
+            const typedProps = block as unknown as SerializedEntry<Hero>;
+            return <HeroBlock key={block.id} {...typedProps} />;
+          }
+          case "featureCards": {
+            const typedProps =
+              block as unknown as SerializedEntry<FeatureCards>;
+            return <FeatureCardsWithIcon key={block.id} {...typedProps} />;
+          }
+          default:
+            return (
+              <ErrorBlock
+                key={block.id}
+                id={block.id}
+                contentType={block.contentType}
+              />
+            );
+        }
       })}
-    </main>
+    </div>
   );
 }
