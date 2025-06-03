@@ -12,6 +12,8 @@
     "generate-types": "source .env.local && generateContentfulTypes $CONTENTFUL_SPACE_ID $CONTENTFUL_ACCESS_TOKEN"
   },
   "dependencies": {
+    "@contentful/rich-text-react-renderer": "^16.0.1",
+    "@contentful/rich-text-types": "^17.0.0",
     "@sanity/asset-utils": "^2.2.1",
     "@sanity/client": "^6.28.4",
     "@sanity/image-url": "^1.1.0",

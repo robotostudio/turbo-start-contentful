@@ -3,7 +3,7 @@ import { Badge } from "@workspace/ui/components/badge";
 import type { HeroFields, SerializedEntry } from "@/lib/contentful-serializer";
 
 import ContentfulImage from "../contentful-image";
-import { RichText } from "../richtext";
+import { ContentfulRichText } from "../contentful-richtext";
 
 type HeroBlockProps = SerializedEntry<HeroFields>;
 
@@ -19,10 +19,10 @@ export function HeroBlock({ fields }: HeroBlockProps) {
               <h1 className="text-4xl lg:text-6xl font-semibold text-balance">
                 {title}
               </h1>
-              {/* <RichText
+              <ContentfulRichText
                 richText={richText}
                 className="text-base md:text-lg font-normal"
-              /> */}
+              />
             </div>
 
             {/* <SanityButtons

@@ -6,13 +6,13 @@ import type {
   SerializedEntry,
 } from "@/lib/contentful-serializer";
 
-// import { RichText } from "../richtext";
+import { ContentfulRichText } from "../contentful-richtext";
 // import { SanityButtons } from "../sanity-buttons";
 
 export type CTABlockProps = SerializedEntry<CallToActionFields>;
 
 export function CTABlock({ fields }: CTABlockProps) {
-  const { title, eyebrow } = fields;
+  const { title, eyebrow, richText } = fields;
   return (
     <section id="features" className="my-6 md:my-16">
       <div className="container mx-auto px-4 md:px-8">
@@ -30,7 +30,10 @@ export function CTABlock({ fields }: CTABlockProps) {
               {title}
             </h2>
             <div className="text-lg text-muted-foreground">
-              {/* <RichText richText={richText} className="text-balance" /> */}
+              <ContentfulRichText
+                richText={richText}
+                className="text-balance"
+              />
             </div>
             <div className="flex justify-center">
               {/* <SanityButtons

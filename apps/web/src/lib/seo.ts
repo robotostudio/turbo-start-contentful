@@ -4,7 +4,6 @@ import type { Maybe } from "@/types";
 import { capitalize } from "@/utils";
 
 import { getBaseUrl } from "../config";
-import { queryGlobalSeoSettings } from "./sanity/query";
 
 interface MetaDataInput {
   _type?: Maybe<string>;
