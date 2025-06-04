@@ -2,7 +2,7 @@
 
 import Image, { type ImageProps } from "next/image";
 
-import type { SerializedAsset } from "@/lib/contentful-serializer";
+import type { SerializedAsset } from "@/lib/contentful/contentful-serializer";
 
 interface ContentfulImageSrcProps {
   src: string;

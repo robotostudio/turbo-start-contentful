@@ -39,8 +39,7 @@ export interface SerializedAsset {
   contentType: string;
   fileName: string;
 }
-
-export interface SerializedEntry<T = Record<string, any>> {
+export interface SerializedEntry<T extends Record<string, any>> {
   id: string;
   contentType: string;
   createdAt: string;
@@ -205,81 +204,3 @@ export function transformContentfulData<T = Record<string, any>>(
 
   return null;
 }
-
-// Specific content type interfaces for better type safety
-export interface HeroFields {
-  badge?: string;
-  title: string;
-  richText?: any;
-  buttons?: SerializedEntry[];
-  image?: SerializedAsset;
-}
-
-export interface ButtonFields {
-  label: string;
-  href?: string;
-  internal?: SerializedEntry;
-  variant: string;
-}
-
-export interface CallToActionFields {
-  title: string;
-  eyebrow?: string;
-  richText?: any;
-  buttons?: SerializedEntry<ButtonFields>[];
-}
-
-export interface FaqFields {
-  question: string;
-  answer?: any; // Rich text content
-}
-
-export interface FaqAccordionFields {
-  title: string;
-  eyebrow?: string;
-  subtitle?: string;
-  faqs?: SerializedEntry<FaqFields>[];
-}
-
-export interface FeatureCardFields {
-  title: string;
-  icon?: SerializedAsset;
-  richText?: any; // Rich text content
-}
-
-export interface FeatureCardsFields {
-  title: string;
-  eyebrow?: string;
-  richText?: any; // Rich text content
-  cards?: SerializedEntry<FeatureCardFields>[];
-}
-
-export interface PageFields {
-  title: string;
-  slug: string;
-  description: string;
-  image?: SerializedAsset;
-  seoTitle?: string;
-  seoDescription?: string;
-  seoImage?: SerializedAsset;
-  seoNoIndex?: boolean;
-  pageBuilder?: SerializedEntry[];
-}
-
-// Type-safe transformers for specific content types
-export const transformHero = (entry: Entry<any>) =>
-  transformEntry<HeroFields>(entry);
-export const transformButton = (entry: Entry<any>) =>
-  transformEntry<ButtonFields>(entry);
-export const transformCallToAction = (entry: Entry<any>) =>
-  transformEntry<CallToActionFields>(entry);
-export const transformFaq = (entry: Entry<any>) =>
-  transformEntry<FaqFields>(entry);
-export const transformFaqAccordion = (entry: Entry<any>) =>
-  transformEntry<FaqAccordionFields>(entry);
-export const transformFeatureCard = (entry: Entry<any>) =>
-  transformEntry<FeatureCardFields>(entry);
-export const transformFeatureCards = (entry: Entry<any>) =>
-  transformEntry<FeatureCardsFields>(entry);
-export const transformPage = (entry: Entry<any>) =>
-  transformEntry<PageFields>(entry);

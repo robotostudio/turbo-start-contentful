@@ -1,4 +1,4 @@
-import { getClient } from "./contentful";
+import { getClient } from "../contentful";
 import {
   type ButtonFields,
   type CallToActionFields,
@@ -54,6 +54,7 @@ export async function getPageBySlug(slug: string, preview = false) {
     if (!entry) {
       return null;
     }
+    console.log("🚀 ~ getPageBySlug ~ entry:", entry.fields);
 
     return transformEntry<PageFields>(entry);
   } catch (error) {

@@ -11,7 +11,7 @@ import {
 import { cn } from "@workspace/ui/lib/utils";
 import Link from "next/link";
 
-import ContentfulImage from "./contentful-image";
+import { ContentfulImage } from "./contentful-image";
 
 // Utility function to generate slugs from text content
 function generateSlug(node: any): string {
@@ -95,11 +95,10 @@ const renderOptions: Options = {
         return (
           <div className="my-4">
             <ContentfulImage
-              src={url}
-              alt={title || description || ""}
+              image={file}
               className="w-full h-auto rounded-lg"
               width={file.details?.image?.width || 1600}
-              height={file.details?.image?.height || 900}
+              quality={80}
             />
           </div>
         );
@@ -177,7 +176,14 @@ const renderOptions: Options = {
 };
 
 export interface ContentfulRichTextProps {
-  richText?: Document | null;
+  richText?:
+    | {
+        content: any;
+        data: any;
+        nodeType: string;
+      }
+    | undefined
+    | null;
   className?: string;
 }
 
@@ -194,7 +200,7 @@ export function ContentfulRichText({
         className,
       )}
     >
-      {documentToReactComponents(richText, renderOptions)}
+      {documentToReactComponents(richText as Document, renderOptions)}
     </div>
   );
 }

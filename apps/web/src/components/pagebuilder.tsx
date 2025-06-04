@@ -4,7 +4,7 @@ import type {
   FeatureCardsFields,
   HeroFields,
   SerializedEntry,
-} from "@/lib/contentful-serializer";
+} from "@/lib/contentful/contentful-serializer";
 
 import { CTABlock } from "./sections/cta";
 import { FaqAccordion } from "./sections/faq-accordion";

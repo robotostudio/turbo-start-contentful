@@ -9,11 +9,14 @@
     "lint": "eslint .",
     "format": "prettier --write .",
     "check-types": "tsc --noEmit",
-    "generate-types": "source .env.local && generateContentfulTypes $CONTENTFUL_SPACE_ID $CONTENTFUL_ACCESS_TOKEN"
+    "generate-types": "source .env.local && generateContentfulTypes $CONTENTFUL_SPACE_ID $CONTENTFUL_ACCESS_TOKEN",
+    "generate": "graphql-codegen"
   },
   "dependencies": {
+    "@apollo/client": "^3.13.8",
     "@contentful/rich-text-react-renderer": "^16.0.1",
     "@contentful/rich-text-types": "^17.0.0",
+    "@next/env": "^15.3.3",
     "@sanity/asset-utils": "^2.2.1",
     "@sanity/client": "^6.28.4",
     "@sanity/image-url": "^1.1.0",
@@ -22,6 +25,9 @@
     "babel-plugin-react-compiler": "19.0.0-beta-e993439-20250328",
     "contentful": "^11.5.25",
     "contentful-ts-type-generator": "github:arimkevi/contentful-ts-type-generator",
+    "cross-env": "^7.0.3",
+    "cross-fetch": "^4.1.0",
+    "graphql": "^16.11.0",
     "lucide-react": "0.487.0",
     "next": "15.2.4",
     "next-sanity": "^9.9.9",
@@ -33,6 +39,10 @@
     "slugify": "^1.6.6"
   },
   "devDependencies": {
+    "@graphql-codegen/cli": "^5.0.6",
+    "@graphql-codegen/client-preset": "^4.8.1",
+    "@graphql-codegen/typescript": "^4.1.6",
+    "@graphql-codegen/typescript-operations": "^4.6.1",
     "@types/node": "^22",
     "@types/react": "19.1.0",
     "@types/react-dom": "19.1.0",

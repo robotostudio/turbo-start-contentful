@@ -3,7 +3,7 @@ import { Badge } from "@workspace/ui/components/badge";
 import type {
   CallToActionFields,
   SerializedEntry,
-} from "@/lib/contentful-serializer";
+} from "@/lib/contentful/contentful-serializer";
 
 import { ContentfulRichText } from "../contentful-richtext";
 

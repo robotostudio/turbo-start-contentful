@@ -1,11 +1,12 @@
 import { Badge } from "@workspace/ui/components/badge";
 
-import type { HeroFields, SerializedEntry } from "@/lib/contentful-serializer";
+import type { SerializedEntry } from "@/lib/contentful/contentful-serializer";
 
+import type { Hero } from "../../../contentfulTypes";
 import { ContentfulImage } from "../contentful-image";
 import { ContentfulRichText } from "../contentful-richtext";
 
-type HeroBlockProps = SerializedEntry<HeroFields>;
+type HeroBlockProps = SerializedEntry<Hero>;
 
 export function HeroBlock({ fields }: HeroBlockProps) {
   const { badge, title, richText, buttons, image } = fields;

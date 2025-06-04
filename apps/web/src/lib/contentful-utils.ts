@@ -1,4 +1,7 @@
-import type { SerializedAsset, SerializedEntry } from "./contentful-serializer";
+import type {
+  SerializedAsset,
+  SerializedEntry,
+} from "./contentful/contentful-serializer";
 
 // Type guards for page builder components
 export function isHeroBlock(

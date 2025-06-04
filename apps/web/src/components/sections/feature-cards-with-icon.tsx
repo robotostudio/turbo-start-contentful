@@ -4,7 +4,7 @@ import type {
   FeatureCardFields,
   FeatureCardsFields,
   SerializedEntry,
-} from "@/lib/contentful-serializer";
+} from "@/lib/contentful/contentful-serializer";
 
 import { ContentfulImage } from "../contentful-image";
 import { ContentfulRichText } from "../contentful-richtext";
@@ -17,7 +17,6 @@ type FeatureCardProps = {
 
 function FeatureCard({ card }: FeatureCardProps) {
   const { title, icon, richText } = card?.fields ?? {};
-  console.log("🚀 ~ FeatureCard ~ icon:", icon);
   return (
     <div className="rounded-3xl bg-accent p-8 md:min-h-[300px] md:p-8">
       <span className="mb-9 flex w-fit p-3 items-center justify-center rounded-full bg-background drop-shadow-xl">
