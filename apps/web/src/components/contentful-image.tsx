@@ -1,8 +1,7 @@
 "use client";
 
+import type { Asset } from "contentful";
 import Image, { type ImageProps } from "next/image";
-
-import type { SerializedAsset } from "@/lib/contentful/contentful-serializer";
 
 interface ContentfulImageSrcProps {
   src: string;
@@ -20,7 +19,7 @@ export function ContentfulImageWithSrc(props: ContentfulImageSrcProps) {
 }
 
 export type ContentfulImageProps = {
-  image: SerializedAsset;
+  image: Asset<"WITHOUT_UNRESOLVABLE_LINKS", string> | undefined;
   width?: number;
   quality?: number;
 } & Omit<ImageProps, "alt" | "src" | "loader">;
@@ -32,13 +31,19 @@ export function ContentfulImage({
   quality,
   ...props
 }: ContentfulImageProps) {
-  const { url, title, width, height } = image ?? {};
+  const { title, file, description } = image?.fields ?? {};
+
+  if (!file) return null;
+
+  const { url, details } = file;
   if (!url) return null;
+  const { width, height } = details?.image ?? {};
+
   return (
     <Image
-      alt={title}
+      alt={title ?? description ?? ""}
       loader={contentfulLoader}
-      src={url}
+      src={`https:${url}`}
       width={_width ?? width}
       height={_height ?? height}
       quality={quality}

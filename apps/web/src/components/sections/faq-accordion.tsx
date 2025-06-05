@@ -6,14 +6,11 @@ import {
 } from "@workspace/ui/components/accordion";
 import { Badge } from "@workspace/ui/components/badge";
 
-import type {
-  FaqAccordionFields,
-  SerializedEntry,
-} from "@/lib/contentful/contentful-serializer";
+import type { TypeFaqAccordion } from "@/lib/contentful/types";
 
 import { ContentfulRichText } from "../contentful-richtext";
 
-export type FaqAccordionProps = SerializedEntry<FaqAccordionFields>;
+export type FaqAccordionProps = TypeFaqAccordion<"WITHOUT_UNRESOLVABLE_LINKS">;
 
 export function FaqAccordion({ fields }: FaqAccordionProps) {
   const { eyebrow, title, subtitle, faqs } = fields;
@@ -38,8 +35,8 @@ export function FaqAccordion({ fields }: FaqAccordionProps) {
           >
             {faqs?.map((faq, index) => (
               <AccordionItem
-                value={faq?.id}
-                key={`AccordionItem-${faq?.id}-${index}`}
+                value={faq?.sys.id || `faq-${index}`}
+                key={`AccordionItem-${faq?.sys.id || `faq-${index}`}-${index}`}
                 className="py-2"
               >
                 <AccordionTrigger className="py-2 text-[15px] leading-6 hover:no-underline group">

@@ -1,16 +1,18 @@
 import { Badge } from "@workspace/ui/components/badge";
 
-import type {
-  CallToActionFields,
-  SerializedEntry,
-} from "@/lib/contentful/contentful-serializer";
+import type { TypeCallToAction } from "@/lib/contentful/types";
 
+import { ContentfulButtons } from "../contentful-button";
 import { ContentfulRichText } from "../contentful-richtext";
 
-export type CTABlockProps = SerializedEntry<CallToActionFields>;
+export type CTABlockProps = TypeCallToAction<
+  "WITHOUT_UNRESOLVABLE_LINKS",
+  string
+>;
 
 export function CTABlock({ fields }: CTABlockProps) {
-  const { title, eyebrow, richText } = fields;
+  const { title, eyebrow, richText, buttons } = fields;
+
   return (
     <section id="features" className="my-6 md:my-16">
       <div className="container mx-auto px-4 md:px-8">
@@ -34,11 +36,11 @@ export function CTABlock({ fields }: CTABlockProps) {
               />
             </div>
             <div className="flex justify-center">
-              {/* <SanityButtons
+              <ContentfulButtons
                 buttons={buttons}
                 buttonClassName="w-full sm:w-auto"
-                className="w-full sm:w-fit grid gap-2 sm:grid-flow-col lg:justify-start mb-8"
-              /> */}
+                className="w-full sm:w-fit grid gap-2 sm:grid-flow-col lg:justify-start"
+              />
             </div>
           </div>
         </div>

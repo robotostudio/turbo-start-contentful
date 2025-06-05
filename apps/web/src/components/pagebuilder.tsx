@@ -1,24 +1,36 @@
+import type { Entry, UnresolvedLink } from "contentful";
+
 import type {
-  CallToActionFields,
-  FaqAccordionFields,
-  FeatureCardsFields,
-  HeroFields,
-  SerializedEntry,
-} from "@/lib/contentful/contentful-serializer";
+  TypeCallToAction,
+  TypeCallToActionSkeleton,
+  TypeFaqAccordion,
+  TypeFaqAccordionSkeleton,
+  TypeFeatureCards,
+  TypeFeatureCardsSkeleton,
+  TypeHero,
+  TypeHeroSkeleton,
+} from "@/lib/contentful/types";
 
 import { CTABlock } from "./sections/cta";
 import { FaqAccordion } from "./sections/faq-accordion";
 import { FeatureCardsWithIcon } from "./sections/feature-cards-with-icon";
 import { HeroBlock } from "./sections/hero";
 
-type BlockComponent = {
-  contentType: string;
-  id: string;
-  fields: Record<string, unknown>;
-};
+// Union type for all possible page builder skeletons
+type PageBuilderSkeleton =
+  | TypeCallToActionSkeleton
+  | TypeFaqAccordionSkeleton
+  | TypeFeatureCardsSkeleton
+  | TypeHeroSkeleton;
+
+// Type for the pageBuilder array that can contain resolved entries or unresolved links
+type PageBuilderArray = (
+  | UnresolvedLink<"Entry">
+  | Entry<PageBuilderSkeleton, undefined, string>
+)[];
 
 interface PageBuilderProps {
-  pageBuilder: BlockComponent[];
+  pageBuilder: PageBuilderArray | undefined;
 }
 
 const BLOCK_COMPONENTS = {
@@ -32,6 +44,18 @@ type BlockType = keyof typeof BLOCK_COMPONENTS;
 
 function isValidBlockType(type: string): type is BlockType {
   return type in BLOCK_COMPONENTS;
+}
+
+function isResolvedEntry(
+  block:
+    | UnresolvedLink<"Entry">
+    | Entry<PageBuilderSkeleton, undefined, string>,
+): block is Entry<PageBuilderSkeleton, undefined, string> {
+  return (
+    "sys" in block &&
+    "contentType" in block.sys &&
+    "id" in block.sys.contentType.sys
+  );
 }
 
 function ErrorBlock({ id, contentType }: { id: string; contentType: string }) {
@@ -49,48 +73,83 @@ function ErrorBlock({ id, contentType }: { id: string; contentType: string }) {
   );
 }
 
+function UnresolvedBlock({ id }: { id: string }) {
+  return (
+    <div
+      key={id}
+      className="p-4 border border-yellow-200 rounded-md bg-yellow-50"
+      role="alert"
+      aria-label="Unresolved content entry"
+    >
+      <h2 className="text-yellow-600 font-medium">
+        Content entry could not be loaded
+      </h2>
+      <p className="text-yellow-600 text-sm mt-1">Entry ID: {id}</p>
+    </div>
+  );
+}
+
 export function PageBuilder({ pageBuilder }: PageBuilderProps) {
   if (!pageBuilder?.length) return null;
 
   return (
     <div className="flex flex-col gap-8">
       {pageBuilder.map((block) => {
-        if (!block?.contentType || !isValidBlockType(block.contentType)) {
+        if (!isResolvedEntry(block)) {
+          return <UnresolvedBlock key={block.sys.id} id={block.sys.id} />;
+        }
+
+        const contentType = block.sys.contentType.sys.id;
+
+        if (!isValidBlockType(contentType)) {
           return (
             <ErrorBlock
-              key={block?.id}
-              id={block?.id}
-              contentType={block?.contentType}
+              key={block.sys.id}
+              id={block.sys.id}
+              contentType={contentType}
             />
           );
         }
 
-        switch (block.contentType) {
+        switch (block.sys.contentType.sys.id) {
           case "callToAction": {
-            const typedProps =
-              block as unknown as SerializedEntry<CallToActionFields>;
-            return <CTABlock key={block.id} {...typedProps} />;
+            return (
+              <CTABlock
+                key={block.sys.id}
+                {...(block as TypeCallToAction<"WITHOUT_UNRESOLVABLE_LINKS">)}
+              />
+            );
           }
           case "faqAccordion": {
-            const typedProps =
-              block as unknown as SerializedEntry<FaqAccordionFields>;
-            return <FaqAccordion key={block.id} {...typedProps} />;
+            return (
+              <FaqAccordion
+                key={block.sys.id}
+                {...(block as TypeFaqAccordion<"WITHOUT_UNRESOLVABLE_LINKS">)}
+              />
+            );
           }
           case "hero": {
-            const typedProps = block as unknown as SerializedEntry<HeroFields>;
-            return <HeroBlock key={block.id} {...typedProps} />;
+            return (
+              <HeroBlock
+                key={block.sys.id}
+                {...(block as TypeHero<"WITHOUT_UNRESOLVABLE_LINKS">)}
+              />
+            );
           }
           case "featureCards": {
-            const typedProps =
-              block as unknown as SerializedEntry<FeatureCardsFields>;
-            return <FeatureCardsWithIcon key={block.id} {...typedProps} />;
+            return (
+              <FeatureCardsWithIcon
+                key={block.sys.id}
+                {...(block as TypeFeatureCards<"WITHOUT_UNRESOLVABLE_LINKS">)}
+              />
+            );
           }
           default:
             return (
               <ErrorBlock
-                key={block.id}
-                id={block.id}
-                contentType={block.contentType}
+                key={block.sys.id}
+                id={block.sys.id}
+                contentType={contentType}
               />
             );
         }

@@ -1,18 +1,14 @@
 import { Badge } from "@workspace/ui/components/badge";
 
-import type {
-  FeatureCardFields,
-  FeatureCardsFields,
-  SerializedEntry,
-} from "@/lib/contentful/contentful-serializer";
+import type { TypeFeatureCard, TypeFeatureCards } from "@/lib/contentful/types";
 
 import { ContentfulImage } from "../contentful-image";
 import { ContentfulRichText } from "../contentful-richtext";
 
-type FeatureCardsWithIconProps = SerializedEntry<FeatureCardsFields>;
+type FeatureCardsWithIconProps = TypeFeatureCards<"WITHOUT_UNRESOLVABLE_LINKS">;
 
 type FeatureCardProps = {
-  card?: SerializedEntry<FeatureCardFields>;
+  card?: TypeFeatureCard<"WITHOUT_UNRESOLVABLE_LINKS">;
 };
 
 function FeatureCard({ card }: FeatureCardProps) {
@@ -52,12 +48,10 @@ export function FeatureCardsWithIcon({ fields }: FeatureCardsWithIconProps) {
         </div>
         <div className="mx-auto mt-20 grid gap-8 lg:grid-cols-3">
           {cards?.map((card, index) => {
-            const serializedCard =
-              card as unknown as SerializedEntry<FeatureCardFields>;
             return (
               <FeatureCard
-                key={`FeatureCard-${serializedCard.id}-${index}`}
-                card={serializedCard}
+                key={`FeatureCard-${card?.sys.id || `feature-card-${index}`}-${index}`}
+                card={card}
               />
             );
           })}

@@ -9,8 +9,7 @@
     "lint": "eslint .",
     "format": "prettier --write .",
     "check-types": "tsc --noEmit",
-    "generate-types": "source .env.local && generateContentfulTypes $CONTENTFUL_SPACE_ID $CONTENTFUL_ACCESS_TOKEN",
-    "generate": "graphql-codegen"
+    "typegen": "source .env && cf-content-types-generator -s $CONTENTFUL_SPACE_ID -t $CONTENTFUL_MANAGEMENT_TOKEN -o ./src/lib/contentful/types --v10"
   },
   "dependencies": {
     "@apollo/client": "^3.13.8",
@@ -23,8 +22,8 @@
     "@sanity/visual-editing": "^2.13.21",
     "@workspace/ui": "workspace:*",
     "babel-plugin-react-compiler": "19.0.0-beta-e993439-20250328",
+    "cf-content-types-generator": "^2.16.0",
     "contentful": "^11.5.25",
-    "contentful-ts-type-generator": "github:arimkevi/contentful-ts-type-generator",
     "cross-env": "^7.0.3",
     "cross-fetch": "^4.1.0",
     "graphql": "^16.11.0",

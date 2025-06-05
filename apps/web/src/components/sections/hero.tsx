@@ -1,12 +1,12 @@
 import { Badge } from "@workspace/ui/components/badge";
 
-import type { SerializedEntry } from "@/lib/contentful/contentful-serializer";
+import type { TypeHero } from "@/lib/contentful/types";
 
-import type { Hero } from "../../../contentfulTypes";
+import { ContentfulButtons } from "../contentful-button";
 import { ContentfulImage } from "../contentful-image";
 import { ContentfulRichText } from "../contentful-richtext";
 
-type HeroBlockProps = SerializedEntry<Hero>;
+export type HeroBlockProps = TypeHero<"WITHOUT_UNRESOLVABLE_LINKS">;
 
 export function HeroBlock({ fields }: HeroBlockProps) {
   const { badge, title, richText, buttons, image } = fields;
@@ -26,11 +26,13 @@ export function HeroBlock({ fields }: HeroBlockProps) {
               />
             </div>
 
-            {/* <SanityButtons
-              buttons={buttons}
-              buttonClassName="w-full sm:w-auto"
-              className="w-full sm:w-fit grid gap-2 sm:grid-flow-col lg:justify-start mb-8"
-            /> */}
+            {buttons && (
+              <ContentfulButtons
+                buttons={buttons}
+                buttonClassName="w-full sm:w-auto"
+                className="w-full sm:w-fit grid gap-2 sm:grid-flow-col lg:justify-start mb-8"
+              />
+            )}
           </div>
 
           {image && (
