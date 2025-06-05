@@ -17,11 +17,12 @@ import {
   navigationMenuTriggerStyle,
 } from "@workspace/ui/components/navigation-menu";
 import {
+  Sheet,
   SheetContent,
   SheetHeader,
   SheetTitle,
+  SheetTrigger,
 } from "@workspace/ui/components/sheet";
-import { Sheet, SheetTrigger } from "@workspace/ui/components/sheet";
 import { cn } from "@workspace/ui/lib/utils";
 import { Menu } from "lucide-react";
 import dynamic from "next/dynamic";
@@ -30,21 +31,37 @@ import { usePathname } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 
 import { useIsMobile } from "@/hooks/use-is-mobile";
+import type { GlobalSettings } from "@/lib/contentful/query";
 import type {
-  QueryGlobalSeoSettingsResult,
-  QueryNavbarDataResult,
-} from "@/lib/sanity/sanity.types";
+  TypeNavbarColumnLink,
+  TypeNavbarLink,
+} from "@/lib/contentful/types";
 
-import { Logo } from "./logo";
 import { ModeToggle } from "./mode-toggle";
-import { SanityButtons } from "./sanity-buttons";
 import { SanityIcon } from "./sanity-icon";
+
 interface MenuItem {
   title: string;
   description: string;
   icon: React.ReactNode;
   href?: string;
 }
+
+// Type definitions for navbar columns
+type NavbarColumn =
+  | TypeNavbarColumnLink<"WITHOUT_UNRESOLVABLE_LINKS">
+  | TypeNavbarLink<"WITHOUT_UNRESOLVABLE_LINKS">;
+type NavbarColumnLink = Extract<
+  NavbarColumn,
+  { sys: { contentType: { sys: { id: "navbarColumnLink" } } } }
+>;
+type NavbarLinkItem = Extract<
+  NavbarColumn,
+  { sys: { contentType: { sys: { id: "navbarLink" } } } }
+>;
+
+// Extract the links from navbar column
+type NavbarLinkType = NonNullable<NavbarColumnLink["fields"]["links"]>[number];
 
 function MenuItemLink({
   item,
@@ -77,46 +94,45 @@ function MobileNavbarAccordionColumn({
   column,
   setIsOpen,
 }: {
-  column: NonNullable<NonNullable<QueryNavbarDataResult>["columns"]>[number];
+  column: NavbarColumnLink;
   setIsOpen: (isOpen: boolean) => void;
 }) {
-  if (column.type !== "column") return null;
   return (
-    <AccordionItem value={column.title ?? column._key} className="border-b-0">
+    <AccordionItem
+      value={column.fields.label ?? column.sys.id}
+      className="border-b-0"
+    >
       <AccordionTrigger className="mb-4 py-0 font-semibold hover:no-underline hover:bg-accent hover:text-accent-foreground pr-2 rounded-md">
         <div
           className={cn(buttonVariants({ variant: "ghost" }), "justify-start")}
         >
-          {column.title}
+          {column.fields.label}
         </div>
       </AccordionTrigger>
       <AccordionContent className="mt-2">
-        {column.links?.map((item) => (
-          <MenuItemLink
-            key={item._key}
-            setIsOpen={setIsOpen}
-            item={{
-              description: item.description ?? "",
-              href: item.href ?? "",
-              icon: <SanityIcon icon={item.icon} className="size-5 shrink-0" />,
-              title: item.name ?? "",
-            }}
-          />
-        ))}
+        {column.fields.links?.map((item: NavbarLinkType) => {
+          if (!item?.fields) return null;
+          return (
+            <MenuItemLink
+              key={item.sys.id}
+              setIsOpen={setIsOpen}
+              item={{
+                description: item.fields.label ?? "",
+                href: item.fields.href ?? "",
+                icon: <SanityIcon icon={null} className="size-5 shrink-0" />,
+                title: item.fields.label ?? "",
+              }}
+            />
+          );
+        })}
       </AccordionContent>
     </AccordionItem>
   );
 }
 
-function MobileNavbar({
-  navbarData,
-  settingsData,
-}: {
-  navbarData: QueryNavbarDataResult;
-  settingsData: QueryGlobalSeoSettingsResult;
-}) {
-  const { siteTitle, logo } = settingsData ?? {};
-  const { columns, buttons } = navbarData ?? {};
+function MobileNavbar({ settingsData }: { settingsData: GlobalSettings }) {
+  const { siteTitle } = settingsData?.fields ?? {};
+  const { columns } = settingsData?.fields?.navbar?.fields ?? {};
   const [isOpen, setIsOpen] = useState(false);
 
   const path = usePathname();
@@ -138,67 +154,71 @@ function MobileNavbar({
       <SheetContent className="overflow-y-auto">
         <SheetHeader>
           <SheetTitle>
-            {logo && <Logo alt={siteTitle} priority image={logo} />}
+            {siteTitle && (
+              <span className="text-lg font-semibold">{siteTitle}</span>
+            )}
           </SheetTitle>
         </SheetHeader>
 
         <div className="mb-8 mt-8 flex flex-col gap-4">
           {columns?.map((item) => {
-            if (item.type === "link") {
+            if (!item) return null;
+
+            if (item.sys.contentType.sys.id === "navbarLink") {
+              const linkItem = item as NavbarLinkItem;
               return (
                 <Link
-                  key={`column-link-${item.name}-${item._key}`}
-                  href={item.href ?? ""}
+                  key={`column-link-${linkItem.fields.label}-${linkItem.sys.id}`}
+                  href={linkItem.fields.href ?? ""}
                   onClick={() => setIsOpen(false)}
                   className={cn(
                     buttonVariants({ variant: "ghost" }),
                     "justify-start",
                   )}
                 >
-                  {item.name}
+                  {linkItem.fields.label}
                 </Link>
               );
             }
-            return (
-              <Accordion
-                type="single"
-                collapsible
-                className="w-full"
-                key={item._key}
-              >
-                <MobileNavbarAccordionColumn
-                  column={item}
-                  setIsOpen={setIsOpen}
-                />
-              </Accordion>
-            );
+
+            if (item.sys.contentType.sys.id === "navbarColumnLink") {
+              const columnItem = item as NavbarColumnLink;
+              return (
+                <Accordion
+                  type="single"
+                  collapsible
+                  className="w-full"
+                  key={columnItem.sys.id}
+                >
+                  <MobileNavbarAccordionColumn
+                    column={columnItem}
+                    setIsOpen={setIsOpen}
+                  />
+                </Accordion>
+              );
+            }
+
+            return null;
           })}
         </div>
 
         <div className="border-t pt-4">
-          <SanityButtons
+          {/* <SanityButtons
             buttons={buttons ?? []}
             buttonClassName="w-full"
             className="flex mt-2 flex-col gap-3"
-          />
+          /> */}
         </div>
       </SheetContent>
     </Sheet>
   );
 }
 
-function NavbarColumnLink({
-  column,
-}: {
-  column: Extract<
-    NonNullable<NonNullable<QueryNavbarDataResult>["columns"]>[number],
-    { type: "link" }
-  >;
-}) {
+function NavbarColumnLink({ column }: { column: NavbarLinkItem }) {
   return (
     <Link
-      aria-label={`Link to ${column.name ?? column.href}`}
-      href={column.href ?? ""}
+      aria-label={`Link to ${column.fields.label ?? column.fields.href}`}
+      href={column.fields.href ?? ""}
       legacyBehavior
       passHref
     >
@@ -208,7 +228,7 @@ function NavbarColumnLink({
           "text-muted-foreground dark:text-neutral-300",
         )}
       >
-        {column.name}
+        {column.fields.label}
       </NavigationMenuLink>
     </Link>
   );
@@ -220,42 +240,35 @@ function getColumnLayoutClass(itemCount: number) {
   return "grid grid-cols-3 gap-2 w-[700px]";
 }
 
-export function NavbarColumn({
-  column,
-}: {
-  column: Extract<
-    NonNullable<NonNullable<QueryNavbarDataResult>["columns"]>[number],
-    { type: "column" }
-  >;
-}) {
+export function NavbarColumn({ column }: { column: NavbarColumnLink }) {
   const layoutClass = useMemo(
-    () => getColumnLayoutClass(column.links?.length ?? 0),
-    [column.links?.length],
+    () => getColumnLayoutClass(column.fields.links?.length ?? 0),
+    [column.fields.links?.length],
   );
 
   return (
     <NavigationMenuList>
       <NavigationMenuItem className="text-muted-foreground dark:text-neutral-300">
-        <NavigationMenuTrigger>{column.title}</NavigationMenuTrigger>
+        <NavigationMenuTrigger>{column.fields.label}</NavigationMenuTrigger>
         <NavigationMenuContent>
           <ul className={cn("p-3", layoutClass)}>
-            {column.links?.map((item) => (
-              <li key={item._key}>
-                <MenuItemLink
-                  item={{
-                    title: item.name ?? "",
-                    description: item.description ?? "",
-                    href: item.href ?? "",
-                    icon: (
-                      <SanityIcon
-                        icon={item.icon}
-                        className="size-5 shrink-0"
-                      />
-                    ),
-                  }}
-                />
-              </li>
-            ))}
+            {column.fields.links?.map((item: NavbarLinkType) => {
+              if (!item?.fields) return null;
+              return (
+                <li key={item.sys.id}>
+                  <MenuItemLink
+                    item={{
+                      title: item.fields.label ?? "",
+                      description: item.fields.label ?? "",
+                      href: item.fields.href ?? "",
+                      icon: (
+                        <SanityIcon icon={null} className="size-5 shrink-0" />
+                      ),
+                    }}
+                  />
+                </li>
+              );
+            })}
           </ul>
         </NavigationMenuContent>
       </NavigationMenuItem>
@@ -264,42 +277,46 @@ export function NavbarColumn({
 }
 
 export function DesktopNavbar({
-  navbarData,
+  settingsData,
 }: {
-  navbarData: QueryNavbarDataResult;
+  settingsData: GlobalSettings;
 }) {
-  const { columns, buttons } = navbarData ?? {};
+  const { columns } = settingsData?.fields?.navbar?.fields ?? {};
 
   return (
     <div className="grid grid-cols-[1fr_auto] items-center gap-8">
       <NavigationMenu className="">
         {columns?.map((column) =>
-          column.type === "column" ? (
-            <NavbarColumn key={`nav-${column._key}`} column={column} />
+          column?.sys.contentType.sys.id === "navbarColumnLink" ? (
+            <NavbarColumn
+              key={`nav-${column.sys.id}`}
+              column={column as NavbarColumnLink}
+            />
           ) : (
-            <NavbarColumnLink key={`nav-${column._key}`} column={column} />
+            <NavbarColumnLink
+              key={`nav-${column?.sys.id}`}
+              column={column as NavbarLinkItem}
+            />
           ),
         )}
       </NavigationMenu>
 
       <div className="justify-self-end flex items-center gap-4">
         <ModeToggle />
-        <SanityButtons
+        {/* <SanityButtons
           buttons={buttons ?? []}
           className="flex items-center gap-4"
           buttonClassName="rounded-[10px]"
-        />
+        /> */}
       </div>
     </div>
   );
 }
 
 const ClientSideNavbar = ({
-  navbarData,
   settingsData,
 }: {
-  navbarData: QueryNavbarDataResult;
-  settingsData: QueryGlobalSeoSettingsResult;
+  settingsData: GlobalSettings;
 }) => {
   const isMobile = useIsMobile();
 
@@ -308,9 +325,9 @@ const ClientSideNavbar = ({
   }
 
   return isMobile ? (
-    <MobileNavbar navbarData={navbarData} settingsData={settingsData} />
+    <MobileNavbar settingsData={settingsData} />
   ) : (
-    <DesktopNavbar navbarData={navbarData} />
+    <DesktopNavbar settingsData={settingsData} />
   );
 };
 

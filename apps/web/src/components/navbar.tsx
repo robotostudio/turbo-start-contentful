@@ -1,31 +1,36 @@
-import { Logo } from "./logo";
+import type { GlobalSettings } from "@/lib/contentful/query";
+import { getGlobalSettings } from "@/lib/contentful/query";
+import { safeAsync } from "@/safe-async";
+
 import { NavbarClient, NavbarSkeletonResponsive } from "./navbar-client";
 
 export async function NavbarServer() {
-  const [navbarData, settingsData] = await Promise.all([
-    Promise.resolve({ data: {} }),
-    Promise.resolve({ data: {} }),
-  ]);
-  return (
-    <Navbar navbarData={navbarData.data} settingsData={settingsData.data} />
-  );
+  const result = await safeAsync(getGlobalSettings());
+  if (!result.success) {
+    return <div>Error: {result.error.message}</div>;
+  }
+  const navbarData = result.data;
+
+  if (!navbarData?.fields) {
+    return <NavbarSkeleton />;
+  }
+
+  return <Navbar navbarData={navbarData} />;
 }
 
-export function Navbar({
-  navbarData,
-  settingsData,
-}: {
-  navbarData: any;
-  settingsData: any;
-}) {
-  const { siteTitle: settingsSiteTitle, logo } = settingsData ?? {};
+export function Navbar({ navbarData }: { navbarData?: GlobalSettings }) {
+  console.log("🚀 ~ Navbar ~ navbarData:", navbarData);
+  if (!navbarData) {
+    return <NavbarSkeleton />;
+  }
+  const { navbar, footer } = navbarData?.fields ?? {};
   return (
     <section className="py-3 md:border-b">
       <div className="container mx-auto px-4 md:px-6">
         <nav className="grid grid-cols-[auto_1fr] items-center gap-4">
-          {logo && <Logo alt={settingsSiteTitle} priority image={logo} />}
+          {/* {logo && <Logo alt={settingsSiteTitle || ""} priority image={logo} />} */}
 
-          <NavbarClient navbarData={navbarData} settingsData={settingsData} />
+          <NavbarClient settingsData={navbarData} />
         </nav>
       </div>
     </section>

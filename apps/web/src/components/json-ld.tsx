@@ -13,12 +13,10 @@ import type {
 } from "schema-dts";
 
 import { getBaseUrl } from "@/config";
-import { querySettingsData } from "@/lib/sanity/query";
 import type {
   QueryBlogSlugPageDataResult,
   QuerySettingsDataResult,
 } from "@/lib/sanity/sanity.types";
-import { handleErrors } from "@/utils";
 
 interface RichTextChild {
   _type: string;
