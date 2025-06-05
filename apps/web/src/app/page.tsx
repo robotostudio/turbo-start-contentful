@@ -11,15 +11,15 @@ export async function generateMetadata() {
 
 export default async function Page() {
   const { isEnabled } = await draftMode();
-  const res = await safeAsync(getPageBySlug("/", isEnabled));
+  const result = await safeAsync(getPageBySlug("/", isEnabled));
 
-  if (!res.success) {
-    return <div>Error: {res.error.message}</div>;
+  if (!result.success) {
+    return <div>Error: </div>;
   }
 
-  if (!res.data) {
+  if (!result.data) {
     return <div>No page builder found</div>;
   }
 
-  return <PageBuilder pageBuilder={res.data.fields.pageBuilder} />;
+  return <PageBuilder pageBuilder={result.data.fields.pageBuilder} />;
 }
