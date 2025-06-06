@@ -1,7 +1,13 @@
 import { cache } from "react";
 
 import { getClient, parseContentfulError } from "./client";
-import type { TypeGlobalSettings, TypePageSkeleton } from "./types";
+import type {
+  TypeBlog,
+  TypeBlogSkeleton,
+  TypeGlobalSettings,
+  TypeGlobalSettingsSkeleton,
+  TypePageSkeleton,
+} from "./types";
 
 export async function getPageBySlug(slug: string, preview = false) {
   try {
@@ -34,6 +40,15 @@ export async function getAllPageSlugs() {
   return res.items.map((item) => item.fields.slug);
 }
 
+export async function getBlogSlugPaths() {
+  const client = getClient();
+  const res = await client.getEntries<TypeBlogSkeleton>({
+    content_type: "blog",
+    select: ["fields.slug"],
+  });
+  return res.items.map((item) => item.fields.slug);
+}
+
 export async function getGlobalSettingsUncached(preview = false) {
   try {
     console.count("global-settings");
@@ -57,3 +72,27 @@ export async function getGlobalSettingsUncached(preview = false) {
 export const getGlobalSettings = cache(getGlobalSettingsUncached);
 
 export type GlobalSettings = Awaited<ReturnType<typeof getGlobalSettings>>;
+
+export async function getAllBlogs(preview = false) {
+  const client = getClient(preview);
+
+  const {
+    items: [globalSettings],
+  } = await client.getEntries({
+    content_type: "globalSettings",
+    include: 10,
+    select: ["fields.featuredBlog"],
+  });
+
+  const featuredBlog = globalSettings?.fields
+    ?.featuredBlog as TypeGlobalSettings<"WITHOUT_UNRESOLVABLE_LINKS">;
+  const featuredId = featuredBlog?.sys?.id;
+
+  const res = await client.getEntries<TypeBlogSkeleton>({
+    content_type: "blog",
+    include: 10,
+    "fields.hideFromList[ne]": true,
+    "sys.id[ne]": featuredId,
+  });
+  return { featured: featuredBlog, blogs: res.items };
+}

@@ -1,67 +1,73 @@
 import Link from "next/link";
 
-import type { QueryBlogIndexPageDataResult } from "@/lib/sanity/sanity.types";
+import type { TypeBlog } from "@/lib/contentful/types";
 
-import { SanityImage } from "./sanity-image";
-
-type Blog = NonNullable<
-  NonNullable<QueryBlogIndexPageDataResult>["blogs"]
->[number];
+import { ContentfulImage } from "./contentful-image";
 
 interface BlogImageProps {
-  image: Blog["image"];
+  image: NonNullable<
+    NonNullable<TypeBlog<"WITHOUT_UNRESOLVABLE_LINKS">>
+  >["fields"]["image"];
   title?: string | null;
 }
 
 function BlogImage({ image, title }: BlogImageProps) {
-  if (!image?.asset) return null;
+  if (!image?.fields?.file?.url) return null;
 
   return (
-    <SanityImage
-      asset={image}
+    <ContentfulImage
+      image={image}
       width={800}
       height={400}
-      alt={title ?? "Blog post image"}
       className="aspect-[16/9] w-full rounded-2xl bg-gray-100 object-cover sm:aspect-[2/1] lg:aspect-[3/2]"
     />
   );
 }
 
 interface AuthorImageProps {
-  author: Blog["authors"];
+  authors: NonNullable<
+    NonNullable<TypeBlog<"WITHOUT_UNRESOLVABLE_LINKS">>
+  >["fields"]["authors"];
 }
 
-function AuthorImage({ author }: AuthorImageProps) {
-  if (!author?.image) return null;
+function AuthorImage({ authors }: AuthorImageProps) {
+  // if (!authors?.fields?.image?.fields?.file?.url) return null;
+
+  const [author] = authors ?? [];
+  if (!author) return null;
 
   return (
-    <SanityImage
-      asset={author.image}
+    <ContentfulImage
+      image={author.fields.image}
       width={40}
       height={40}
-      alt={author.name ?? "Author image"}
       className="size-8 flex-none rounded-full bg-gray-50"
     />
   );
 }
 
 interface BlogAuthorProps {
-  author: Blog["authors"];
+  authors: NonNullable<
+    NonNullable<TypeBlog<"WITHOUT_UNRESOLVABLE_LINKS">>
+  >["fields"]["authors"];
 }
 
-export function BlogAuthor({ author }: BlogAuthorProps) {
-  if (!author) return null;
+export function BlogAuthor({ authors }: BlogAuthorProps) {
+  if (!authors) return null;
 
   return (
     <div className="flex items-center gap-x-2.5 text-sm/6 font-semibold text-gray-900">
-      <AuthorImage author={author} />
-      {author.name}
+      <AuthorImage authors={authors} />
+      {authors
+        .map((author) => author?.fields.name)
+        .filter(Boolean)
+        .join(", ")}
     </div>
   );
 }
 
 interface BlogCardProps {
-  blog: Blog;
+  blog: TypeBlog<"WITHOUT_UNRESOLVABLE_LINKS">;
 }
 
 function BlogMeta({ publishedAt }: { publishedAt: string | null }) {
@@ -111,17 +117,26 @@ function BlogContent({
   );
 }
 
-function AuthorSection({ authors }: { authors: Blog["authors"] }) {
+function AuthorSection({
+  authors,
+}: {
+  authors: NonNullable<
+    NonNullable<TypeBlog<"WITHOUT_UNRESOLVABLE_LINKS">>
+  >["fields"]["authors"];
+}) {
   if (!authors) return null;
 
   return (
     <div className="mt-6 flex border-t border-gray-900/5 pt-6">
       <div className="relative flex items-center gap-x-4">
-        <AuthorImage author={authors} />
+        <AuthorImage authors={authors} />
         <div className="text-sm leading-6">
           <p className="font-semibold">
             <span className="absolute inset-0" />
-            {authors.name}
+            {authors
+              .map((author) => author?.fields.name)
+              .filter(Boolean)
+              .join(", ")}
           </p>
         </div>
       </div>
@@ -129,13 +144,14 @@ function AuthorSection({ authors }: { authors: Blog["authors"] }) {
   );
 }
 export function FeaturedBlogCard({ blog }: BlogCardProps) {
-  const { title, publishedAt, slug, authors, description, image } = blog ?? {};
+  const { title, publishedDate, slug, authors, description, image } =
+    blog?.fields ?? {};
 
   return (
     <article className="grid grid-cols-1 lg:grid-cols-2 gap-8 w-full">
       <BlogImage image={image} title={title} />
       <div className="space-y-6">
-        <BlogMeta publishedAt={publishedAt} />
+        <BlogMeta publishedAt={publishedDate} />
         <BlogContent
           title={title}
           slug={slug}
@@ -162,7 +178,8 @@ export function BlogCard({ blog }: BlogCardProps) {
     );
   }
 
-  const { title, publishedAt, slug, authors, description, image } = blog;
+  const { title, publishedDate, slug, authors, description, image } =
+    blog?.fields ?? {};
 
   return (
     <article className="grid grid-cols-1 gap-4 w-full">
@@ -171,7 +188,7 @@ export function BlogCard({ blog }: BlogCardProps) {
         <div className="absolute inset-0 rounded-2xl ring-1 ring-inset ring-gray-900/10" />
       </div>
       <div className="w-full space-y-4">
-        <BlogMeta publishedAt={publishedAt} />
+        <BlogMeta publishedAt={publishedDate} />
         <BlogContent title={title} slug={slug} description={description} />
         <AuthorSection authors={authors} />
       </div>

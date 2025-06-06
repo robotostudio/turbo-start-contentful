@@ -1,4 +1,5 @@
 import type { ChainModifiers, Entry, EntryFieldTypes, EntrySkeletonType, LocaleCode } from "contentful";
+import type { TypeBlogSkeleton } from "./TypeBlog";
 import type { TypeFooterSkeleton } from "./TypeFooter";
 import type { TypeNavbarSkeleton } from "./TypeNavbar";
 
@@ -8,6 +9,7 @@ export interface TypeGlobalSettingsFields {
     logo: EntryFieldTypes.AssetLink;
     navbar?: EntryFieldTypes.EntryLink<TypeNavbarSkeleton>;
     footer?: EntryFieldTypes.EntryLink<TypeFooterSkeleton>;
+    featuredBlog?: EntryFieldTypes.EntryLink<TypeBlogSkeleton>;
     contactEmail?: EntryFieldTypes.Symbol;
     twitter?: EntryFieldTypes.Symbol;
     linkedin?: EntryFieldTypes.Symbol;

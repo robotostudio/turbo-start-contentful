@@ -1,3 +1,5 @@
+export type { TypeAuthor, TypeAuthorFields, TypeAuthorSkeleton } from "./TypeAuthor";
+export type { TypeBlog, TypeBlogFields, TypeBlogSkeleton } from "./TypeBlog";
 export type { TypeButton, TypeButtonFields, TypeButtonSkeleton } from "./TypeButton";
 export type { TypeCallToAction, TypeCallToActionFields, TypeCallToActionSkeleton } from "./TypeCallToAction";
 export type { TypeFaq, TypeFaqFields, TypeFaqSkeleton } from "./TypeFaq";

@@ -7,12 +7,12 @@ import type { Maybe } from "@/types";
 import { getTitleCase } from "@/utils";
 
 import { getOgMetaData } from "./og-config";
-import {
-  getBlogPageOGData,
-  getGenericPageOGData,
-  getHomePageOGData,
-  getSlugPageOGData,
-} from "./og-data";
+// import {
+//   getBlogPageOGData,
+//   getGenericPageOGData,
+//   getHomePageOGData,
+//   getSlugPageOGData,
+// } from "./og-data";
 
 export const runtime = "edge";
 
@@ -206,41 +206,41 @@ const getOptions = async ({
   };
 };
 
-const getHomePageContent = async ({ id }: ContentProps) => {
-  if (!id) return undefined;
-  const [result, err] = await getHomePageOGData(id);
-  if (err || !result) return undefined;
-  if (result?.seoImage) return seoImageRender({ seoImage: result.seoImage });
-  return dominantColorSeoImageRender(result);
-};
-const getSlugPageContent = async ({ id }: ContentProps) => {
-  if (!id) return undefined;
-  const [result, err] = await getSlugPageOGData(id);
-  if (err || !result) return undefined;
-  if (result?.seoImage) return seoImageRender({ seoImage: result.seoImage });
-  return dominantColorSeoImageRender(result);
-};
+// const getHomePageContent = async ({ id }: ContentProps) => {
+//   if (!id) return undefined;
+//   const [result, err] = await getHomePageOGData(id);
+//   if (err || !result) return undefined;
+//   if (result?.seoImage) return seoImageRender({ seoImage: result.seoImage });
+//   return dominantColorSeoImageRender(result);
+// };
+// const getSlugPageContent = async ({ id }: ContentProps) => {
+//   if (!id) return undefined;
+//   const [result, err] = await getSlugPageOGData(id);
+//   if (err || !result) return undefined;
+//   if (result?.seoImage) return seoImageRender({ seoImage: result.seoImage });
+//   return dominantColorSeoImageRender(result);
+// };
 
-const getBlogPageContent = async ({ id }: ContentProps) => {
-  if (!id) return undefined;
-  const [result, err] = await getBlogPageOGData(id);
-  if (err || !result) return undefined;
-  if (result?.seoImage) return seoImageRender({ seoImage: result.seoImage });
-  return dominantColorSeoImageRender(result);
-};
+// const getBlogPageContent = async ({ id }: ContentProps) => {
+//   if (!id) return undefined;
+//   const [result, err] = await getBlogPageOGData(id);
+//   if (err || !result) return undefined;
+//   if (result?.seoImage) return seoImageRender({ seoImage: result.seoImage });
+//   return dominantColorSeoImageRender(result);
+// };
 
-const getGenericPageContent = async ({ id }: ContentProps) => {
-  if (!id) return undefined;
-  const [result, err] = await getGenericPageOGData(id);
-  if (err || !result) return undefined;
-  if (result?.seoImage) return seoImageRender({ seoImage: result.seoImage });
-  return dominantColorSeoImageRender(result);
-};
+// const getGenericPageContent = async ({ id }: ContentProps) => {
+//   if (!id) return undefined;
+//   const [result, err] = await getGenericPageOGData(id);
+//   if (err || !result) return undefined;
+//   if (result?.seoImage) return seoImageRender({ seoImage: result.seoImage });
+//   return dominantColorSeoImageRender(result);
+// };
 
 const block = {
-  homePage: getHomePageContent,
-  page: getSlugPageContent,
-  blog: getBlogPageContent,
+  // homePage: getHomePageContent,
+  // page: getSlugPageContent,
+  // blog: getBlogPageContent,
 } as const;
 
 export async function GET({ url }: Request): Promise<ImageResponse> {
@@ -249,10 +249,11 @@ export async function GET({ url }: Request): Promise<ImageResponse> {
   const { width, height } = getOgMetaData(searchParams);
   const para = Object.fromEntries(searchParams.entries());
   const options = await getOptions({ width, height });
-  const image = block[type] ?? getGenericPageContent;
+  // const image = block[type] ?? getGenericPageContent;
   try {
-    const content = await image(para);
-    return new ImageResponse(content ? content : errorContent, options);
+    // const content = await image(para);
+    // return new ImageResponse(content ? content : errorContent, options);
+    return new ImageResponse(errorContent, options);
   } catch (err) {
     console.log({ err });
     return new ImageResponse(errorContent, options);

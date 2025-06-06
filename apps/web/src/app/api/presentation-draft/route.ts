@@ -1,8 +1,6 @@
-import { defineEnableDraftMode } from "next-sanity/draft-mode";
+import { draftMode } from "next/headers";
 
-import { client } from "@/lib/sanity/client";
-import { token } from "@/lib/sanity/token";
-
-export const { GET } = defineEnableDraftMode({
-  client: client.withConfig({ token }),
-});
+export async function GET() {
+  const { isEnabled: preview } = await draftMode();
+  return new Response(preview ? "true" : "false");
+}
