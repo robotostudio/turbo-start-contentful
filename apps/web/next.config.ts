@@ -9,7 +9,9 @@ const nextConfig: NextConfig = {
     inlineCss: true,
   },
   logging: {
-    fetches: {},
+    fetches: {
+      hmrRefreshes: true,
+    },
   },
   images: {
     minimumCacheTTL: 31536000,

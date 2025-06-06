@@ -5,7 +5,6 @@ import type {
   TypeBlog,
   TypeBlogSkeleton,
   TypeGlobalSettings,
-  TypeGlobalSettingsSkeleton,
   TypePageSkeleton,
 } from "./types";
 
@@ -31,13 +30,18 @@ export async function getPageBySlug(slug: string, preview = false) {
 }
 
 export async function getAllPageSlugs() {
-  const client = getClient();
-  const res = await client.getEntries<TypePageSkeleton>({
-    content_type: "page",
-    select: ["fields.slug"],
-    "fields.slug[ne]": "/",
-  });
-  return res.items.map((item) => item.fields.slug);
+  try {
+    const client = getClient();
+    const res = await client.getEntries<TypePageSkeleton>({
+      content_type: "page",
+      select: ["fields.slug"],
+      "fields.slug[ne]": "/",
+    });
+    return res.items.map((item) => item.fields.slug);
+  } catch (error) {
+    console.error("Error fetching page slugs:", error);
+    throw new Error(parseContentfulError(error));
+  }
 }
 
 export async function getBlogSlugPaths() {
@@ -102,6 +106,19 @@ export async function getAllBlogs(preview = false) {
     };
   } catch (error) {
     console.error("Error fetching blogs:", error);
+    throw new Error(parseContentfulError(error));
+  }
+}
+export async function getBlogPaths() {
+  try {
+    const client = getClient();
+    const res = await client.getEntries<TypeBlogSkeleton>({
+      content_type: "blog",
+      select: ["fields.slug"],
+    });
+    return res.items.map((item) => item.fields.slug);
+  } catch (error) {
+    console.error("Error fetching blog paths:", error);
     throw new Error(parseContentfulError(error));
   }
 }

@@ -3,30 +3,11 @@ import { notFound } from "next/navigation";
 
 import { ContentfulImage } from "@/components/contentful-image";
 import { ContentfulRichText } from "@/components/contentful-richtext";
+import { ArticleJsonLd } from "@/components/json-ld";
 // import { ArticleJsonLd } from "@/components/json-ld";
-import { RichText } from "@/components/richtext";
-import { TableOfContent } from "@/components/table-of-content";
-import { getBlogBySlug } from "@/lib/contentful/query";
+import { getBlogBySlug, getBlogPaths } from "@/lib/contentful/query";
 import { getMetaData } from "@/lib/seo";
 import { safeAsync } from "@/safe-async";
-
-// async function fetchBlogSlugPageData(slug: string) {
-//   return await sanityFetch({
-//     query: queryBlogSlugPageData,
-//     params: { slug: `/blog/${slug}` },
-//   });
-// }
-
-async function fetchBlogPaths() {
-  // const slugs = await client.fetch(queryBlogPaths);
-  // const paths: { slug: string }[] = [];
-  // for (const slug of slugs) {
-  //   if (!slug) continue;
-  //   const [, , path] = slug.split("/");
-  //   if (path) paths.push({ slug: path });
-  // }
-  return [];
-}
 
 export async function generateMetadata({
   params,
@@ -40,7 +21,10 @@ export async function generateMetadata({
 }
 
 export async function generateStaticParams() {
-  return await fetchBlogPaths();
+  const response = await safeAsync(getBlogPaths());
+  if (!response.success) return [];
+  const paths = response.data.map((slug) => ({ slug }));
+  return paths;
 }
 
 export default async function BlogSlugPage({
@@ -63,7 +47,7 @@ export default async function BlogSlugPage({
     <div className="container my-16 mx-auto px-4 md:px-6">
       <div className="grid grid-cols-1 gap-8 lg:grid-cols-[1fr_300px]">
         <main>
-          {/* <ArticleJsonLd article={data} /> */}
+          <ArticleJsonLd article={blog} />
           <header className="mb-8">
             <h1 className="mt-2 text-4xl font-bold">{title}</h1>
             <p className="mt-4 text-lg text-muted-foreground">{description}</p>
