@@ -11,7 +11,7 @@ interface BlogImageProps {
   title?: string | null;
 }
 
-function BlogImage({ image, title }: BlogImageProps) {
+function BlogImage({ image }: BlogImageProps) {
   if (!image?.fields?.file?.url) return null;
 
   return (
@@ -105,7 +105,7 @@ function BlogContent({
   return (
     <div className="group relative">
       <HeadingTag className={headingClasses}>
-        <Link href={slug ?? "#"}>
+        <Link href={`/blog/${slug ?? ""}`}>
           <span className="absolute inset-0" />
           {title}
         </Link>

@@ -85,7 +85,7 @@ export async function getAllBlogs(preview = false) {
   });
 
   const featuredBlog = globalSettings?.fields
-    ?.featuredBlog as TypeGlobalSettings<"WITHOUT_UNRESOLVABLE_LINKS">;
+    ?.featuredBlog as TypeBlog<"WITHOUT_UNRESOLVABLE_LINKS">;
   const featuredId = featuredBlog?.sys?.id;
 
   const res = await client.getEntries<TypeBlogSkeleton>({
@@ -94,5 +94,8 @@ export async function getAllBlogs(preview = false) {
     "fields.hideFromList[ne]": true,
     "sys.id[ne]": featuredId,
   });
-  return { featured: featuredBlog, blogs: res.items };
+  return {
+    featured: featuredBlog,
+    blogs: res.items as TypeBlog<"WITHOUT_UNRESOLVABLE_LINKS">[],
+  };
 }

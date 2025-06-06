@@ -1,17 +1,8 @@
 import { draftMode } from "next/headers";
 
-import { BlogHeader } from "@/components/blog-card";
-import { getAllBlogs, getGlobalSettings } from "@/lib/contentful/query";
+import { BlogCard, BlogHeader, FeaturedBlogCard } from "@/components/blog-card";
+import { getAllBlogs } from "@/lib/contentful/query";
 import { safeAsync } from "@/safe-async";
-
-// async function fetchBlogPosts() {
-//   return await handleErrors(sanityFetch({ query: queryBlogIndexPageData }));
-// }
-
-// export async function generateMetadata() {
-//   const result = await sanityFetch({ query: queryBlogIndexPageData });
-//   return await getMetaData(result?.data ?? {});
-// }
 
 export default async function BlogIndexPage() {
   const { isEnabled } = await draftMode();
@@ -19,86 +10,31 @@ export default async function BlogIndexPage() {
 
   if (!result.success) {
     return (
-      <main className="container my-16 mx-auto px-4 md:px-6">
-        <BlogHeader title="Blog" description="Blog" />
-        Not Found
+      <main className="min-h-screen bg-black text-white">
+        <div className="container mx-auto px-4 py-24 md:px-6">
+          <BlogHeader title="Blog" description="Blog" />
+          <div className="mt-8 text-center text-gray-400">Not Found</div>
+        </div>
       </main>
     );
   }
   const { featured, blogs } = result.data;
 
-  console.log("🚀 ~ BlogIndexPage ~ blogs:", featured, blogs);
-  // const [res, err] = await fetchBlogPosts();
-  // if (err || !res?.data) notFound();
-
-  // const {
-  //   blogs = [],
-  //   title,
-  //   description,
-  //   pageBuilder = [],
-  //   _id,
-  //   _type,
-  //   displayFeaturedBlogs,
-  //   featuredBlogsCount,
-  // } = res.data;
-
-  // const validFeaturedBlogsCount = featuredBlogsCount
-  //   ? Number.parseInt(featuredBlogsCount)
-  //   : 0;
-
-  // if (!blogs.length) {
-  //   return (
-  //     <main className="container my-16 mx-auto px-4 md:px-6">
-  //       <BlogHeader title={title} description={description} />
-  //       <div className="text-center py-12">
-  //         <p className="text-muted-foreground">
-  //           No blog posts available at the moment.
-  //         </p>
-  //       </div>
-  //       {pageBuilder && pageBuilder.length > 0 && (
-  //         <PageBuilder pageBuilder={pageBuilder} id={_id} type={_type} />
-  //       )}
-  //     </main>
-  //   );
-  // }
-
-  // const shouldDisplayFeaturedBlogs =
-  //   displayFeaturedBlogs && validFeaturedBlogsCount > 0;
-
-  // const featuredBlogs = shouldDisplayFeaturedBlogs
-  //   ? blogs.slice(0, validFeaturedBlogsCount)
-  //   : [];
-  // const remainingBlogs = shouldDisplayFeaturedBlogs
-  //   ? blogs.slice(validFeaturedBlogsCount)
-  //   : blogs;
-
   return (
-    <main className="bg-background">
-      <div className="container my-16 mx-auto px-4 md:px-6">
+    <main className="min-h-screen bg-black text-white">
+      <div className="container mx-auto px-4 py-24 md:px-6">
         <BlogHeader title="Blog" description="Blog" />
-      </div>
-
-      {/*
-        {featuredBlogs.length > 0 && (
-          <div className="mx-auto mt-8 sm:mt-12 md:mt-16 mb-12 lg:mb-20 grid grid-cols-1 gap-8 md:gap-12">
-            {featuredBlogs.map((blog) => (
-              <FeaturedBlogCard key={blog._id} blog={blog} />
-            ))}
-          </div>
-        )}
-
-        {remainingBlogs.length > 0 && (
-          <div className="grid grid-cols-1 gap-8 md:gap-12 lg:grid-cols-2 mt-8">
-            {remainingBlogs.map((blog) => (
-              <BlogCard key={blog._id} blog={blog} />
+        <div className="mt-12">
+          <FeaturedBlogCard blog={featured} />
+        </div>
+        {blogs.length > 0 && (
+          <div className="mt-16 grid grid-cols-1 gap-12 md:gap-16 lg:grid-cols-2">
+            {blogs.map((blog) => (
+              <BlogCard key={blog.sys.id} blog={blog} />
             ))}
           </div>
         )}
       </div>
-
-      {pageBuilder && pageBuilder.length > 0 && (
-        <PageBuilder pageBuilder={pageBuilder} id={_id} type={_type} />
-      )} */}
     </main>
   );
 }
