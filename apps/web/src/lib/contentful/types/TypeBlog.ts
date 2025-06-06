@@ -5,6 +5,7 @@ import type {
   EntrySkeletonType,
   LocaleCode,
 } from "contentful";
+
 import type { TypeAuthorSkeleton } from "./TypeAuthor";
 import type { TypeCallToActionSkeleton } from "./TypeCallToAction";
 import type { TypeFaqAccordionSkeleton } from "./TypeFaqAccordion";

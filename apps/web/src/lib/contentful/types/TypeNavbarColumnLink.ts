@@ -5,6 +5,7 @@ import type {
   EntrySkeletonType,
   LocaleCode,
 } from "contentful";
+
 import type { TypeNavbarLinkSkeleton } from "./TypeNavbarLink";
 
 export interface TypeNavbarColumnLinkFields {

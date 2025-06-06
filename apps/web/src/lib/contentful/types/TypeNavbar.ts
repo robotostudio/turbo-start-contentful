@@ -5,6 +5,7 @@ import type {
   EntrySkeletonType,
   LocaleCode,
 } from "contentful";
+
 import type { TypeButtonSkeleton } from "./TypeButton";
 import type { TypeNavbarColumnLinkSkeleton } from "./TypeNavbarColumnLink";
 import type { TypeNavbarLinkSkeleton } from "./TypeNavbarLink";

@@ -5,6 +5,7 @@ import type {
   EntrySkeletonType,
   LocaleCode,
 } from "contentful";
+
 import type { TypeFaqSkeleton } from "./TypeFaq";
 
 export interface TypeFaqAccordionFields {

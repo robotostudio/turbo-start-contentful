@@ -5,6 +5,7 @@ import type {
   EntrySkeletonType,
   LocaleCode,
 } from "contentful";
+
 import type { TypeButtonSkeleton } from "./TypeButton";
 
 export interface TypeCallToActionFields {

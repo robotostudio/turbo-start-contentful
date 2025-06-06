@@ -5,6 +5,7 @@ import type {
   EntrySkeletonType,
   LocaleCode,
 } from "contentful";
+
 import type { TypePageSkeleton } from "./TypePage";
 
 export interface TypeButtonFields {

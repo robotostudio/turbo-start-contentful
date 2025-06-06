@@ -5,6 +5,7 @@ import type {
   EntrySkeletonType,
   LocaleCode,
 } from "contentful";
+
 import type { TypeBlogSkeleton } from "./TypeBlog";
 import type { TypeFooterSkeleton } from "./TypeFooter";
 import type { TypeNavbarSkeleton } from "./TypeNavbar";

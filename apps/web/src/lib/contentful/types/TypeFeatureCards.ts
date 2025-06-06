@@ -5,6 +5,7 @@ import type {
   EntrySkeletonType,
   LocaleCode,
 } from "contentful";
+
 import type { TypeFeatureCardSkeleton } from "./TypeFeatureCard";
 
 export interface TypeFeatureCardsFields {
