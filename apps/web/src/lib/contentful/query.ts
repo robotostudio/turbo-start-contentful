@@ -44,13 +44,18 @@ export async function getAllPageSlugs() {
   }
 }
 
-export async function getBlogSlugPaths() {
-  const client = getClient();
-  const res = await client.getEntries<TypeBlogSkeleton>({
-    content_type: "blog",
-    select: ["fields.slug"],
-  });
-  return res.items.map((item) => item.fields.slug);
+export async function getBlogPaths() {
+  try {
+    const client = getClient();
+    const res = await client.getEntries<TypeBlogSkeleton>({
+      content_type: "blog",
+      select: ["fields.slug"],
+    });
+    return res.items.map((item) => item.fields.slug);
+  } catch (error) {
+    console.error("Error fetching blog paths:", error);
+    throw new Error(parseContentfulError(error));
+  }
 }
 
 export async function getGlobalSettingsUncached(preview = false) {
@@ -106,19 +111,6 @@ export async function getAllBlogs(preview = false) {
     };
   } catch (error) {
     console.error("Error fetching blogs:", error);
-    throw new Error(parseContentfulError(error));
-  }
-}
-export async function getBlogPaths() {
-  try {
-    const client = getClient();
-    const res = await client.getEntries<TypeBlogSkeleton>({
-      content_type: "blog",
-      select: ["fields.slug"],
-    });
-    return res.items.map((item) => item.fields.slug);
-  } catch (error) {
-    console.error("Error fetching blog paths:", error);
     throw new Error(parseContentfulError(error));
   }
 }

@@ -1,29 +1,38 @@
 import type { MetadataRoute } from "next";
 
 import { getBaseUrl } from "@/config";
-import { client } from "@/lib/sanity/client";
-import { querySitemapData } from "@/lib/sanity/query";
+import { getAllPageSlugs, getBlogPaths } from "@/lib/contentful/query";
+import { safeAsync } from "@/safe-async";
 
 const baseUrl = getBaseUrl();
 
+const INDEX_PAGES = ["", "/blog"];
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const { slugPages, blogPages } = await client.fetch(querySitemapData);
+  const [blogPages, slugPages] = await Promise.all([
+    safeAsync(getBlogPaths()),
+    safeAsync(getAllPageSlugs()),
+  ]);
+  if (!blogPages.success || !slugPages.success) return [];
+  const blogPagesData = blogPages.data;
+  const slugPagesData = slugPages.data;
+
   return [
-    {
-      url: baseUrl,
+    ...INDEX_PAGES.map((page) => ({
+      url: `${baseUrl}${page}`,
       lastModified: new Date(),
-      changeFrequency: "weekly",
+      changeFrequency: "weekly" as const,
       priority: 1,
-    },
-    ...slugPages.map((page) => ({
-      url: `${baseUrl}${page.slug}`,
-      lastModified: new Date(page.lastModified ?? new Date()),
+    })),
+    ...slugPagesData.map((page) => ({
+      url: `${baseUrl}${page}`,
+      lastModified: new Date(),
       changeFrequency: "weekly" as const,
       priority: 0.8,
     })),
-    ...blogPages.map((page) => ({
-      url: `${baseUrl}${page.slug}`,
-      lastModified: new Date(page.lastModified ?? new Date()),
+    ...blogPagesData.map((page) => ({
+      url: `${baseUrl}/blog/${page}`,
+      lastModified: new Date(),
       changeFrequency: "weekly" as const,
       priority: 0.5,
     })),
