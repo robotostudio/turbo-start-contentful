@@ -8,6 +8,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
     "format": "prettier --write .",
     "check-types": "tsc --noEmit",
     "typegen": "source .env && cf-content-types-generator -s $CONTENTFUL_SPACE_ID -t $CONTENTFUL_MANAGEMENT_TOKEN -o ./src/lib/contentful/types --v10 && eslint --fix ./src/lib/contentful/types && prettier --write ./src/lib/contentful/types"
