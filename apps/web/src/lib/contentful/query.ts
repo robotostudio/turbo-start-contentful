@@ -24,6 +24,16 @@ export async function getPageBySlug(slug: string, preview = false) {
   }
 }
 
+export async function getAllPageSlugs() {
+  const client = getClient();
+  const res = await client.getEntries<TypePageSkeleton>({
+    content_type: "page",
+    select: ["fields.slug"],
+    "fields.slug[ne]": "/",
+  });
+  return res.items.map((item) => item.fields.slug);
+}
+
 export async function getGlobalSettingsUncached(preview = false) {
   try {
     console.count("global-settings");
