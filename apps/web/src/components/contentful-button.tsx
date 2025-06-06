@@ -23,7 +23,7 @@ export function ContentfulButton({
     return null;
   }
 
-  const { label, variant, href, internal } = button.fields;
+  const { label, variant, href } = button.fields;
   const url = getButtonUrl(button);
 
   if (!url || !label) {

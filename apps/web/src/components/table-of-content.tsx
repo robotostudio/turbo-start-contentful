@@ -1,5 +1,5 @@
 import type { Block, Inline, Text } from "@contentful/rich-text-types";
-import { BLOCKS, type Document, INLINES } from "@contentful/rich-text-types";
+import { BLOCKS, type Document } from "@contentful/rich-text-types";
 import { cn } from "@workspace/ui/lib/utils";
 import { ChevronDown, Circle } from "lucide-react";
 import Link from "next/link";
