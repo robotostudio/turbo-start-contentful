@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { ContentfulImage } from "@/components/contentful-image";
 import { ContentfulRichText } from "@/components/contentful-richtext";
 import { ArticleJsonLd } from "@/components/json-ld";
+import { TableOfContent } from "@/components/table-of-content";
 // import { ArticleJsonLd } from "@/components/json-ld";
 import { getBlogBySlug, getBlogPaths } from "@/lib/contentful/query";
 import { getMetaData } from "@/lib/seo";
@@ -69,8 +70,7 @@ export default async function BlogSlugPage({
 
         <aside className="hidden lg:block">
           <div className="sticky top-4 rounded-lg ">
-            {/* <TableOfContent richText={richText} /> */}
-            TOC
+            <TableOfContent richText={richText} />
           </div>
         </aside>
       </div>

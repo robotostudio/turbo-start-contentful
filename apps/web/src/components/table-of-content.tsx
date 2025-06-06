@@ -1,17 +1,15 @@
+import { BLOCKS, type Document } from "@contentful/rich-text-types";
 import { cn } from "@workspace/ui/lib/utils";
 import { ChevronDown, Circle } from "lucide-react";
 import Link from "next/link";
 import { type FC, useCallback, useMemo } from "react";
-import slugify from "slugify";
-
-import type { SanityRichTextBlock, SanityRichTextProps } from "@/types";
 
 // ============================================================================
 // TYPES & INTERFACES
 // ============================================================================
 
 interface TableOfContentProps {
-  richText?: SanityRichTextProps;
+  richText?: Document | null;
   className?: string;
   maxDepth?: number;
 }
@@ -21,10 +19,9 @@ interface ProcessedHeading {
   readonly text: string;
   readonly href: string;
   readonly level: number;
-  readonly style: HeadingStyle;
+  readonly nodeType: string;
   readonly children: ProcessedHeading[];
   readonly isChild: boolean;
-  readonly _key?: string;
 }
 
 interface AnchorProps {
@@ -39,44 +36,32 @@ interface TableOfContentState {
   readonly error?: string;
 }
 
-type HeadingStyle = "h2" | "h3" | "h4" | "h5" | "h6";
-
-type SanityTextChild = {
-  readonly marks?: readonly string[];
-  readonly text?: string;
-  readonly _type: "span";
-  readonly _key: string;
-};
-
-type HeadingBlock = Extract<SanityRichTextBlock, { _type: "block" }> & {
-  style: HeadingStyle;
-  children: readonly SanityTextChild[];
-};
-
 // ============================================================================
 // CONSTANTS
 // ============================================================================
 
-const HEADING_STYLES: Record<HeadingStyle, string> = {
-  h2: "pl-0",
-  h3: "pl-4",
-  h4: "pl-8",
-  h5: "pl-12",
-  h6: "pl-16",
+const HEADING_BLOCKS = [
+  BLOCKS.HEADING_2,
+  BLOCKS.HEADING_3,
+  BLOCKS.HEADING_4,
+  BLOCKS.HEADING_5,
+  BLOCKS.HEADING_6,
+] as const;
+
+const HEADING_LEVELS: Record<string, number> = {
+  [BLOCKS.HEADING_2]: 2,
+  [BLOCKS.HEADING_3]: 3,
+  [BLOCKS.HEADING_4]: 4,
+  [BLOCKS.HEADING_5]: 5,
+  [BLOCKS.HEADING_6]: 6,
 } as const;
 
-const HEADING_LEVELS: Record<HeadingStyle, number> = {
-  h2: 2,
-  h3: 3,
-  h4: 4,
-  h5: 5,
-  h6: 6,
-} as const;
-
-const SLUGIFY_OPTIONS = {
-  lower: true,
-  strict: true,
-  remove: /[*+~.()'"!:@]/g,
+const HEADING_STYLES: Record<number, string> = {
+  2: "pl-0",
+  3: "pl-4",
+  4: "pl-8",
+  5: "pl-12",
+  6: "pl-16",
 } as const;
 
 const DEFAULT_MAX_DEPTH = 6;
@@ -86,52 +71,42 @@ const MIN_HEADINGS_TO_SHOW = 1;
 // TYPE GUARDS & VALIDATORS
 // ============================================================================
 
-function isValidHeadingStyle(style: unknown): style is HeadingStyle {
-  return typeof style === "string" && style in HEADING_STYLES;
-}
-
-function isValidTextChild(child: unknown): child is SanityTextChild {
+function isHeadingNode(node: any): boolean {
   return (
-    typeof child === "object" &&
-    child !== null &&
-    "_type" in child &&
-    child._type === "span" &&
-    "text" in child &&
-    typeof child.text === "string"
+    node &&
+    typeof node === "object" &&
+    "nodeType" in node &&
+    HEADING_BLOCKS.includes(node.nodeType as any)
   );
 }
 
-function hasValidTextChildren(
-  children: unknown,
-): children is readonly SanityTextChild[] {
-  return (
-    Array.isArray(children) &&
-    children.length > 0 &&
-    children.every(isValidTextChild)
-  );
-}
-
-function isHeadingBlock(block: unknown): block is HeadingBlock {
-  if (
-    typeof block !== "object" ||
-    block === null ||
-    !("_type" in block) ||
-    block._type !== "block"
-  ) {
-    return false;
-  }
-
-  const candidate = block as Record<string, unknown>;
-
-  return (
-    isValidHeadingStyle(candidate.style) &&
-    hasValidTextChildren(candidate.children)
-  );
+function hasValidContent(node: any): boolean {
+  return node && Array.isArray(node.content) && node.content.length > 0;
 }
 
 // ============================================================================
 // UTILITY FUNCTIONS
 // ============================================================================
+
+function extractTextFromNode(node: any): string {
+  if (!node) return "";
+
+  // If it's a text node, return its value
+  if (node.nodeType === "text" && node.value) {
+    return node.value.trim();
+  }
+
+  // If it has content, recursively extract text
+  if (Array.isArray(node.content)) {
+    return node.content
+      .map(extractTextFromNode)
+      .filter(Boolean)
+      .join(" ")
+      .trim();
+  }
+
+  return "";
+}
 
 function createSlug(text: string): string {
   if (!text?.trim()) {
@@ -139,7 +114,10 @@ function createSlug(text: string): string {
   }
 
   try {
-    return slugify(text.trim(), SLUGIFY_OPTIONS);
+    return text
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-|-$/g, "");
   } catch (error) {
     console.warn("Failed to create slug for text:", text, error);
     return text
@@ -149,21 +127,8 @@ function createSlug(text: string): string {
   }
 }
 
-function extractTextFromChildren(children: readonly SanityTextChild[]): string {
-  try {
-    return children
-      .map((child) => child.text?.trim() ?? "")
-      .filter(Boolean)
-      .join(" ")
-      .trim();
-  } catch (error) {
-    console.warn("Failed to extract text from children:", error);
-    return "";
-  }
-}
-
-function generateUniqueId(text: string, index: number, _key?: string): string {
-  const baseId = _key || createSlug(text) || `heading-${index}`;
+function generateUniqueId(text: string, index: number): string {
+  const baseId = createSlug(text) || `heading-${index}`;
   return `toc-${baseId}`;
 }
 
@@ -171,43 +136,60 @@ function generateUniqueId(text: string, index: number, _key?: string): string {
 // CORE BUSINESS LOGIC
 // ============================================================================
 
-function extractHeadingBlocks(richText: SanityRichTextProps): HeadingBlock[] {
-  if (!richText || !Array.isArray(richText)) {
+function extractHeadingNodes(richText: Document): any[] {
+  if (!richText || !Array.isArray(richText.content)) {
     return [];
   }
 
+  function findHeadings(nodes: any[]): any[] {
+    const headings: any[] = [];
+
+    for (const node of nodes) {
+      if (isHeadingNode(node) && hasValidContent(node)) {
+        headings.push(node);
+      }
+
+      // Recursively search in nested content
+      if (Array.isArray(node.content)) {
+        headings.push(...findHeadings(node.content));
+      }
+    }
+
+    return headings;
+  }
+
   try {
-    return richText.filter(isHeadingBlock);
+    return findHeadings(richText.content);
   } catch (error) {
-    console.error("Failed to extract heading blocks:", error);
+    console.error("Failed to extract heading nodes:", error);
     return [];
   }
 }
 
 function createProcessedHeading(
-  block: HeadingBlock,
+  node: any,
   index: number,
 ): ProcessedHeading | null {
   try {
-    const text = extractTextFromChildren(block.children);
+    const text = extractTextFromNode(node);
 
     if (!text) {
       return null;
     }
 
-    const level = HEADING_LEVELS[block.style];
-    const href = `#${createSlug(text)}`;
-    const id = generateUniqueId(text, index, block._key);
+    const level = HEADING_LEVELS[node.nodeType] || 2;
+    const slug = createSlug(text);
+    const href = `#${slug}`;
+    const id = generateUniqueId(text, index);
 
     return {
       id,
       text,
       href,
       level,
-      style: block.style,
+      nodeType: node.nodeType,
       children: [],
       isChild: false,
-      _key: block._key,
     };
   } catch (error) {
     console.warn("Failed to create processed heading:", error);
@@ -297,22 +279,22 @@ function collectChildHeadings(
   return children;
 }
 
-function processHeadingBlocks(
-  headingBlocks: HeadingBlock[],
+function processHeadingNodes(
+  headingNodes: any[],
   maxDepth: number = DEFAULT_MAX_DEPTH,
 ): ProcessedHeading[] {
-  if (!Array.isArray(headingBlocks) || headingBlocks.length === 0) {
+  if (!Array.isArray(headingNodes) || headingNodes.length === 0) {
     return [];
   }
 
   try {
-    const processedHeadings = headingBlocks
+    const processedHeadings = headingNodes
       .map(createProcessedHeading)
       .filter((heading): heading is ProcessedHeading => heading !== null);
 
     return buildHeadingHierarchy(processedHeadings, maxDepth);
   } catch (error) {
-    console.error("Failed to process heading blocks:", error);
+    console.error("Failed to process heading nodes:", error);
     return [];
   }
 }
@@ -322,28 +304,28 @@ function processHeadingBlocks(
 // ============================================================================
 
 function useTableOfContentState(
-  richText?: SanityRichTextProps,
+  richText?: Document | null,
   maxDepth: number = DEFAULT_MAX_DEPTH,
 ): TableOfContentState {
   return useMemo(() => {
     try {
-      if (!richText || !Array.isArray(richText) || richText.length === 0) {
+      if (!richText || !richText.content || !Array.isArray(richText.content)) {
         return {
           shouldShow: false,
           headings: [],
         };
       }
 
-      const headingBlocks = extractHeadingBlocks(richText);
+      const headingNodes = extractHeadingNodes(richText);
 
-      if (headingBlocks.length < MIN_HEADINGS_TO_SHOW) {
+      if (headingNodes.length < MIN_HEADINGS_TO_SHOW) {
         return {
           shouldShow: false,
           headings: [],
         };
       }
 
-      const processedHeadings = processHeadingBlocks(headingBlocks, maxDepth);
+      const processedHeadings = processHeadingNodes(headingNodes, maxDepth);
 
       return {
         shouldShow: processedHeadings.length >= MIN_HEADINGS_TO_SHOW,
@@ -369,7 +351,7 @@ const TableOfContentAnchor: FC<AnchorProps> = ({
   maxDepth = DEFAULT_MAX_DEPTH,
   currentDepth = 1,
 }) => {
-  const { href, text, children, isChild, style, id } = heading;
+  const { href, text, children, isChild, level, id } = heading;
 
   const shouldRenderChildren = useCallback(() => {
     return (
@@ -393,7 +375,6 @@ const TableOfContentAnchor: FC<AnchorProps> = ({
     <li
       className={cn(
         "list-inside my-2 transition-all duration-200",
-        // paddingClass,
         isChild && "ml-1.5",
       )}
     >
@@ -419,7 +400,7 @@ const TableOfContentAnchor: FC<AnchorProps> = ({
           {text}
         </Link>
         <span id={`${id}-level`} className="sr-only">
-          Heading level {heading.level}
+          Heading level {level}
         </span>
       </div>
 

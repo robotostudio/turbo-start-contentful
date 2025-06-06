@@ -40,7 +40,7 @@ import type {
 import { ContentfulButtons } from "./contentful-button";
 import { Logo } from "./logo";
 import { ModeToggle } from "./mode-toggle";
-import { SanityIcon } from "./sanity-icon";
+// import { SanityIcon } from "./sanity-icon";
 
 interface MenuItem {
   title: string;
@@ -121,7 +121,8 @@ function MobileNavbarAccordionColumn({
               item={{
                 description: item.fields.label ?? "",
                 href: item.fields.href ?? "",
-                icon: <SanityIcon icon={null} className="size-5 shrink-0" />,
+                // icon: <SanityIcon icon={null} className="size-5 shrink-0" />,
+                icon: null,
                 title: item.fields.label ?? "",
               }}
             />
@@ -261,9 +262,7 @@ export function NavbarColumn({ column }: { column: NavbarColumnLink }) {
                       title: item.fields.label ?? "",
                       description: item.fields.label ?? "",
                       href: item.fields.href ?? "",
-                      icon: (
-                        <SanityIcon icon={null} className="size-5 shrink-0" />
-                      ),
+                      icon: null,
                     }}
                   />
                 </li>
