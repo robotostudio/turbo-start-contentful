@@ -2,6 +2,7 @@ import type { GlobalSettings } from "@/lib/contentful/query";
 import { getGlobalSettings } from "@/lib/contentful/query";
 import { safeAsync } from "@/safe-async";
 
+import { Logo } from "./logo";
 import { NavbarClient, NavbarSkeletonResponsive } from "./navbar-client";
 
 export async function NavbarServer() {
@@ -19,17 +20,15 @@ export async function NavbarServer() {
 }
 
 export function Navbar({ navbarData }: { navbarData?: GlobalSettings }) {
-  console.log("🚀 ~ Navbar ~ navbarData:", navbarData);
   if (!navbarData) {
     return <NavbarSkeleton />;
   }
-  const { navbar, footer } = navbarData?.fields ?? {};
+  const { logo, siteTitle } = navbarData?.fields ?? {};
   return (
     <section className="py-3 md:border-b">
       <div className="container mx-auto px-4 md:px-6">
         <nav className="grid grid-cols-[auto_1fr] items-center gap-4">
-          {/* {logo && <Logo alt={settingsSiteTitle || ""} priority image={logo} />} */}
-
+          <Logo logo={logo} alt={siteTitle} />
           <NavbarClient settingsData={navbarData} />
         </nav>
       </div>

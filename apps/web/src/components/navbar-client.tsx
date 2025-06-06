@@ -37,6 +37,8 @@ import type {
   TypeNavbarLink,
 } from "@/lib/contentful/types";
 
+import { ContentfulButtons } from "./contentful-button";
+import { Logo } from "./logo";
 import { ModeToggle } from "./mode-toggle";
 import { SanityIcon } from "./sanity-icon";
 
@@ -131,8 +133,8 @@ function MobileNavbarAccordionColumn({
 }
 
 function MobileNavbar({ settingsData }: { settingsData: GlobalSettings }) {
-  const { siteTitle } = settingsData?.fields ?? {};
-  const { columns } = settingsData?.fields?.navbar?.fields ?? {};
+  const { siteTitle, logo } = settingsData?.fields ?? {};
+  const { columns, buttons } = settingsData?.fields?.navbar?.fields ?? {};
   const [isOpen, setIsOpen] = useState(false);
 
   const path = usePathname();
@@ -154,9 +156,7 @@ function MobileNavbar({ settingsData }: { settingsData: GlobalSettings }) {
       <SheetContent className="overflow-y-auto">
         <SheetHeader>
           <SheetTitle>
-            {siteTitle && (
-              <span className="text-lg font-semibold">{siteTitle}</span>
-            )}
+            {logo && <Logo alt={siteTitle} logo={logo} />}
           </SheetTitle>
         </SheetHeader>
 
@@ -203,11 +203,11 @@ function MobileNavbar({ settingsData }: { settingsData: GlobalSettings }) {
         </div>
 
         <div className="border-t pt-4">
-          {/* <SanityButtons
+          <ContentfulButtons
             buttons={buttons ?? []}
             buttonClassName="w-full"
             className="flex mt-2 flex-col gap-3"
-          /> */}
+          />
         </div>
       </SheetContent>
     </Sheet>
@@ -281,7 +281,7 @@ export function DesktopNavbar({
 }: {
   settingsData: GlobalSettings;
 }) {
-  const { columns } = settingsData?.fields?.navbar?.fields ?? {};
+  const { columns, buttons } = settingsData?.fields?.navbar?.fields ?? {};
 
   return (
     <div className="grid grid-cols-[1fr_auto] items-center gap-8">
@@ -303,11 +303,11 @@ export function DesktopNavbar({
 
       <div className="justify-self-end flex items-center gap-4">
         <ModeToggle />
-        {/* <SanityButtons
-          buttons={buttons ?? []}
+        <ContentfulButtons
+          buttons={buttons}
           className="flex items-center gap-4"
           buttonClassName="rounded-[10px]"
-        /> */}
+        />
       </div>
     </div>
   );

@@ -1,10 +1,12 @@
 import type { ChainModifiers, Entry, EntryFieldTypes, EntrySkeletonType, LocaleCode } from "contentful";
+import type { TypeButtonSkeleton } from "./TypeButton";
 import type { TypeNavbarColumnLinkSkeleton } from "./TypeNavbarColumnLink";
 import type { TypeNavbarLinkSkeleton } from "./TypeNavbarLink";
 
 export interface TypeNavbarFields {
-    columns: EntryFieldTypes.Array<EntryFieldTypes.EntryLink<TypeNavbarColumnLinkSkeleton | TypeNavbarLinkSkeleton>>;
     label?: EntryFieldTypes.Symbol;
+    columns: EntryFieldTypes.Array<EntryFieldTypes.EntryLink<TypeNavbarColumnLinkSkeleton | TypeNavbarLinkSkeleton>>;
+    buttons?: EntryFieldTypes.Array<EntryFieldTypes.EntryLink<TypeButtonSkeleton>>;
 }
 
 export type TypeNavbarSkeleton = EntrySkeletonType<TypeNavbarFields, "navbar">;
