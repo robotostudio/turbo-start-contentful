@@ -74,28 +74,50 @@ export const getGlobalSettings = cache(getGlobalSettingsUncached);
 export type GlobalSettings = Awaited<ReturnType<typeof getGlobalSettings>>;
 
 export async function getAllBlogs(preview = false) {
-  const client = getClient(preview);
+  try {
+    const client = getClient(preview);
 
-  const {
-    items: [globalSettings],
-  } = await client.getEntries({
-    content_type: "globalSettings",
-    include: 10,
-    select: ["fields.featuredBlog"],
-  });
+    const {
+      items: [globalSettings],
+    } = await client.getEntries({
+      content_type: "globalSettings",
+      include: 10,
+      select: ["fields.featuredBlog"],
+    });
 
-  const featuredBlog = globalSettings?.fields
-    ?.featuredBlog as TypeBlog<"WITHOUT_UNRESOLVABLE_LINKS">;
-  const featuredId = featuredBlog?.sys?.id;
+    const featuredBlog = globalSettings?.fields
+      ?.featuredBlog as TypeBlog<"WITHOUT_UNRESOLVABLE_LINKS">;
+    const featuredId = featuredBlog?.sys?.id;
 
-  const res = await client.getEntries<TypeBlogSkeleton>({
-    content_type: "blog",
-    include: 10,
-    "fields.hideFromList[ne]": true,
-    "sys.id[ne]": featuredId,
-  });
-  return {
-    featured: featuredBlog,
-    blogs: res.items as TypeBlog<"WITHOUT_UNRESOLVABLE_LINKS">[],
-  };
+    const res = await client.getEntries<TypeBlogSkeleton>({
+      content_type: "blog",
+      include: 10,
+      "fields.hideFromList[ne]": true,
+      "sys.id[ne]": featuredId,
+      order: ["-fields.publishedDate"],
+    });
+    return {
+      featured: featuredBlog,
+      blogs: res.items as TypeBlog<"WITHOUT_UNRESOLVABLE_LINKS">[],
+    };
+  } catch (error) {
+    console.error("Error fetching blogs:", error);
+    throw new Error(parseContentfulError(error));
+  }
+}
+
+export async function getBlogBySlug(slug: string, preview = false) {
+  try {
+    const client = getClient(preview);
+    const res = await client.getEntries<TypeBlogSkeleton>({
+      content_type: "blog",
+      "fields.slug": slug,
+      limit: 1,
+      include: 10,
+    });
+    return res.items[0] as TypeBlog<"WITHOUT_UNRESOLVABLE_LINKS">;
+  } catch (error) {
+    console.error(`Error fetching blog with slug ${slug}:`, error);
+    throw new Error(parseContentfulError(error));
+  }
 }
