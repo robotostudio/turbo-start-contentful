@@ -1,12 +1,9 @@
-import { BLOCKS, type Document } from "@contentful/rich-text-types";
+import type { Block, Inline, Text } from "@contentful/rich-text-types";
+import { BLOCKS, type Document, INLINES } from "@contentful/rich-text-types";
 import { cn } from "@workspace/ui/lib/utils";
 import { ChevronDown, Circle } from "lucide-react";
 import Link from "next/link";
 import { type FC, useCallback, useMemo } from "react";
-
-// ============================================================================
-// TYPES & INTERFACES
-// ============================================================================
 
 interface TableOfContentProps {
   richText?: Document | null;
@@ -36,10 +33,6 @@ interface TableOfContentState {
   readonly error?: string;
 }
 
-// ============================================================================
-// CONSTANTS
-// ============================================================================
-
 const HEADING_BLOCKS = [
   BLOCKS.HEADING_2,
   BLOCKS.HEADING_3,
@@ -56,48 +49,37 @@ const HEADING_LEVELS: Record<string, number> = {
   [BLOCKS.HEADING_6]: 6,
 } as const;
 
-const HEADING_STYLES: Record<number, string> = {
-  2: "pl-0",
-  3: "pl-4",
-  4: "pl-8",
-  5: "pl-12",
-  6: "pl-16",
-} as const;
-
 const DEFAULT_MAX_DEPTH = 6;
 const MIN_HEADINGS_TO_SHOW = 1;
 
-// ============================================================================
-// TYPE GUARDS & VALIDATORS
-// ============================================================================
-
-function isHeadingNode(node: any): boolean {
+function isHeadingNode(node: Block | Inline | Text): boolean {
   return (
     node &&
     typeof node === "object" &&
     "nodeType" in node &&
-    HEADING_BLOCKS.includes(node.nodeType as any)
+    HEADING_BLOCKS.includes(node.nodeType as (typeof HEADING_BLOCKS)[number])
   );
 }
 
-function hasValidContent(node: any): boolean {
-  return node && Array.isArray(node.content) && node.content.length > 0;
+function hasValidContent(node: Block | Inline | Text): boolean {
+  return (
+    node &&
+    "content" in node &&
+    Array.isArray(node.content) &&
+    node.content.length > 0
+  );
 }
 
-// ============================================================================
-// UTILITY FUNCTIONS
-// ============================================================================
-
-function extractTextFromNode(node: any): string {
+function extractTextFromNode(node: Block | Inline | Text): string {
   if (!node) return "";
 
   // If it's a text node, return its value
-  if (node.nodeType === "text" && node.value) {
+  if (node.nodeType === "text" && "value" in node) {
     return node.value.trim();
   }
 
   // If it has content, recursively extract text
-  if (Array.isArray(node.content)) {
+  if ("content" in node && Array.isArray(node.content)) {
     return node.content
       .map(extractTextFromNode)
       .filter(Boolean)
@@ -132,25 +114,21 @@ function generateUniqueId(text: string, index: number): string {
   return `toc-${baseId}`;
 }
 
-// ============================================================================
-// CORE BUSINESS LOGIC
-// ============================================================================
-
-function extractHeadingNodes(richText: Document): any[] {
+function extractHeadingNodes(richText: Document): Block[] {
   if (!richText || !Array.isArray(richText.content)) {
     return [];
   }
 
-  function findHeadings(nodes: any[]): any[] {
-    const headings: any[] = [];
+  function findHeadings(nodes: (Block | Inline | Text)[]): Block[] {
+    const headings: Block[] = [];
 
     for (const node of nodes) {
       if (isHeadingNode(node) && hasValidContent(node)) {
-        headings.push(node);
+        headings.push(node as Block);
       }
 
       // Recursively search in nested content
-      if (Array.isArray(node.content)) {
+      if ("content" in node && Array.isArray(node.content)) {
         headings.push(...findHeadings(node.content));
       }
     }
@@ -167,7 +145,7 @@ function extractHeadingNodes(richText: Document): any[] {
 }
 
 function createProcessedHeading(
-  node: any,
+  node: Block,
   index: number,
 ): ProcessedHeading | null {
   try {
@@ -280,7 +258,7 @@ function collectChildHeadings(
 }
 
 function processHeadingNodes(
-  headingNodes: any[],
+  headingNodes: Block[],
   maxDepth: number = DEFAULT_MAX_DEPTH,
 ): ProcessedHeading[] {
   if (!Array.isArray(headingNodes) || headingNodes.length === 0) {
@@ -298,10 +276,6 @@ function processHeadingNodes(
     return [];
   }
 }
-
-// ============================================================================
-// CUSTOM HOOKS
-// ============================================================================
 
 function useTableOfContentState(
   richText?: Document | null,
@@ -341,10 +315,6 @@ function useTableOfContentState(
     }
   }, [richText, maxDepth]);
 }
-
-// ============================================================================
-// COMPONENTS
-// ============================================================================
 
 const TableOfContentAnchor: FC<AnchorProps> = ({
   heading,

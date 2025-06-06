@@ -2,6 +2,7 @@ import {
   documentToReactComponents,
   type Options,
 } from "@contentful/rich-text-react-renderer";
+import type { Block, Inline } from "@contentful/rich-text-types";
 import {
   BLOCKS,
   type Document,
@@ -11,15 +12,17 @@ import {
 import { cn } from "@workspace/ui/lib/utils";
 import Link from "next/link";
 
+import type { Maybe } from "@/types";
+
 import { ContentfulImage } from "./contentful-image";
 
 // Utility function to generate slugs from text content
-function generateSlug(node: any): string {
+function generateSlug(node: Block | Inline): string {
   if (!node || !node.content) return "";
 
   return node.content
-    .filter((child: any) => child.nodeType === "text")
-    .map((child: any) => child.value)
+    .filter((child) => child.nodeType === "text")
+    .map((child) => child?.nodeType === "text" && child.value)
     .join("")
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, "-")
@@ -176,14 +179,7 @@ const renderOptions: Options = {
 };
 
 export interface ContentfulRichTextProps {
-  richText?:
-    | {
-        content: any;
-        data: any;
-        nodeType: string;
-      }
-    | undefined
-    | null;
+  richText?: Maybe<Document>;
   className?: string;
 }
 
