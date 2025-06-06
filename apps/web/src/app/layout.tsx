@@ -3,8 +3,8 @@ import "@workspace/ui/globals.css";
 import { Geist, Geist_Mono } from "next/font/google";
 import { draftMode } from "next/headers";
 import { Suspense } from "react";
-import { preconnect, prefetchDNS } from "react-dom";
 
+import { FooterServer, FooterSkeleton } from "@/components/footer";
 import { CombinedJsonLd } from "@/components/json-ld";
 import { NavbarServer, NavbarSkeleton } from "@/components/navbar";
 import { PreviewBar } from "@/components/preview-bar";
@@ -30,8 +30,6 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  preconnect("https://cdn.sanity.io");
-  prefetchDNS("https://cdn.sanity.io");
   return (
     <html lang="en" suppressHydrationWarning>
       <body
@@ -42,11 +40,10 @@ export default async function RootLayout({
             <NavbarServer />
           </Suspense>
           {children}
-          {/* 
+
           <Suspense fallback={<FooterSkeleton />}>
             <FooterServer />
-          </Suspense> */}
-          {/* <SanityLive /> */}
+          </Suspense>
           <CombinedJsonLd includeWebsite includeOrganization />
           {(await draftMode()).isEnabled && (
             <>

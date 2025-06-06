@@ -1,11 +1,12 @@
 import Link from "next/link";
 
-import { sanityFetch } from "@/lib/sanity/live";
-import { queryFooterData, queryGlobalSeoSettings } from "@/lib/sanity/query";
+import type { GlobalSettings } from "@/lib/contentful/query";
+import { getGlobalSettings } from "@/lib/contentful/query";
 import type {
-  QueryFooterDataResult,
-  QueryGlobalSeoSettingsResult,
-} from "@/lib/sanity/sanity.types";
+  TypeNavbarColumnLink,
+  TypeNavbarLink,
+} from "@/lib/contentful/types";
+import { safeAsync } from "@/safe-async";
 
 import { Logo } from "./logo";
 import {
@@ -16,49 +17,43 @@ import {
   YoutubeIcon,
 } from "./social-icons";
 
-interface SocialLinksProps {
-  data: NonNullable<QueryGlobalSeoSettingsResult>["socialLinks"];
-}
-
-interface FooterProps {
-  data: NonNullable<QueryFooterDataResult>;
-  settingsData: NonNullable<QueryGlobalSeoSettingsResult>;
-}
+// Type definitions for footer columns
+type FooterColumn = TypeNavbarColumnLink<"WITHOUT_UNRESOLVABLE_LINKS">;
+type FooterLinkType = NonNullable<FooterColumn["fields"]["links"]>[number];
 
 export async function FooterServer() {
-  const [response, settingsResponse] = await Promise.all([
-    sanityFetch({
-      query: queryFooterData,
-    }),
-    sanityFetch({
-      query: queryGlobalSeoSettings,
-    }),
-  ]);
+  const result = await safeAsync(getGlobalSettings());
 
-  if (!response?.data || !settingsResponse?.data) return <FooterSkeleton />;
-  return <Footer data={response.data} settingsData={settingsResponse.data} />;
+  if (!result.success) {
+    return <div>Error: {result.error.message}</div>;
+  }
+
+  const footerData = result.data;
+
+  if (!footerData?.fields) {
+    return <FooterSkeleton />;
+  }
+
+  return <Footer settingsData={footerData} />;
 }
 
-function SocialLinks({ data }: SocialLinksProps) {
-  if (!data) return null;
-
-  const { facebook, twitter, instagram, youtube, linkedin } = data;
+function SocialLinks({ settingsData }: { settingsData: GlobalSettings }) {
+  const { twitter, linkedin } = settingsData.fields;
 
   const socialLinks = [
     {
-      url: instagram,
-      Icon: InstagramIcon,
-      label: "Follow us on Instagram",
+      url: twitter,
+      Icon: XIcon,
+      label: "Follow us on Twitter",
     },
-    { url: facebook, Icon: FacebookIcon, label: "Follow us on Facebook" },
-    { url: twitter, Icon: XIcon, label: "Follow us on Twitter" },
-    { url: linkedin, Icon: LinkedinIcon, label: "Follow us on LinkedIn" },
     {
-      url: youtube,
-      Icon: YoutubeIcon,
-      label: "Subscribe to our YouTube channel",
+      url: linkedin,
+      Icon: LinkedinIcon,
+      label: "Follow us on LinkedIn",
     },
   ].filter((link) => link.url);
+
+  if (socialLinks.length === 0) return null;
 
   return (
     <ul className="flex items-center space-x-6 text-muted-foreground">
@@ -134,9 +129,10 @@ export function FooterSkeleton() {
   );
 }
 
-function Footer({ data, settingsData }: FooterProps) {
-  const { subtitle, columns } = data;
-  const { siteTitle, logo, socialLinks } = settingsData;
+function Footer({ settingsData }: { settingsData: GlobalSettings }) {
+  const { label: footerLabel, columns } =
+    settingsData.fields.footer?.fields ?? {};
+  const { siteTitle, logo } = settingsData.fields;
   const year = new Date().getFullYear();
 
   return (
@@ -147,45 +143,60 @@ function Footer({ data, settingsData }: FooterProps) {
             <div className="flex w-full max-w-96 shrink flex-col items-center justify-between gap-6 md:gap-8 lg:items-start">
               <div>
                 <span className="flex items-center justify-center gap-4 lg:justify-start">
-                  <Logo image={logo} alt={siteTitle} priority />
+                  <Logo logo={logo} alt={siteTitle} />
                 </span>
-                {subtitle && (
+                {footerLabel && (
                   <p className="mt-6 text-sm text-muted-foreground dark:text-zinc-400">
-                    {subtitle}
+                    {footerLabel}
                   </p>
                 )}
               </div>
-              {socialLinks && <SocialLinks data={socialLinks} />}
+              <SocialLinks settingsData={settingsData} />
             </div>
             {Array.isArray(columns) && columns?.length > 0 && (
               <div className="grid grid-cols-3 gap-6 lg:gap-28 lg:mr-20">
-                {columns.map((column, index) => (
-                  <div key={`column-${column?._key}-${index}`}>
-                    <h3 className="mb-6 font-semibold">{column?.title}</h3>
-                    {column?.links && column?.links?.length > 0 && (
-                      <ul className="space-y-4 text-sm text-muted-foreground dark:text-zinc-400">
-                        {column?.links?.map((link, index) => (
-                          <li
-                            key={`${link?._key}-${index}-column-${column?._key}`}
-                            className="font-medium hover:text-primary"
-                          >
-                            <Link
-                              href={link.href ?? "#"}
-                              target={link.openInNewTab ? "_blank" : undefined}
-                              rel={
-                                link.openInNewTab
-                                  ? "noopener noreferrer"
-                                  : undefined
-                              }
-                            >
-                              {link.name}
-                            </Link>
-                          </li>
-                        ))}
-                      </ul>
-                    )}
-                  </div>
-                ))}
+                {columns.map((column, index) => {
+                  if (!column?.fields) return null;
+                  return (
+                    <div key={`column-${column.sys.id}-${index}`}>
+                      <h3 className="mb-6 font-semibold">
+                        {column.fields.label}
+                      </h3>
+                      {column.fields.links &&
+                        column.fields.links.length > 0 && (
+                          <ul className="space-y-4 text-sm text-muted-foreground dark:text-zinc-400">
+                            {column.fields.links.map(
+                              (link: FooterLinkType, linkIndex) => {
+                                if (!link?.fields) return null;
+                                return (
+                                  <li
+                                    key={`${link.sys.id}-${linkIndex}-column-${column.sys.id}`}
+                                    className="font-medium hover:text-primary"
+                                  >
+                                    <Link
+                                      href={link.fields.href ?? "#"}
+                                      target={
+                                        link.fields.internal
+                                          ? undefined
+                                          : "_blank"
+                                      }
+                                      rel={
+                                        link.fields.internal
+                                          ? undefined
+                                          : "noopener noreferrer"
+                                      }
+                                    >
+                                      {link.fields.label}
+                                    </Link>
+                                  </li>
+                                );
+                              },
+                            )}
+                          </ul>
+                        )}
+                    </div>
+                  );
+                })}
               </div>
             )}
           </div>

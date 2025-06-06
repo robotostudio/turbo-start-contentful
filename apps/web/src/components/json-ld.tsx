@@ -1,22 +1,18 @@
 import type {
   Answer,
-  Article,
   ContactPoint,
   FAQPage,
   ImageObject,
   Organization,
-  Person,
   Question,
-  WebPage,
   WebSite,
   WithContext,
 } from "schema-dts";
 
 import { getBaseUrl } from "@/config";
-import type {
-  QueryBlogSlugPageDataResult,
-  QuerySettingsDataResult,
-} from "@/lib/sanity/sanity.types";
+import type { GlobalSettings } from "@/lib/contentful/query";
+import { getGlobalSettings } from "@/lib/contentful/query";
+import { safeAsync } from "@/safe-async";
 
 interface RichTextChild {
   _type: string;
@@ -97,109 +93,98 @@ export function FaqJsonLd({ faqs }: FaqJsonLdProps) {
   return <JsonLdScript data={faqJsonLd} id="faq-json-ld" />;
 }
 
-function buildSafeImageUrl(image?: { asset?: { _ref: string } }) {
-  if (!image?.asset?._ref) {
-    return undefined;
-  }
-  return urlFor({ ...image, _id: image.asset?._ref })
-    .size(1920, 1080)
-    .dpr(2)
-    .auto("format")
-    .quality(80)
-    .url();
-}
+// // Article JSON-LD Component
+// interface ArticleJsonLdProps {
+//   // article: PageBuilderArray;
+//   settings?: GlobalSettings;
+// }
+// export function ArticleJsonLd({ settings }: ArticleJsonLdProps) {
+//   // if (!article) return null;
 
-// Article JSON-LD Component
-interface ArticleJsonLdProps {
-  article: QueryBlogSlugPageDataResult;
-  settings?: QuerySettingsDataResult;
-}
-export function ArticleJsonLd({ article, settings }: ArticleJsonLdProps) {
-  if (!article) return null;
+//   const baseUrl = getBaseUrl();
+//   // const articleUrl = `${baseUrl}${article.slug}`;
+//   // const imageUrl = buildSafeImageUrl(article.image);
 
-  const baseUrl = getBaseUrl();
-  const articleUrl = `${baseUrl}${article.slug}`;
-  const imageUrl = buildSafeImageUrl(article.image);
+//   const articleJsonLd: WithContext<Article> = {
+//     "@context": "https://schema.org",
+//     "@type": "Article",
+//     headline: article.title,
+//     description: article.description || undefined,
+//     image: imageUrl ? [imageUrl] : undefined,
+//     author: article.authors
+//       ? [
+//           {
+//             "@type": "Person",
+//             name: article.authors.name,
+//             url: `${baseUrl}`,
+//             image: article.authors.image
+//               ? ({
+//                   "@type": "ImageObject",
+//                   url: buildSafeImageUrl(article.authors.image),
+//                 } as ImageObject)
+//               : undefined,
+//           } as Person,
+//         ]
+//       : [],
+//     publisher: {
+//       "@type": "Organization",
+//       name: settings?.siteTitle || "Website",
+//       logo: settings?.logo
+//         ? ({
+//             "@type": "ImageObject",
+//             url: settings.logo,
+//           } as ImageObject)
+//         : undefined,
+//     } as Organization,
+//     datePublished: new Date(
+//       article.publishedAt || article._createdAt || new Date().toISOString(),
+//     ).toISOString(),
+//     dateModified: new Date(
+//       article._updatedAt || new Date().toISOString(),
+//     ).toISOString(),
+//     url: articleUrl,
+//     mainEntityOfPage: {
+//       "@type": "WebPage",
+//       "@id": articleUrl,
+//     } as WebPage,
+//   };
 
-  const articleJsonLd: WithContext<Article> = {
-    "@context": "https://schema.org",
-    "@type": "Article",
-    headline: article.title,
-    description: article.description || undefined,
-    image: imageUrl ? [imageUrl] : undefined,
-    author: article.authors
-      ? [
-          {
-            "@type": "Person",
-            name: article.authors.name,
-            url: `${baseUrl}`,
-            image: article.authors.image
-              ? ({
-                  "@type": "ImageObject",
-                  url: buildSafeImageUrl(article.authors.image),
-                } as ImageObject)
-              : undefined,
-          } as Person,
-        ]
-      : [],
-    publisher: {
-      "@type": "Organization",
-      name: settings?.siteTitle || "Website",
-      logo: settings?.logo
-        ? ({
-            "@type": "ImageObject",
-            url: settings.logo,
-          } as ImageObject)
-        : undefined,
-    } as Organization,
-    datePublished: new Date(
-      article.publishedAt || article._createdAt || new Date().toISOString(),
-    ).toISOString(),
-    dateModified: new Date(
-      article._updatedAt || new Date().toISOString(),
-    ).toISOString(),
-    url: articleUrl,
-    mainEntityOfPage: {
-      "@type": "WebPage",
-      "@id": articleUrl,
-    } as WebPage,
-  };
-
-  return (
-    <JsonLdScript data={articleJsonLd} id={`article-json-ld-${article.slug}`} />
-  );
-}
+//   return (
+//     <JsonLdScript data={articleJsonLd} id={`article-json-ld-${article.slug}`} />
+//   );
+// }
 
 // Organization JSON-LD Component
 interface OrganizationJsonLdProps {
-  settings: QuerySettingsDataResult;
+  settings: GlobalSettings;
 }
 
 export function OrganizationJsonLd({ settings }: OrganizationJsonLdProps) {
   if (!settings) return null;
 
+  const { siteTitle, siteDescription, logo, contactEmail, twitter, linkedin } =
+    settings.fields;
+
   const baseUrl = getBaseUrl();
 
-  const socialLinks = settings.socialLinks
-    ? (Object.values(settings.socialLinks).filter(Boolean) as string[])
-    : undefined;
+  const socialLinks = [twitter, linkedin].filter(Boolean) as string[];
 
   const organizationJsonLd: WithContext<Organization> = {
     "@context": "https://schema.org",
     "@type": "Organization",
-    name: settings.siteTitle,
-    description: settings.siteDescription || undefined,
+    name: siteTitle,
+    description: siteDescription || undefined,
     url: baseUrl,
-    logo: settings.logo
+    logo: logo?.fields?.file?.url
       ? ({
           "@type": "ImageObject",
-          url: settings.logo,
+          url: `https:${logo?.fields.file.url}`,
         } as ImageObject)
       : undefined,
-    contactPoint: settings.contactEmail
+    contactPoint: contactEmail
       ? ({
           "@type": "ContactPoint",
-          email: settings.contactEmail,
+          email: contactEmail,
           contactType: "customer service",
         } as ContactPoint)
       : undefined,
@@ -211,23 +196,24 @@ export function OrganizationJsonLd({ settings }: OrganizationJsonLdProps) {
 
 // Website JSON-LD Component
 interface WebSiteJsonLdProps {
-  settings: QuerySettingsDataResult;
+  settings: GlobalSettings;
 }
 
 export function WebSiteJsonLd({ settings }: WebSiteJsonLdProps) {
   if (!settings) return null;
 
+  const { siteTitle, siteDescription } = settings.fields;
   const baseUrl = getBaseUrl();
 
   const websiteJsonLd: WithContext<WebSite> = {
     "@context": "https://schema.org",
     "@type": "WebSite",
-    name: settings.siteTitle,
-    description: settings.siteDescription || undefined,
+    name: siteTitle,
+    description: siteDescription || undefined,
     url: baseUrl,
     publisher: {
       "@type": "Organization",
-      name: settings.siteTitle,
+      name: siteTitle,
     } as Organization,
   };
 
@@ -236,8 +222,8 @@ export function WebSiteJsonLd({ settings }: WebSiteJsonLdProps) {
 
 // Combined JSON-LD Component for pages with multiple structured data
 interface CombinedJsonLdProps {
-  settings?: QuerySettingsDataResult;
-  article?: QueryBlogSlugPageDataResult;
+  settings?: GlobalSettings;
+  // article?: QueryBlogSlugPageDataResult;
   faqs?: FlexibleFaq[];
   includeWebsite?: boolean;
   includeOrganization?: boolean;
@@ -245,18 +231,28 @@ interface CombinedJsonLdProps {
 
 export async function CombinedJsonLd({
   settings,
-  article,
+  // article,
   faqs,
   includeWebsite = false,
   includeOrganization = false,
 }: CombinedJsonLdProps) {
-  // const [res] = await handleErrors(client.fetch(querySettingsData));
+  const result = await safeAsync(getGlobalSettings());
+
+  if (!result.success) {
+    return null;
+  }
+
+  const settingsData = result.data;
 
   return (
     <>
-      {/* {includeWebsite && res && <WebSiteJsonLd settings={res} />}
-      {includeOrganization && res && <OrganizationJsonLd settings={res} />} */}
-      {article && <ArticleJsonLd article={article} settings={settings} />}
+      {includeWebsite && settingsData && (
+        <WebSiteJsonLd settings={settingsData} />
+      )}
+      {includeOrganization && settingsData && (
+        <OrganizationJsonLd settings={settingsData} />
+      )}
+      {/* {article && <ArticleJsonLd article={article} settings={settings} />} */}
       {faqs && <FaqJsonLd faqs={faqs} />}
     </>
   );

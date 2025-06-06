@@ -1,9 +1,7 @@
+import { cache } from "react";
+
 import { getClient, parseContentfulError } from "./client";
-import type {
-  TypeGlobalSettings,
-  TypeGlobalSettingsSkeleton,
-  TypePageSkeleton,
-} from "./types";
+import type { TypeGlobalSettings, TypePageSkeleton } from "./types";
 
 export async function getPageBySlug(slug: string, preview = false) {
   try {
@@ -26,8 +24,9 @@ export async function getPageBySlug(slug: string, preview = false) {
   }
 }
 
-export async function getGlobalSettings(preview = false) {
+export async function getGlobalSettingsUncached(preview = false) {
   try {
+    console.count("global-settings");
     const client = getClient(preview);
     const res = await client.getEntries({
       content_type: "globalSettings",
@@ -44,5 +43,7 @@ export async function getGlobalSettings(preview = false) {
     throw new Error(parseContentfulError(error));
   }
 }
+
+export const getGlobalSettings = cache(getGlobalSettingsUncached);
 
 export type GlobalSettings = Awaited<ReturnType<typeof getGlobalSettings>>;
