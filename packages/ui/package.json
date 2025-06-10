@@ -25,7 +25,7 @@
   "devDependencies": {
     "@turbo/gen": "^2.5.0",
     "@types/node": "^22.15.21",
-    "@types/react": "19.1.0",
+    "@types/react": "19.1.7",
     "@types/react-dom": "19.1.0",
     "@workspace/eslint-config": "workspace:*",
     "@workspace/typescript-config": "workspace:*",
