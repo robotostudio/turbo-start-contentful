@@ -76,9 +76,6 @@ function extractTitle({
 }
 
 export function getSEOMetadata(page: PageSeoData = {}): Metadata {
-  // Merge site config with defaults
-
-  // Extract special properties for building defaults, rest will override
   const {
     title: pageTitle,
     description: pageDescription,
@@ -106,6 +103,7 @@ export function getSEOMetadata(page: PageSeoData = {}): Metadata {
     type: contentType,
     id: contentId,
   });
+  console.log("🚀 ~ getSEOMetadata ~ ogImage:", ogImage);
 
   const fullTitle =
     defaultTitle === siteConfig.title
@@ -158,20 +156,3 @@ export function getSEOMetadata(page: PageSeoData = {}): Metadata {
     ...pageOverrides,
   };
 }
-
-// // Legacy function for backward compatibility
-// export async function getMetaData(data: any = {}): Promise<Metadata> {
-//   const { _type, seoDescription, seoTitle, slug, title, description, _id } =
-//     data;
-
-//   // Map legacy data to new structure
-//   const pageData: PageSeoData = {
-//     title: seoTitle || title || undefined,
-//     description: seoDescription || description || undefined,
-//     slug: typeof slug === "string" ? slug : (slug?.current ?? undefined),
-//     contentId: _id || undefined,
-//     contentType: _type || undefined,
-//   };
-
-//   return generateMetadata({ page: pageData });
-// }

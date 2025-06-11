@@ -13,6 +13,19 @@ export async function generateMetadata({
 }) {
   const { slug } = await params;
   const fullSlug = `/${slug.join("/")}`;
+
+  if (
+    fullSlug.startsWith("/.") ||
+    fullSlug.startsWith("/_") ||
+    fullSlug.startsWith("/.well-known")
+  ) {
+    return getSEOMetadata({
+      title: "404",
+      description: "404",
+      slug: fullSlug,
+      seoNoIndex: true,
+    });
+  }
   const result = await safeAsync(getPageBySlug(fullSlug));
   if (!result.success) return getSEOMetadata();
   const page = result.data;
@@ -43,7 +56,11 @@ export default async function CatchAllSlugPage({
   const { slug } = await params;
   const fullSlug = `/${slug.join("/")}`;
 
-  if (fullSlug.startsWith("/.") || fullSlug.startsWith("/_")) {
+  if (
+    fullSlug.startsWith("/.") ||
+    fullSlug.startsWith("/_") ||
+    fullSlug.startsWith("/.well-known")
+  ) {
     return notFound();
   }
 

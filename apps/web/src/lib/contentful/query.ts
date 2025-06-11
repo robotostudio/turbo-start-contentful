@@ -5,6 +5,7 @@ import type {
   TypeBlog,
   TypeBlogSkeleton,
   TypeGlobalSettings,
+  TypePage,
   TypePageSkeleton,
 } from "./types";
 
@@ -25,6 +26,36 @@ export async function getPageBySlug(slug: string, preview = false) {
     return res.items[0];
   } catch (error) {
     console.error(`Error fetching page with slug ${slug}:`, error);
+    throw new Error(parseContentfulError(error));
+  }
+}
+
+export async function getPageByID(id: string, preview = false) {
+  try {
+    const client = getClient(preview);
+
+    const res = await client.getEntries<TypePageSkeleton>({
+      content_type: "page",
+      "sys.id": id,
+      select: [
+        "fields.image",
+        "fields.seoTitle",
+        "fields.title",
+        "fields.slug",
+        "fields.seoImage",
+        "fields.description",
+      ],
+      include: 10,
+      limit: 1,
+    });
+
+    if (!res?.items?.length) {
+      throw new Error(`No page found with id: ${id}`);
+    }
+
+    return res.items[0] as TypePage<"WITHOUT_UNRESOLVABLE_LINKS">;
+  } catch (error) {
+    console.error(`Error fetching page with id ${id}:`, error);
     throw new Error(parseContentfulError(error));
   }
 }
@@ -111,6 +142,31 @@ export async function getAllBlogs(preview = false) {
     };
   } catch (error) {
     console.error("Error fetching blogs:", error);
+    throw new Error(parseContentfulError(error));
+  }
+}
+
+export async function getBlogByID(id: string, preview = false) {
+  try {
+    const client = getClient(preview);
+    const res = await client.getEntries<TypeBlogSkeleton>({
+      content_type: "blog",
+      "sys.id": id,
+      select: [
+        "fields.image",
+        "fields.seoTitle",
+        "fields.title",
+        "fields.slug",
+        "fields.seoImage",
+        "fields.publishedDate",
+        "fields.description",
+      ],
+      limit: 1,
+      include: 10,
+    });
+    return res.items[0] as TypeBlog<"WITHOUT_UNRESOLVABLE_LINKS">;
+  } catch (error) {
+    console.error(`Error fetching blog with id ${id}:`, error);
     throw new Error(parseContentfulError(error));
   }
 }

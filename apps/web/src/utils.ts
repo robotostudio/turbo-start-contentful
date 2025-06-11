@@ -1,3 +1,4 @@
+import type { Asset } from "contentful";
 import type { PortableTextBlock } from "next-sanity";
 import slugify from "slugify";
 
@@ -52,4 +53,14 @@ export function convertToSlug(
 export function parseChildrenToSlug(children: PortableTextBlock["children"]) {
   if (!children) return "";
   return convertToSlug(children.map((child) => child.text).join(""));
+}
+
+export function getImageUrl(
+  image: Asset<"WITHOUT_UNRESOLVABLE_LINKS", string> | undefined,
+) {
+  if (!image) return undefined;
+  const { url, details } = image?.fields?.file ?? {};
+  if (!url) return undefined;
+  const { width, height } = details?.image ?? {};
+  return { url: `https:${url}?w=${width}&h=${height}`, width, height };
 }

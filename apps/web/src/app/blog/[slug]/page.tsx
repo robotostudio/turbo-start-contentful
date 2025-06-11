@@ -26,7 +26,7 @@ export async function generateMetadata({
     description,
     slug: blogSlug,
     contentId: contentId,
-    contentType: contentType.sys.type,
+    contentType: contentType?.sys?.id,
     seoNoIndex,
     authors: blog?.fields?.authors?.map((author) => ({
       name: author?.fields.name,

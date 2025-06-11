@@ -1,18 +1,20 @@
 /* eslint-disable react/no-unknown-property */
 /* eslint-disable @next/next/no-img-element */
+import type { Asset } from "contentful";
 import { ImageResponse } from "next/og";
 import type { ImageResponseOptions } from "next/server";
 
+import {
+  getBlogByID,
+  getBlogBySlug,
+  getPageByID,
+  getPageBySlug,
+} from "@/lib/contentful/query";
+import { safeAsync } from "@/safe-async";
 import type { Maybe } from "@/types";
-import { getTitleCase } from "@/utils";
+import { getImageUrl, getTitleCase } from "@/utils";
 
 import { getOgMetaData } from "./og-config";
-// import {
-//   getBlogPageOGData,
-//   getGenericPageOGData,
-//   getHomePageOGData,
-//   getSlugPageOGData,
-// } from "./og-data";
 
 export const runtime = "edge";
 
@@ -52,16 +54,13 @@ const dominantColorSeoImageRender = ({
   image,
   title,
   logo,
-  dominantColor,
   date,
   description,
   _type,
 }: DominantColorSeoImageRenderProps) => {
   return (
     <div
-      tw={`bg-[${
-        dominantColor ?? "#12061F"
-      }] flex flex-row overflow-hidden relative w-full`}
+      tw={`bg-[${"#12061F"}] flex flex-row overflow-hidden relative w-full`}
       style={{ fontFamily: "Inter" }}
     >
       <svg
@@ -97,9 +96,7 @@ const dominantColorSeoImageRender = ({
         {description && <p tw="text-lg text-white">{description}</p>}
         {_type && (
           <div
-            tw={`bg-white text-[${
-              dominantColor ?? "#12061F"
-            }] flex px-5 py-2 rounded-full text-base font-semibold self-start`}
+            tw={`bg-white text-[${"#12061F"}] flex px-5 py-2 rounded-full text-base font-semibold self-start`}
           >
             {getTitleCase(_type)}
           </div>
@@ -206,54 +203,88 @@ const getOptions = async ({
   };
 };
 
-// const getHomePageContent = async ({ id }: ContentProps) => {
-//   if (!id) return undefined;
-//   const [result, err] = await getHomePageOGData(id);
-//   if (err || !result) return undefined;
-//   if (result?.seoImage) return seoImageRender({ seoImage: result.seoImage });
-//   return dominantColorSeoImageRender(result);
-// };
-// const getSlugPageContent = async ({ id }: ContentProps) => {
-//   if (!id) return undefined;
-//   const [result, err] = await getSlugPageOGData(id);
-//   if (err || !result) return undefined;
-//   if (result?.seoImage) return seoImageRender({ seoImage: result.seoImage });
-//   return dominantColorSeoImageRender(result);
-// };
+const getHomePageContent = async () => {
+  const result = await safeAsync(getPageBySlug("/"));
+  if (!result.success) return undefined;
+  const page = result.data;
+  const { seoImage, image, title } = page?.fields ?? {};
 
-// const getBlogPageContent = async ({ id }: ContentProps) => {
-//   if (!id) return undefined;
-//   const [result, err] = await getBlogPageOGData(id);
-//   if (err || !result) return undefined;
-//   if (result?.seoImage) return seoImageRender({ seoImage: result.seoImage });
-//   return dominantColorSeoImageRender(result);
-// };
+  const seoImageUrl = getImageUrl(
+    seoImage as Asset<"WITHOUT_UNRESOLVABLE_LINKS", string>,
+  );
+  if (seoImageUrl) return seoImageRender({ seoImage: seoImageUrl.url });
+  const imageUrl = getImageUrl(
+    image as Asset<"WITHOUT_UNRESOLVABLE_LINKS", string>,
+  );
+  return dominantColorSeoImageRender({
+    image: imageUrl?.url,
+    title,
+    _type: "page",
+  });
+};
 
-// const getGenericPageContent = async ({ id }: ContentProps) => {
-//   if (!id) return undefined;
-//   const [result, err] = await getGenericPageOGData(id);
-//   if (err || !result) return undefined;
-//   if (result?.seoImage) return seoImageRender({ seoImage: result.seoImage });
-//   return dominantColorSeoImageRender(result);
-// };
+const getSlugPageContent = async ({ id }: ContentProps) => {
+  if (!id) return undefined;
+  const result = await safeAsync(getPageByID(id));
+  if (!result.success) return undefined;
+  const page = result.data;
+  const { seoImage, image, title, description } = page?.fields;
+
+  const seoImageUrl = getImageUrl(seoImage);
+
+  if (seoImageUrl) return seoImageRender({ seoImage: seoImageUrl.url });
+  const imageUrl = getImageUrl(image);
+  if (imageUrl) {
+    return dominantColorSeoImageRender({
+      image: imageUrl.url,
+      title,
+      description,
+      _type: "page",
+    });
+  }
+  return errorContent;
+};
+
+const getBlogPageContent = async ({ id }: ContentProps) => {
+  if (!id) return undefined;
+  const result = await safeAsync(getBlogByID(id));
+  if (!result.success) return undefined;
+  const blog = result.data;
+  const { seoImage, image, title, description } = blog?.fields;
+  const seoImageUrl = getImageUrl(seoImage);
+  if (seoImageUrl) return seoImageRender({ seoImage: seoImageUrl.url });
+  const imageUrl = getImageUrl(image);
+  if (imageUrl) {
+    return dominantColorSeoImageRender({
+      image: imageUrl.url,
+      title,
+      description,
+      _type: "blog",
+      date: new Date(blog?.fields?.publishedDate ?? new Date()).toISOString(),
+    });
+  }
+  return errorContent;
+};
 
 const block = {
-  // homePage: getHomePageContent,
-  // page: getSlugPageContent,
-  // blog: getBlogPageContent,
+  home: getHomePageContent,
+  page: getSlugPageContent,
+  blog: getBlogPageContent,
 } as const;
 
+// const getBlogPageContent = async ({ id }: ContentProps) => {
 export async function GET({ url }: Request): Promise<ImageResponse> {
   const { searchParams } = new URL(url);
   const type = searchParams.get("type") as keyof typeof block;
   const { width, height } = getOgMetaData(searchParams);
   const para = Object.fromEntries(searchParams.entries());
+  console.log("🚀 ~ GET ~ para:", para);
   const options = await getOptions({ width, height });
-  // const image = block[type] ?? getGenericPageContent;
+  const image = block[type] ?? getHomePageContent;
   try {
-    // const content = await image(para);
-    // return new ImageResponse(content ? content : errorContent, options);
-    return new ImageResponse(errorContent, options);
+    const content = await image(para);
+    return new ImageResponse(content ? content : errorContent, options);
+    // return new ImageResponse(errorContent, options);
   } catch (err) {
     console.log({ err });
     return new ImageResponse(errorContent, options);
