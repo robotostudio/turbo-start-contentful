@@ -11,13 +11,13 @@ export async function generateMetadata() {
   const page = result.data;
   const { title, description, slug, seoNoIndex, seoTitle, seoDescription } =
     page?.fields ?? {};
-  const { id: contentId, contentType } = page?.sys ?? {};
+  const { id: contentId } = page?.sys ?? {};
   return getSEOMetadata({
     title: seoTitle || title,
     description: seoDescription || description,
     slug,
     seoNoIndex,
-    contentType: contentType?.sys?.id,
+    contentType: "home",
     contentId,
   });
 }

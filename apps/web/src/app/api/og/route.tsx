@@ -6,7 +6,6 @@ import type { ImageResponseOptions } from "next/server";
 
 import {
   getBlogByID,
-  getBlogBySlug,
   getPageByID,
   getPageBySlug,
 } from "@/lib/contentful/query";
