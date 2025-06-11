@@ -2,15 +2,37 @@ import { draftMode } from "next/headers";
 import { notFound } from "next/navigation";
 
 import { PageBuilder } from "@/components/pagebuilder";
-import { getAllPageSlugs, getPageBySlug } from "@/lib/contentful/query";
+import { getPageBySlug } from "@/lib/contentful/query";
+import { getSEOMetadata } from "@/lib/seo";
 import { safeAsync } from "@/safe-async";
 
-export async function generateStaticParams() {
-  const slugs = await getAllPageSlugs();
-  const paths = slugs.map((slug) => ({
-    slug: slug.split("/").filter(Boolean),
-  }));
-  return paths;
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ slug: string[] }>;
+}) {
+  const { slug } = await params;
+  const fullSlug = `/${slug.join("/")}`;
+  const result = await safeAsync(getPageBySlug(fullSlug));
+  if (!result.success) return getSEOMetadata();
+  const page = result.data;
+  const {
+    title,
+    description,
+    slug: pageSlug,
+    seoNoIndex,
+    seoTitle,
+    seoDescription,
+  } = page?.fields ?? {};
+  const { id: contentId, contentType } = page?.sys ?? {};
+  return getSEOMetadata({
+    title: seoTitle || title,
+    description: seoDescription || description,
+    slug: pageSlug,
+    seoNoIndex,
+    contentType: contentType?.sys?.id,
+    contentId: contentId,
+  });
 }
 
 export default async function CatchAllSlugPage({

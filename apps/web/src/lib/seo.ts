@@ -5,79 +5,131 @@ import { capitalize } from "@/utils";
 
 import { getBaseUrl } from "../config";
 
-interface MetaDataInput {
-  _type?: Maybe<string>;
-  _id?: Maybe<string>;
-  seoTitle?: Maybe<string>;
-  seoDescription?: Maybe<string>;
-  title?: Maybe<string>;
-  description?: Maybe<string>;
-  slug?: Maybe<string> | { current: Maybe<string> };
+// Site-wide configuration interface
+interface SiteConfig {
+  title: string;
+  description: string;
+  twitterHandle: string;
+  keywords: string[];
 }
 
-function getOgImage({ type, id }: { type?: string; id?: string } = {}): string {
-  const params = new URLSearchParams();
-  if (id) params.set("id", id);
-  if (type) params.set("type", type);
+// Page-specific SEO data interface
+interface PageSeoData extends Metadata {
+  title?: string;
+  description?: string;
+  slug?: string;
+  contentId?: string;
+  contentType?: string;
+  keywords?: string[];
+  seoNoIndex?: boolean;
+  seoImage?: unknown;
+}
+
+// OpenGraph image generation parameters
+interface OgImageParams {
+  type?: string;
+  id?: string;
+}
+
+// Default site configuration
+const siteConfig: SiteConfig = {
+  title: "Roboto Studio Demo",
+  description: "Roboto Studio Demo",
+  twitterHandle: "@studioroboto",
+  keywords: ["roboto", "studio", "demo", "sanity", "next", "react", "template"],
+};
+
+function generateOgImageUrl(params: OgImageParams = {}): string {
+  const { type, id } = params;
+  const searchParams = new URLSearchParams();
+
+  if (id) searchParams.set("id", id);
+  if (type) searchParams.set("type", type);
+
   const baseUrl = getBaseUrl();
-  return `${baseUrl}/api/og?${params.toString()}`;
+  return `${baseUrl}/api/og?${searchParams.toString()}`;
 }
 
-export async function getMetaData(data: MetaDataInput = {}): Promise<Metadata> {
-  const { _type, seoDescription, seoTitle, slug, title, description, _id } =
-    data ?? {};
-  // Fetch global SEO settings
+function buildPageUrl({
+  baseUrl,
+  slug,
+}: {
+  baseUrl: string;
+  slug: string;
+}): string {
+  const normalizedSlug = slug.startsWith("/") ? slug : `/${slug}`;
+  return `${baseUrl}${normalizedSlug}`;
+}
+
+function extractTitle({
+  pageTitle,
+  slug,
+  siteTitle,
+}: {
+  pageTitle?: Maybe<string>;
+  slug: string;
+  siteTitle: string;
+}): string {
+  if (pageTitle) return pageTitle;
+  if (slug && slug !== "/") return capitalize(slug.replace(/^\//, ""));
+  return siteTitle;
+}
+
+export function getSEOMetadata(page: PageSeoData = {}): Metadata {
+  // Merge site config with defaults
+
+  // Extract special properties for building defaults, rest will override
   const {
-    siteTitle = "Roboto Studio Demo",
-    siteDescription = "Roboto Studio Demo",
-    socialLinks = { twitter: "@studioroboto" },
-  } = {};
+    title: pageTitle,
+    description: pageDescription,
+    slug = "/",
+    contentId,
+    contentType,
+    keywords: pageKeywords = [],
+    seoNoIndex = false,
+    ...pageOverrides
+  } = page;
 
   const baseUrl = getBaseUrl();
-  const pageSlug = typeof slug === "string" ? slug : (slug?.current ?? "");
-  const pageUrl = `${baseUrl}${pageSlug}`;
+  const pageUrl = buildPageUrl({ baseUrl, slug });
 
-  const placeholderTitle = capitalize(pageSlug);
+  // Build default metadata values
+  const defaultTitle = extractTitle({
+    pageTitle,
+    slug,
+    siteTitle: siteConfig.title,
+  });
+  const defaultDescription = pageDescription || siteConfig.description;
+  const allKeywords = [...siteConfig.keywords, ...pageKeywords];
 
-  const twitterHandle = `@${socialLinks.twitter.split("/").pop()}`;
-
-  const meta = {
-    title: `${seoTitle ?? title ?? placeholderTitle}`,
-    description: seoDescription ?? description ?? siteDescription ?? "",
-  };
-
-  const ogImage = getOgImage({
-    type: _type ?? undefined,
-    id: _id ?? undefined,
+  const ogImage = generateOgImageUrl({
+    type: contentType,
+    id: contentId,
   });
 
-  // Use siteTitle from settings for branding, with a fallback only if settings are not available
-  const brandName = siteTitle || "Roboto Studio Demo";
+  const fullTitle =
+    defaultTitle === siteConfig.title
+      ? defaultTitle
+      : `${defaultTitle} | ${siteConfig.title}`;
 
-  return {
-    title: `${meta.title} | ${brandName}`,
-    description: meta.description,
+  // Build default metadata object
+  const defaultMetadata: Metadata = {
+    title: fullTitle,
+    description: defaultDescription,
     metadataBase: new URL(baseUrl),
-    creator: brandName,
-    authors: [{ name: brandName }],
+    creator: siteConfig.title,
+    authors: [{ name: siteConfig.title }],
     icons: {
       icon: `${baseUrl}/favicon.ico`,
     },
-    keywords: [
-      "roboto",
-      "studio",
-      "demo",
-      "sanity",
-      "next",
-      "react",
-      "template",
-    ],
+    keywords: allKeywords,
+    robots: seoNoIndex ? "noindex, nofollow" : "index, follow",
     twitter: {
       card: "summary_large_image",
       images: [ogImage],
-      creator: twitterHandle,
-      title: meta.title,
-      description: meta.description,
+      creator: siteConfig.twitterHandle,
+      title: defaultTitle,
+      description: defaultDescription,
     },
     alternates: {
       canonical: pageUrl,
@@ -85,18 +137,41 @@ export async function getMetaData(data: MetaDataInput = {}): Promise<Metadata> {
     openGraph: {
       type: "website",
       countryName: "UK",
-      description: meta.description,
-      title: meta.title,
+      description: defaultDescription,
+      title: defaultTitle,
       images: [
         {
           url: ogImage,
           width: 1200,
           height: 630,
-          alt: meta.title,
+          alt: defaultTitle,
           secureUrl: ogImage,
         },
       ],
       url: pageUrl,
     },
   };
+
+  // Override any defaults with page-specific metadata
+  return {
+    ...defaultMetadata,
+    ...pageOverrides,
+  };
 }
+
+// // Legacy function for backward compatibility
+// export async function getMetaData(data: any = {}): Promise<Metadata> {
+//   const { _type, seoDescription, seoTitle, slug, title, description, _id } =
+//     data;
+
+//   // Map legacy data to new structure
+//   const pageData: PageSeoData = {
+//     title: seoTitle || title || undefined,
+//     description: seoDescription || description || undefined,
+//     slug: typeof slug === "string" ? slug : (slug?.current ?? undefined),
+//     contentId: _id || undefined,
+//     contentType: _type || undefined,
+//   };
+
+//   return generateMetadata({ page: pageData });
+// }

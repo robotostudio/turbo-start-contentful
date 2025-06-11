@@ -5,9 +5,8 @@ import { ContentfulImage } from "@/components/contentful-image";
 import { ContentfulRichText } from "@/components/contentful-richtext";
 import { ArticleJsonLd } from "@/components/json-ld";
 import { TableOfContent } from "@/components/table-of-content";
-// import { ArticleJsonLd } from "@/components/json-ld";
 import { getBlogBySlug, getBlogPaths } from "@/lib/contentful/query";
-import { getMetaData } from "@/lib/seo";
+import { getSEOMetadata } from "@/lib/seo";
 import { safeAsync } from "@/safe-async";
 
 export async function generateMetadata({
@@ -16,9 +15,24 @@ export async function generateMetadata({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  // const { data } = await fetchBlogSlugPageData(slug);
-  // return await getMetaData(data ?? {});
-  return await getMetaData({});
+  const response = await safeAsync(getBlogBySlug(slug));
+  if (!response.success) return getSEOMetadata();
+  const blog = response.data;
+  const { title, description, slug: blogSlug, seoNoIndex } = blog?.fields ?? {};
+  const { id: contentId, contentType } = blog?.sys ?? {};
+
+  const metadata = getSEOMetadata({
+    title,
+    description,
+    slug: blogSlug,
+    contentId: contentId,
+    contentType: contentType.sys.type,
+    seoNoIndex,
+    authors: blog?.fields?.authors?.map((author) => ({
+      name: author?.fields.name,
+    })),
+  });
+  return metadata;
 }
 
 export async function generateStaticParams() {

@@ -2,7 +2,20 @@ import { draftMode } from "next/headers";
 
 import { BlogCard, BlogHeader, FeaturedBlogCard } from "@/components/blog-card";
 import { getAllBlogs } from "@/lib/contentful/query";
+import { getSEOMetadata } from "@/lib/seo";
 import { safeAsync } from "@/safe-async";
+
+export async function generateMetadata() {
+  return getSEOMetadata({
+    title: "Blog | Latest Articles and Insights",
+    description:
+      "Explore our latest blog posts, articles, and insights. Stay updated with our expert analysis, industry trends, and valuable information.",
+    slug: "/blog",
+    seoNoIndex: false,
+    contentType: "blogIndex",
+    contentId: "blogIndex",
+  });
+}
 
 export default async function BlogIndexPage() {
   const { isEnabled } = await draftMode();

@@ -2,11 +2,24 @@ import { draftMode } from "next/headers";
 
 import { PageBuilder } from "@/components/pagebuilder";
 import { getPageBySlug } from "@/lib/contentful/query";
-import { getMetaData } from "@/lib/seo";
+import { getSEOMetadata } from "@/lib/seo";
 import { safeAsync } from "@/safe-async";
 
 export async function generateMetadata() {
-  return getMetaData();
+  const result = await safeAsync(getPageBySlug("/"));
+  if (!result.success) return getSEOMetadata();
+  const page = result.data;
+  const { title, description, slug, seoNoIndex, seoTitle, seoDescription } =
+    page?.fields ?? {};
+  const { id: contentId, contentType } = page?.sys ?? {};
+  return getSEOMetadata({
+    title: seoTitle || title,
+    description: seoDescription || description,
+    slug,
+    seoNoIndex,
+    contentType: contentType?.sys?.id,
+    contentId,
+  });
 }
 
 export default async function Page() {
