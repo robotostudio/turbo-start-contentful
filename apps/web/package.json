@@ -17,6 +17,7 @@
     "@apollo/client": "^3.13.8",
     "@contentful/rich-text-react-renderer": "^16.0.1",
     "@contentful/rich-text-types": "^17.0.0",
+    "@contentful/vercel-nextjs-toolkit": "^1.6.0",
     "@next/env": "^15.3.3",
     "@sanity/asset-utils": "^2.2.1",
     "@sanity/client": "^6.28.4",
