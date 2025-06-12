@@ -16,4 +16,4 @@ export const accessToken = assertValue(
   "Missing environment variable: NEXT_PUBLIC_SANITY_PROJECT_ID",
 );
 
-export const previewToken = process.env.CONTENTFUL_PREVIEW_TOKEN;
+export const previewToken = process.env.CONTENTFUL_PREVIEW_ACCESS_TOKEN;
