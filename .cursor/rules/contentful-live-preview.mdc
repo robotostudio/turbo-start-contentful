@@ -1,0 +1,228 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+# Contentful Live Preview Implementation Guide
+
+## Overview
+
+This project uses Contentful Live Preview functionality to enable real-time content editing with visual indicators and live updates. The implementation follows Contentful's best practices for Next.js 14 App Router.
+
+## Core Files Structure
+
+### Provider Setup
+- [contentful-preview-provider.tsx](mdc:apps/web/src/components/contentful-preview-provider.tsx) - Wrapper for ContentfulLivePreviewProvider
+- [layout.tsx](mdc:apps/web/src/app/layout.tsx) - Root layout with preview provider configuration
+
+### API Routes
+- [draft/route.ts](mdc:apps/web/src/app/api/draft/route.ts) - Enables draft mode with token validation
+- [disable-draft/route.ts](mdc:apps/web/src/app/api/disable-draft/route.ts) - Disables draft mode
+- [preview/route.ts](mdc:apps/web/src/app/api/preview/route.ts) - Contentful toolkit handler
+
+### Preview Components
+- [preview-bar.tsx](mdc:apps/web/src/components/preview-bar.tsx) - Visual preview mode indicator
+- All section components in [sections/](mdc:apps/web/src/components/sections) use live preview hooks
+
+### Configuration
+- [next.config.ts](mdc:apps/web/next.config.ts) - Headers configuration for Contentful integration
+- [client.ts](mdc:apps/web/src/lib/contentful/client.ts) - Contentful client with preview support
+- [env.ts](mdc:apps/web/src/lib/env.ts) - Environment variables configuration
+
+## Implementation Patterns
+
+### 1. Component Live Preview Pattern
+
+Every Contentful component MUST follow this pattern:
+
+```typescript
+"use client";
+
+import {
+  useContentfulInspectorMode,
+  useContentfulLiveUpdates,
+} from "@contentful/live-preview/react";
+
+export function MyComponent(props: MyContentfulType) {
+  // Apply live updates to props
+  const updatedProps = useContentfulLiveUpdates(props);
+  
+  // Setup inspector mode for field highlighting
+  const inspectorProps = useContentfulInspectorMode({
+    entryId: updatedProps.sys.id,
+  });
+  
+  const { field1, field2 } = updatedProps.fields ?? {};
+  
+  return (
+    <div>
+      <h1 {...inspectorProps({ fieldId: "field1" })}>
+        {field1}
+      </h1>
+      <p {...inspectorProps({ fieldId: "field2" })}>
+        {field2}
+      </p>
+    </div>
+  );
+}
+```
+
+### 2. Required Environment Variables
+
+```bash
+CONTENTFUL_SPACE_ID=your_space_id
+CONTENTFUL_ACCESS_TOKEN=your_delivery_token
+CONTENTFUL_PREVIEW_ACCESS_TOKEN=your_preview_token
+CONTENTFUL_DRAFT_TOKEN=your_draft_secret_token
+```
+
+### 3. Draft Mode Integration
+
+Pages MUST check draft mode status:
+
+```typescript
+import { draftMode } from "next/headers";
+import { getClient } from "@/lib/contentful/client";
+
+export default async function Page() {
+  const { isEnabled } = await draftMode();
+  const client = getClient(isEnabled);
+  
+  // Fetch data with preview mode based on draft status
+  const data = await client.getEntries({ /* query */ });
+  
+  return <YourComponent {...data} />;
+}
+```
+
+### 4. Contentful Client Configuration
+
+The client automatically switches between delivery and preview APIs based on the preview parameter:
+
+```typescript
+export function getClient(preview = false) {
+  return contentful.createClient({
+    host: preview ? "preview.contentful.com" : "cdn.contentful.com",
+    accessToken: preview ? previewToken || accessToken : accessToken,
+    space: spaceId,
+  });
+}
+```
+
+## Security Configuration
+
+### Next.js Headers (Required)
+
+The [next.config.ts](mdc:apps/web/next.config.ts) MUST include these headers for Contentful integration:
+
+```typescript
+async headers() {
+  return [
+    {
+      source: "/:path*",
+      headers: [
+        {
+          key: "X-Frame-Options",
+          value: "SAMEORIGIN",
+        },
+        {
+          key: "Content-Security-Policy",
+          value: `frame-ancestors 'self' https://app.contentful.com`,
+        },
+      ],
+    },
+  ];
+}
+```
+
+## Preview Provider Setup
+
+### Root Layout Configuration
+
+The [layout.tsx](mdc:apps/web/src/app/layout.tsx) MUST wrap the app with ContentfulPreviewProvider:
+
+```typescript
+import { draftMode } from "next/headers";
+import { ContentfulPreviewProvider } from "@/components/contentful-preview-provider";
+
+export default async function RootLayout({ children }) {
+  const { isEnabled } = await draftMode();
+  
+  return (
+    <html>
+      <body>
+        <ContentfulPreviewProvider
+          locale="en-US"
+          enableInspectorMode={isEnabled}
+          enableLiveUpdates={isEnabled}
+          debugMode
+        >
+          {children}
+        </ContentfulPreviewProvider>
+        
+        {isEnabled && <PreviewBar />}
+      </body>
+    </html>
+  );
+}
+```
+
+## Live Preview Features
+
+### Inspector Mode
+- Highlights editable fields when hovering in Contentful
+- Requires `useContentfulInspectorMode` hook
+- Pass `inspectorProps({ fieldId: "fieldName" })` to each editable element
+
+### Live Updates  
+- Real-time content updates without page refresh
+- Requires `useContentfulLiveUpdates` hook
+- Apply to component props to get updated content
+
+### Preview Bar
+- Visual indicator showing preview mode is active
+- Provides exit link to disable draft mode
+- Only shown when `isEnabled` from draftMode is true
+
+## API Routes
+
+### Draft Mode Enable: `/api/draft`
+- Validates token against `CONTENTFUL_DRAFT_TOKEN`
+- Enables Next.js draft mode
+- Redirects to specified path
+
+### Draft Mode Disable: `/api/disable-draft`
+- Disables Next.js draft mode
+- Redirects to specified slug
+- Includes 1-second delay for state synchronization
+
+### Contentful Preview Handler: `/api/preview`
+- Uses Contentful's Vercel toolkit
+- Handles preview mode activation from Contentful
+
+## Best Practices
+
+### DO:
+- Always use `"use client"` directive for components with live preview hooks
+- Apply `useContentfulLiveUpdates` to all Contentful props
+- Use `useContentfulInspectorMode` for field highlighting
+- Check draft mode status in pages before fetching data
+- Include error handling for missing environment variables
+
+### DON'T:
+- Use live preview hooks in Server Components
+- Forget to pass `inspectorProps` to editable fields
+- Skip token validation in draft API routes
+- Omit required security headers in Next.js config
+- Use live preview in production without proper token protection
+
+## Troubleshooting
+
+### Common Issues:
+1. **Inspector mode not working**: Check CSP headers and X-Frame-Options
+2. **Live updates not working**: Ensure `useContentfulLiveUpdates` is applied to props
+3. **Preview mode not enabling**: Verify `CONTENTFUL_DRAFT_TOKEN` matches
+4. **Content not updating**: Check if component is using updated props from live updates hook
+
+### Debug Mode:
+Enable `debugMode: true` in ContentfulPreviewProvider for console logging of live preview events.
