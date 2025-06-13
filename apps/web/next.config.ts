@@ -3,10 +3,14 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   /* config options here */
   transpilePackages: ["@workspace/ui"],
+  compiler: {
+    removeConsole: process.env.NODE_ENV === "production",
+  },
   experimental: {
     reactCompiler: true,
     // ppr: true,
     inlineCss: true,
+    forceSwcTransforms: true,
   },
   logging: {
     fetches: {
