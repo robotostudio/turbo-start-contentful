@@ -47,7 +47,7 @@
     "@graphql-codegen/typescript": "^4.1.6",
     "@graphql-codegen/typescript-operations": "^4.6.1",
     "@types/node": "^22",
-    "@types/react": "19.1.0",
+    "@types/react": "19.1.8",
     "@types/react-dom": "19.1.0",
     "@workspace/eslint-config": "workspace:^",
     "@workspace/typescript-config": "workspace:*",
