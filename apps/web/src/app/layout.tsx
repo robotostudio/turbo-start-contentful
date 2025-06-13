@@ -43,8 +43,8 @@ export default async function RootLayout({
           </Suspense>
           <ContentfulPreviewProvider
             locale="en-US"
-            enableInspectorMode
-            enableLiveUpdates
+            enableInspectorMode={isEnabled}
+            enableLiveUpdates={isEnabled}
             debugMode
           >
             {children}
