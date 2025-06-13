@@ -67,6 +67,7 @@ export function HeroBlock(props: HeroBlockProps) {
                 width={800}
                 height={800}
                 priority
+                fetchPriority="high"
                 quality={80}
                 className="max-h-96 w-full rounded-3xl object-cover"
                 {...inspectorProps({ fieldId: "image" })}

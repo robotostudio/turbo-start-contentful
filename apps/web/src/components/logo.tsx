@@ -15,9 +15,9 @@ export function Logo({
     <Image
       src={`https:${logo?.fields?.file?.url}`}
       alt={alt ?? "logo"}
-      width={170}
-      height={40}
-      className="w-[170px] h-[40px] dark:invert"
+      width={167}
+      height={32}
+      className="w-[167px] h-[32px] dark:invert"
       loading="eager"
       decoding="sync"
       priority
