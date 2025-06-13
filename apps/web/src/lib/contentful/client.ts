@@ -4,6 +4,7 @@ import { accessToken, previewToken, spaceId } from "../env";
 
 export function getClient(preview = false) {
   const client = contentful.createClient({
+    host: preview ? "preview.contentful.com" : "cdn.contentful.com",
     accessToken: preview ? previewToken || accessToken : accessToken,
     space: spaceId,
   });

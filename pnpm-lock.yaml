@@ -29,6 +29,9 @@ importers:
       '@apollo/client':
         specifier: ^3.13.8
         version: 3.13.8(@types/react@19.1.0)(graphql-ws@6.0.5(graphql@16.11.0)(ws@8.18.0))(graphql@16.11.0)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+      '@contentful/live-preview':
+        specifier: ^4.6.21
+        version: 4.6.21(graphql@16.11.0)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@contentful/rich-text-react-renderer':
         specifier: ^16.0.1
         version: 16.0.1(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
@@ -911,6 +914,15 @@ packages:
 
   '@contentful/content-source-maps@0.11.18':
     resolution: {integrity: sha512-pr1Y/MRNXgiriUt2PDOMOQP+ONubAJof6vzORbygmI/XVUUFnk/foB9sYjIebrc3KToUvUO79GmtyJMh2rYC3g==}
+
+  '@contentful/content-source-maps@0.11.19':
+    resolution: {integrity: sha512-hSkGrktJWqJYHnMjXSdFNNp5eaICJidAJmBHN5kaUvqa7o5femSbFRoEi3Zh+sxmDbEhv+kWOOpsz8Dz3D/NSg==}
+
+  '@contentful/live-preview@4.6.21':
+    resolution: {integrity: sha512-OMQJZ8KezS/2JXVh/DQ3k7wTXJ6rAAT3iBPJUip9YzRB0b+vEIF9KcwrP+P87m9IBdnEPefPV/l1SQ6y86J1Lw==}
+    peerDependencies:
+      react: ^17.0.0 || ^18.0.0 || ^19.0.0
+      react-dom: ^17.0.0 || ^18.0.0 || ^19.0.0
 
   '@contentful/rich-text-react-renderer@16.0.1':
     resolution: {integrity: sha512-7wZZBMgwbq5Udp2KebKCJoh9K+EPGlgRkudhXSp+OxtAIdBC6JUz3Oi9kXXKYKLeSg7iTBpkO1dd0/xFjHHKbg==}
@@ -5601,6 +5613,10 @@ packages:
   lodash.isboolean@3.0.3:
     resolution: {integrity: sha512-Bz5mupy2SVbPHURB98VAcw+aHh4vRV5IPNhILUCsOzRmsTmSQ17jIuqopAentWoehktxGd9e/hbIXq980/1QJg==}
 
+  lodash.isequal@4.5.0:
+    resolution: {integrity: sha512-pDo3lu8Jhfjqls6GkMgpahsF9kCyayhgykjyLMNFTKWrpVdAQtYyB4muAMWozBB4ig/dtWAmsMxLEI8wuz+DYQ==}
+    deprecated: This package is deprecated. Use require('node:util').isDeepStrictEqual instead.
+
   lodash.isinteger@4.0.4:
     resolution: {integrity: sha512-DBwtEWN2caHQ9/imiNeEA5ys1JoRtRfY3d7V9wkqtbycnAmTvRRmbHKDV4a0EYc678/dia0jrte4tjYwVBaZUA==}
 
@@ -8902,6 +8918,24 @@ snapshots:
     dependencies:
       '@vercel/stega': 0.1.2
       json-pointer: 0.6.2
+
+  '@contentful/content-source-maps@0.11.19':
+    dependencies:
+      '@vercel/stega': 0.1.2
+      json-pointer: 0.6.2
+
+  '@contentful/live-preview@4.6.21(graphql@16.11.0)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)':
+    dependencies:
+      '@contentful/content-source-maps': 0.11.19
+      '@contentful/rich-text-types': 17.0.0
+      flatted: 3.3.3
+      graphql-tag: 2.12.6(graphql@16.11.0)
+      json-pointer: 0.6.2
+      lodash.isequal: 4.5.0
+      react: 19.1.0
+      react-dom: 19.1.0(react@19.1.0)
+    transitivePeerDependencies:
+      - graphql
 
   '@contentful/rich-text-react-renderer@16.0.1(react-dom@19.1.0(react@19.1.0))(react@19.1.0)':
     dependencies:
@@ -14322,6 +14356,8 @@ snapshots:
   lodash.includes@4.3.0: {}
 
   lodash.isboolean@3.0.3: {}
+
+  lodash.isequal@4.5.0: {}
 
   lodash.isinteger@4.0.4: {}
 

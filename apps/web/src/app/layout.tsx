@@ -4,6 +4,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import { draftMode } from "next/headers";
 import { Suspense } from "react";
 
+import { ContentfulPreviewProvider } from "@/components/contentful-preview-provider";
 import { FooterServer, FooterSkeleton } from "@/components/footer";
 import { CombinedJsonLd } from "@/components/json-ld";
 import { NavbarServer, NavbarSkeleton } from "@/components/navbar";
@@ -30,6 +31,7 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const { isEnabled } = await draftMode();
   return (
     <html lang="en" suppressHydrationWarning>
       <body
@@ -39,13 +41,20 @@ export default async function RootLayout({
           <Suspense fallback={<NavbarSkeleton />}>
             <NavbarServer />
           </Suspense>
-          {children}
+          <ContentfulPreviewProvider
+            locale="en-US"
+            enableInspectorMode
+            enableLiveUpdates
+            debugMode
+          >
+            {children}
+          </ContentfulPreviewProvider>
 
           <Suspense fallback={<FooterSkeleton />}>
             <FooterServer />
           </Suspense>
           <CombinedJsonLd includeWebsite includeOrganization />
-          {(await draftMode()).isEnabled && (
+          {isEnabled && (
             <>
               <PreviewBar />
             </>

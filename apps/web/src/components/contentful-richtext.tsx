@@ -178,14 +178,15 @@ const renderOptions: Options = {
   },
 };
 
-export interface ContentfulRichTextProps {
+export type ContentfulRichTextProps = {
   richText?: Maybe<Document>;
   className?: string;
-}
+} & React.ComponentProps<"div">;
 
 export function ContentfulRichText({
   richText,
   className,
+  ...props
 }: ContentfulRichTextProps) {
   if (!richText) return null;
 
@@ -195,6 +196,7 @@ export function ContentfulRichText({
         "prose prose-zinc prose-headings:scroll-m-24 prose-headings:text-opacity-90 prose-p:text-opacity-80 prose-a:decoration-dotted prose-ol:text-opacity-80 prose-ul:text-opacity-80 prose-h2:border-b prose-h2:pb-2 prose-h2:text-3xl prose-h2:font-semibold prose-h2:first:mt-0 max-w-none dark:prose-invert",
         className,
       )}
+      {...props}
     >
       {documentToReactComponents(richText as Document, renderOptions)}
     </div>

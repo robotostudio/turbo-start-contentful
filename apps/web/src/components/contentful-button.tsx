@@ -69,6 +69,7 @@ export function ContentfulButtons({
   className,
   buttonClassName,
   size,
+  ...props
 }: ContentfulButtonsProps) {
   if (!buttons?.length) return null;
 
@@ -88,6 +89,7 @@ export function ContentfulButtons({
           button={button}
           className={buttonClassName}
           size={size}
+          {...props}
         />
       ))}
     </div>
