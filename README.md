@@ -1,128 +1,168 @@
-# Next.js Monorepo with Sanity CMS
+# Next.js Monorepo with Contentful CMS
 
-A modern, full-stack monorepo template built with Next.js App Router, Sanity CMS, Shadcn UI, and TurboRepo.
+A modern, full-stack monorepo template built with Next.js App Router, Contentful CMS, Shadcn UI, and TurboRepo for building scalable web applications with content management.
 
-![Easiest way to build a webpage](https://raw.githubusercontent.com/robotostudio/turbo-start-sanity/main/turbo-start-sanity-og.png)
+![Modern Next.js Monorepo](https://raw.githubusercontent.com/robotostudio/turbo-start-sanity/main/turbo-start-sanity-og.png)
 
-## Features
+## What's Inside
 
-### Monorepo Structure
+This monorepo demonstrates modern web development practices with a focus on developer experience, performance, and maintainability.
 
-- Apps: web (Next.js frontend) and studio (Sanity Studio)
-- Shared packages: UI components, TypeScript config, ESLint config
-- Turborepo for build orchestration and caching
+### 🏗️ Monorepo Structure
 
-### Frontend (Web)
+```
+turbo-next-contentful/
+├── apps/
+│   └── web/                 # Next.js frontend application
+├── packages/
+│   ├── ui/                  # Shared UI components (Shadcn UI)
+│   ├── eslint-config/       # Shared ESLint configuration
+│   └── typescript-config/   # Shared TypeScript configuration
+└── turbo.json              # TurboRepo configuration
+```
 
-- Next.js App Router with TypeScript
-- Shadcn UI components with Tailwind CSS
-- Server Components and Server Actions
-- SEO optimization with metadata
-- Blog system with rich text editor
-- Table of contents generation
-- Responsive layouts
+### 🚀 Frontend Application (`apps/web`)
 
-### Content Management (Studio)
+- **Next.js 14 App Router** - Modern React framework with file-based routing
+- **TypeScript** - Type-safe development experience
+- **Shadcn UI + Tailwind CSS** - Beautiful, accessible UI components
+- **Server Components** - Optimized rendering and performance
+- **Dynamic Page Builder** - Flexible content layouts from Contentful
+- **Blog System** - Full-featured blog with rich text support
+- **SEO Optimized** - Built-in metadata, sitemaps, and structured data
 
-- Sanity Studio v3
-- Custom document types (Blog, FAQ, Pages)
-- Visual editing integration
-- Structured content with schemas
-- Live preview capabilities
-- Asset management
+### 📝 Content Management
+
+- **Contentful CMS** - Headless content management system
+- **GraphQL Integration** - Type-safe content fetching with codegen
+- **Rich Text Rendering** - Custom rich text components
+- **Preview Mode** - Live preview of draft content
+- **Image Optimization** - Automatic image optimization and delivery
+
+### 🔧 Development Tools
+
+- **TurboRepo** - Monorepo build system with intelligent caching
+- **Shared Packages** - Reusable components, configs, and utilities
+- **ESLint & Prettier** - Code quality and formatting
+- **TypeScript** - End-to-end type safety
 
 ## Getting Started
 
-### Installing the template
+### Prerequisites
 
-#### 1. Initialize template with Sanity CLI
+- Node.js 18+ 
+- pnpm (recommended package manager)
+- Contentful account and space
 
-Run the command in your Terminal to initialize this template on your local computer.
+### 1. Clone and Install
 
-See the documentation if you are [having issues with the CLI](https://www.sanity.io/help/cli-errors).
-
-```shell
-npm create sanity@latest -- --template robotostudio/turbo-start-sanity
+```bash
+git clone <your-repo-url>
+cd turbo-next-contentful
+pnpm install
 ```
 
-#### 2. Run Studio and Next.js app locally
+### 2. Environment Setup
 
-Navigate to the template directory using `cd <your app name>`, and start the development servers by running the following command
+Create a `.env.local` file in `apps/web/`:
 
-```shell
+```bash
+# Contentful Configuration
+CONTENTFUL_SPACE_ID=your_space_id
+CONTENTFUL_ACCESS_TOKEN=your_access_token
+CONTENTFUL_PREVIEW_ACCESS_TOKEN=your_preview_token
+CONTENTFUL_ENVIRONMENT=master
+
+# Preview Mode
+CONTENTFUL_PREVIEW_SECRET=your_preview_secret
+```
+
+### 3. Start Development
+
+```bash
 pnpm run dev
 ```
 
-#### 3. Open the app and sign in to the Studio
+This starts the Next.js application at [http://localhost:3000](http://localhost:3000).
 
-Open the Next.js app running locally in your browser on [http://localhost:3000](http://localhost:3000).
+## Content Structure
 
-Open the Studio running locally in your browser on [http://localhost:3333](http://localhost:3333). You should now see a screen prompting you to log in to the Studio. Use the same service (Google, GitHub, or email) that you used when you logged in to the CLI.
+The application supports various content types through Contentful:
 
-### Adding content with Sanity
+- **Pages** - Dynamic pages with flexible page builder
+- **Blog Posts** - Articles with rich text content
+- **Global Settings** - Site-wide configuration
+- **Navigation** - Header and footer content
+- **Reusable Sections** - Hero, CTA, FAQ, Feature cards
 
-#### 1. Publish your first document
+## Key Features
 
-The template comes pre-defined with a schema containing `Author`, `Blog`, `BlogIndex`, `FAQ`, `Footer`, `HomePage`, `Navbar`, `Page`, and `Settings` document types.
+### 🎨 Page Builder
+Flexible content sections that can be mixed and matched:
+- Hero sections with call-to-actions
+- Feature cards with icons
+- FAQ accordions
+- Call-to-action blocks
 
-From the Studio, click "+ Create" and select the `Blog` document type. Go ahead and create and publish the document.
+### 📱 Responsive Design
+Mobile-first approach with Tailwind CSS utilities and responsive components.
 
-Your content should now appear in your Next.js app ([http://localhost:3000](http://localhost:3000)) as well as in the Studio on the "Presentation" Tab
+### ⚡ Performance
+- Server-side rendering with Next.js App Router
+- Optimized images with Contentful's delivery API
+- Static generation where possible
+- Intelligent caching with TurboRepo
 
-#### 2. Sample Content
+### 🔍 SEO Ready
+- Automatic sitemap generation
+- Structured data (JSON-LD)
+- Meta tags and Open Graph support
+- Dynamic robots.txt
 
-When you initialize the template using the Sanity CLI, sample content is not automatically imported into your project. However, you can import it after the init is done. This data includes example blog posts, authors, and other content types to help you get started quickly (see next step).
+## Deployment
 
-#### 3. Seed data using script
+### Vercel (Recommended)
 
-To add sample data programmatically, run the following command:
+1. Connect your repository to Vercel
+2. Set the root directory to `apps/web`
+3. Configure environment variables
+4. Deploy automatically on git push
 
-```shell
-cd apps/studio
-npx sanity exec scripts/create-data.ts --with-user-token
-```
+### Other Platforms
 
-This command executes a TypeScript script that creates and populates content in your Sanity dataset.
+The Next.js app can be deployed to any platform that supports Node.js applications.
 
-#### 4. Extending the Sanity schema
+## Extending the Project
 
-The schemas for all document types are defined in the `studio/schemaTypes/documents` directory. You can [add more document types](https://www.sanity.io/docs/schema-types) to the schema to suit your needs.
+### Adding New Components
 
-### Deploying your application and inviting editors
+Shared components go in `packages/ui/src/components/`. App-specific components go in `apps/web/src/components/`.
 
-#### 1. Deploy Sanity Studio
+### Adding Content Types
 
-Your Next.js frontend (`/web`) and Sanity Studio (`/studio`) are still only running on your local computer. It's time to deploy and get it into the hands of other content editors.
+1. Create content types in Contentful
+2. Run `pnpm run codegen` to generate TypeScript types
+3. Add components to render the new content types
 
-The template includes a GitHub Actions workflow [`deploy-sanity.yml`](https://raw.githubusercontent.com/robotostudio/turbo-start-sanity/main/.github/workflows/deploy-sanity.yml) that automatically deploys your Sanity Studio whenever changes are pushed to the `studio` directory.
+### Customizing Styles
 
-> **Note**: To use the GitHub Actions workflow, make sure to configure the following secrets in your repository settings:
->
-> - `SANITY_DEPLOY_TOKEN`
-> - `SANITY_STUDIO_PROJECT_ID`
-> - `SANITY_STUDIO_DATASET`
-> - `SANITY_STUDIO_TITLE`
-> - `SANITY_STUDIO_PRESENTATION_URL`
+The project uses Tailwind CSS with a shared configuration. Customize `tailwind.config.ts` in the respective packages.
 
-Alternatively, you can manually deploy from your Studio directory (`/studio`) using:
+## Scripts
 
-```shell
-npx sanity deploy
-```
+- `pnpm run dev` - Start development servers
+- `pnpm run build` - Build all applications
+- `pnpm run codegen` - Generate TypeScript types from Contentful schema
+- `pnpm run lint` - Run ESLint across all packages
+- `pnpm run type-check` - Run TypeScript checks
 
-**Note**: To use the live preview feature, your browser needs to enable third party cookies.
+## Learn More
 
-#### 2. Deploy Next.js app to Vercel
+- [Next.js Documentation](https://nextjs.org/docs)
+- [Contentful Documentation](https://www.contentful.com/developers/docs/)
+- [TurboRepo Documentation](https://turbo.build/repo/docs)
+- [Shadcn UI Documentation](https://ui.shadcn.com/)
 
-You have the freedom to deploy your Next.js app to your hosting provider of choice. With Vercel and GitHub being a popular choice, we'll cover the basics of that approach.
+## Contributing
 
-1. Create a GitHub repository from this project. [Learn more](https://docs.github.com/en/migrations/importing-source-code/using-the-command-line-to-import-source-code/adding-locally-hosted-code-to-github).
-2. Create a new Vercel project and connect it to your Github repository.
-3. Set the `Root Directory` to your Next.js app (`/apps/web`).
-4. Configure your Environment Variables.
-
-#### 3. Invite a collaborator
-
-Now that you've deployed your Next.js application and Sanity Studio, you can optionally invite a collaborator to your Studio. Open up [Manage](https://www.sanity.io/manage), select your project and click "Invite project members"
-
-They will be able to access the deployed Studio, where you can collaborate together on creating content.
+Contributions are welcome! Please read our contributing guidelines and code of conduct before submitting pull requests.
