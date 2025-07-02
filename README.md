@@ -2,7 +2,7 @@
 
 A modern, full-stack monorepo template built with Next.js App Router, Contentful CMS, Shadcn UI, and TurboRepo for building scalable web applications with content management.
 
-![Modern Next.js Monorepo](https://raw.githubusercontent.com/robotostudio/turbo-start-sanity/main/turbo-start-sanity-og.png)
+![Modern Next.js Monorepo](https://raw.githubusercontent.com/robotostudio/turbo-start-contentful/main/turbo-start-contentful-og.png)
 
 ## What's Inside
 
