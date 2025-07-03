@@ -10,7 +10,6 @@ const nextConfig: NextConfig = {
     reactCompiler: true,
     // ppr: true,
     inlineCss: true,
-    forceSwcTransforms: true,
   },
   logging: {
     fetches: {

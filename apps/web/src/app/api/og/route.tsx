@@ -204,7 +204,10 @@ const getOptions = async ({
 
 const getHomePageContent = async () => {
   const result = await safeAsync(getPageBySlug("/"));
-  if (!result.success) return undefined;
+  if (!result.success) {
+    console.log("🚀 ~ getHomePageContent ~ result:", result.error);
+    return undefined;
+  }
   const page = result.data;
   const { seoImage, image, title } = page?.fields ?? {};
 
