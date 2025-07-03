@@ -15,7 +15,8 @@ import { getImageUrl, getTitleCase } from "@/utils";
 
 import { getOgMetaData } from "./og-config";
 
-export const runtime = "edge";
+// Removed edge runtime to support Contentful SDK which uses axios
+// export const runtime = "edge";
 
 const errorContent = (
   <div tw="flex flex-col w-full h-full items-center justify-center">
@@ -205,7 +206,7 @@ const getOptions = async ({
 const getHomePageContent = async () => {
   const result = await safeAsync(getPageBySlug("/"));
   if (!result.success) {
-    console.log("🚀 ~ getHomePageContent ~ result:", result.error);
+    console.error("Failed to fetch home page for OG image:", result.error);
     return undefined;
   }
   const page = result.data;
@@ -228,7 +229,10 @@ const getHomePageContent = async () => {
 const getSlugPageContent = async ({ id }: ContentProps) => {
   if (!id) return undefined;
   const result = await safeAsync(getPageByID(id));
-  if (!result.success) return undefined;
+  if (!result.success) {
+    console.error("Failed to fetch page for OG image:", result.error);
+    return undefined;
+  }
   const page = result.data;
   const { seoImage, image, title, description } = page?.fields;
 
@@ -250,7 +254,10 @@ const getSlugPageContent = async ({ id }: ContentProps) => {
 const getBlogPageContent = async ({ id }: ContentProps) => {
   if (!id) return undefined;
   const result = await safeAsync(getBlogByID(id));
-  if (!result.success) return undefined;
+  if (!result.success) {
+    console.error("Failed to fetch blog for OG image:", result.error);
+    return undefined;
+  }
   const blog = result.data;
   const { seoImage, image, title, description } = blog?.fields;
   const seoImageUrl = getImageUrl(seoImage);
@@ -274,21 +281,18 @@ const block = {
   blog: getBlogPageContent,
 } as const;
 
-// const getBlogPageContent = async ({ id }: ContentProps) => {
 export async function GET({ url }: Request): Promise<ImageResponse> {
   const { searchParams } = new URL(url);
   const type = searchParams.get("type") as keyof typeof block;
   const { width, height } = getOgMetaData(searchParams);
   const para = Object.fromEntries(searchParams.entries());
-  console.log("🚀 ~ GET ~ para:", para);
   const options = await getOptions({ width, height });
   const image = block[type] ?? getHomePageContent;
   try {
     const content = await image(para);
     return new ImageResponse(content ? content : errorContent, options);
-    // return new ImageResponse(errorContent, options);
   } catch (err) {
-    console.log({ err });
+    console.error("Error generating OG image:", err);
     return new ImageResponse(errorContent, options);
   }
 }
