@@ -2,7 +2,9 @@
 
 A modern, full-stack monorepo template built with Next.js App Router, Contentful CMS, Shadcn UI, and TurboRepo for building scalable web applications with content management.
 
-![Modern Next.js Monorepo](https://raw.githubusercontent.com/robotostudio/turbo-start-contentful/main/turbo-start-contentful-og.png)
+<img width="2401" height="1260" alt="Turbostart contenful opengraph final" src="https://github.com/user-attachments/assets/8172d614-ed00-4d17-b65f-0661484f0e39" />
+
+
 
 ## What's Inside
 
