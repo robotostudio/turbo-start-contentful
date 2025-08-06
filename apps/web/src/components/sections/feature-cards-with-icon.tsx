@@ -20,30 +20,63 @@ type FeatureCardProps = {
 
 function FeatureCard({ card, ...props }: FeatureCardProps) {
   const updatedCard = useContentfulLiveUpdates(card);
-  const { title, icon, richText, cardLink } = updatedCard?.fields ?? {};
+  const {
+    title,
+    icon,
+    richText,
+    cardGradientColor = "blue",
+  } = updatedCard?.fields ?? {};
   const inspectorProps = useContentfulInspectorMode({
     entryId: updatedCard?.sys?.id,
   });
 
+  const getGradientColor = () => {
+    switch (cardGradientColor) {
+      case "blue":
+        return "bg-[#ECF8F8] dark:bg-[#111827]";
+      case "pink":
+        return "bg-[#F0E9F7] dark:bg-[#111827]";
+      case "red":
+        return "bg-[#F7EDEF] dark:bg-[#111827]";
+      case "yellow":
+        return "bg-[#F8F6EB] dark:bg-[#111827]";
+    }
+  };
+
   return (
     <div
-      className="rounded-2xl relative md:min-h-[300px] p-7 bg-white dark:bg-zinc-900 overflow-hidden z-10"
+      className="rounded-2xl relative p-7 bg-white dark:bg-zinc-900 overflow-hidden z-10 border border-white dark:border-zinc-900"
       {...props}
     >
       {/* Ellipse 70 */}
-      <div className="absolute w-[225.65px] h-[261.63px] left-[-41.43px] top-[-52.57px] bg-[#ECF8F8] dark:bg-[#111827] blur-[50px] rounded-full z-5 pointer-events-none" />
+      <div
+        className={cn(
+          "absolute w-[225.65px] h-[261.63px] left-[-41.43px] top-[-52.57px] blur-[50px] rounded-full z-5 pointer-events-none",
+          getGradientColor(),
+        )}
+      />
 
       {/* Ellipse 71 */}
-      <div className="absolute w-[194.28px] h-[256.82px] left-[269.58px] top-[-15.43px] bg-[#EBF4F5] dark:bg-[#111827] blur-[37.5px] rounded-full z-5 pointer-events-none" />
+      <div
+        className={cn(
+          "absolute w-[194.28px] h-[256.82px] left-[269.58px] top-[-15.43px] blur-[37.5px] rounded-full z-5 pointer-events-none",
+          getGradientColor(),
+        )}
+      />
 
       {/* Ellipse 72 */}
-      <div className="absolute w-[194.28px] h-[256.82px] left-[137.82px] top-[-210.42px] bg-[#EEF6F7] dark:bg-[#111827] blur-[37.5px] rounded-full z-5 pointer-events-none" />
+      <div
+        className={cn(
+          "absolute w-[194.28px] h-[256.82px] left-[137.82px] top-[-210.42px] blur-[37.5px] rounded-full z-5 pointer-events-none",
+          getGradientColor(),
+        )}
+      />
 
       <span className="mb-9 flex w-fit p-3 items-center justify-center rounded-full bg-background drop-shadow-sm z-10">
         {icon && (
           <ContentfulImage
             image={icon}
-            className="dark:invert"
+            className="dark:invert size-6"
             {...inspectorProps({ fieldId: "icon" })}
           />
         )}
@@ -79,7 +112,7 @@ export function FeatureCardsWithIcon(props: FeatureCardsWithIconProps) {
   const cardCount = cards.length;
 
   const getGridCols = () => {
-    if (cardCount >= 4) return "lg:grid-cols-4";
+    if (cardCount >= 4) return "lg:grid-cols-4 gap-6";
     if (cardCount === 3) return "lg:grid-cols-3";
     if (cardCount === 2) return "lg:grid-cols-2";
     return "lg:grid-cols-1";
