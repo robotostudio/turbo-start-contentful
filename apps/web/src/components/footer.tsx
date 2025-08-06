@@ -131,7 +131,7 @@ function Footer({ settingsData }: { settingsData: GlobalSettings }) {
     <section className="mt-20 pb-8">
       <div className="container mx-auto">
         <footer className="h-[500px] lg:h-auto">
-          <div className="flex flex-col items-center justify-between gap-10 text-center lg:flex-row lg:text-left mx-auto max-w-7xl px-4 md:px-6">
+          <div className="flex flex-col items-center justify-between gap-10 text-center lg:flex-row lg:text-left mx-auto px-4 md:px-6">
             <div className="flex w-full max-w-96 shrink flex-col items-center justify-between gap-6 md:gap-8 lg:items-start">
               <div>
                 <span className="flex items-center justify-center gap-4 lg:justify-start">
@@ -193,7 +193,7 @@ function Footer({ settingsData }: { settingsData: GlobalSettings }) {
             )}
           </div>
           <div className="mt-40 pt-8">
-            <div className="flex flex-col justify-between gap-4  text-center md:text-lg font-normal text-muted-foreground lg:flex-row lg:items-center lg:text-left mx-auto max-w-7xl px-4 md:px-6 font-mono uppercase text-zinc-600 dark:text-zinc-400">
+            <div className="flex flex-col justify-between gap-4 text-center lg:flex-row lg:items-center lg:text-left mx-auto px-4 md:px-6 font-mono uppercase text-zinc-600 dark:text-zinc-400 text-sm">
               <p>POWERED BY VERCEL & CONTENTFUL</p>
               <div className="relative">
                 <Link
