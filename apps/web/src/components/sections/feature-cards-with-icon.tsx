@@ -33,19 +33,19 @@ function FeatureCard({ card, ...props }: FeatureCardProps) {
   const getGradientColor = () => {
     switch (cardGradientColor) {
       case "blue":
-        return "bg-[#ECF8F8] dark:bg-[#111827]";
+        return "bg-[#ECF8F8] dark:bg-[#19243e]";
       case "pink":
-        return "bg-[#F0E9F7] dark:bg-[#111827]";
+        return "bg-[#F0E9F7] dark:bg-[#271C35]";
       case "red":
-        return "bg-[#F7EDEF] dark:bg-[#111827]";
+        return "bg-[#F7EDEF] dark:bg-[#3A1B1F]";
       case "yellow":
-        return "bg-[#F8F6EB] dark:bg-[#111827]";
+        return "bg-[#F8F6EB] dark:bg-[#2C2B1A]";
     }
   };
 
   return (
     <div
-      className="rounded-2xl relative p-7 bg-white dark:bg-zinc-900 overflow-hidden z-10 border border-white dark:border-zinc-900"
+      className="rounded-2xl relative p-7 bg-[#19243e] dark:bg-zinc-900 overflow-hidden z-10 border border-white dark:border-zinc-900"
       {...props}
     >
       {/* Ellipse 70 */}
@@ -72,7 +72,7 @@ function FeatureCard({ card, ...props }: FeatureCardProps) {
         )}
       />
 
-      <span className="mb-9 flex w-fit p-3 items-center justify-center rounded-full bg-background drop-shadow-sm z-10">
+      <span className="mb-9 flex w-fit p-3 items-center justify-center rounded-full bg-background dark:bg-[#FF5500] drop-shadow-sm z-10">
         {icon && (
           <ContentfulImage
             image={icon}
