@@ -45,7 +45,7 @@ function FeatureCard({ card, ...props }: FeatureCardProps) {
 
   return (
     <div
-      className="rounded-2xl relative p-7 bg-[#19243e] dark:bg-zinc-900 overflow-hidden z-10 border border-white dark:border-zinc-900"
+      className="rounded-2xl relative p-7 bg-white dark:bg-zinc-900 overflow-hidden z-10 border border-white dark:border-zinc-900"
       {...props}
     >
       {/* Ellipse 70 */}
