@@ -25,9 +25,9 @@ export function Navbar({ navbarData }: { navbarData?: GlobalSettings }) {
   }
   const { logo, siteTitle } = navbarData?.fields ?? {};
   return (
-    <section className="py-3 md:border-b">
+    <section className="py-3 relative z-20">
       <div className="container mx-auto px-4 md:px-6">
-        <nav className="grid grid-cols-[auto_1fr] items-center gap-4">
+        <nav className="flex items-center justify-between gap-4">
           <Logo logo={logo} alt={siteTitle} />
           <NavbarClient settingsData={navbarData} />
         </nav>
@@ -38,7 +38,7 @@ export function Navbar({ navbarData }: { navbarData?: GlobalSettings }) {
 
 export function NavbarSkeleton() {
   return (
-    <header className="h-[75px] py-4 md:border-b">
+    <header className="h-[75px] py-4">
       <div className="container mx-auto px-4 md:px-6">
         <nav className="grid grid-cols-[auto_1fr] items-center gap-4">
           <div className="h-[40px] w-[170px] rounded animate-pulse bg-muted" />
