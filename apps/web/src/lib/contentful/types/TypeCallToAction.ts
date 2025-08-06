@@ -15,6 +15,8 @@ export interface TypeCallToActionFields {
   buttons?: EntryFieldTypes.Array<
     EntryFieldTypes.EntryLink<TypeButtonSkeleton>
   >;
+  enableNewsletterForm?: EntryFieldTypes.Boolean;
+  helperText?: EntryFieldTypes.RichText;
 }
 
 export type TypeCallToActionSkeleton = EntrySkeletonType<
