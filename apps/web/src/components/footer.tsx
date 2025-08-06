@@ -201,18 +201,18 @@ function Footer({ settingsData }: { settingsData: GlobalSettings }) {
             )}
           </div>
           <div className="mt-20 border-t pt-8">
-            <div className="flex flex-col justify-between gap-4  text-center text-sm font-normal text-muted-foreground lg:flex-row lg:items-center lg:text-left mx-auto max-w-7xl px-4 md:px-6">
-              <p>
-                © {year} {siteTitle}. All rights reserved.
-              </p>
-              <ul className="flex justify-center gap-4 lg:justify-start">
-                <li className="hover:text-primary">
-                  <Link href="/terms">Terms and Conditions</Link>
-                </li>
-                <li className="hover:text-primary">
-                  <Link href="/privacy">Privacy Policy</Link>
-                </li>
-              </ul>
+            <div className="flex flex-col justify-between gap-4  text-center text-sm font-normal text-muted-foreground lg:flex-row lg:items-center lg:text-left mx-auto max-w-7xl px-4 md:px-6 font-mono uppercase">
+              <p>POWERED BY VERCEL & CONTENTFUL</p>
+              <div>
+                <Link
+                  href={"https://robotostudio.com"}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  {siteTitle}
+                </Link>
+              </div>
+              <p>© {year} TURBO START Contentful</p>
             </div>
           </div>
         </footer>
