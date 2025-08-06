@@ -74,7 +74,7 @@ export function FeatureCardsWithIcon(props: FeatureCardsWithIconProps) {
   });
   const { eyebrow, title, richText, cards } = updatedProps.fields ?? {};
   return (
-    <section id="features" className="my-6 md:my-16 max-w-6xl mx-auto">
+    <section id="features" className="my-6 md:my-14 mx-auto">
       <div className="container relative mx-auto px-4 md:px-6">
         <div className="flex w-full relative flex-col items-center z-1">
           <div className="flex flex-col items-center space-y-4 text-center sm:space-y-6 md:text-center">
