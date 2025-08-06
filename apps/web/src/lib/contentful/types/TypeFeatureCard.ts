@@ -10,6 +10,7 @@ export interface TypeFeatureCardFields {
   icon?: EntryFieldTypes.AssetLink;
   title: EntryFieldTypes.Symbol;
   richText?: EntryFieldTypes.RichText;
+  cardLink?: EntryFieldTypes.Symbol;
 }
 
 export type TypeFeatureCardSkeleton = EntrySkeletonType<

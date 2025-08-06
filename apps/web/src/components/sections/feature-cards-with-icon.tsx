@@ -5,6 +5,7 @@ import {
   useContentfulLiveUpdates,
 } from "@contentful/live-preview/react";
 import { Badge } from "@workspace/ui/components/badge";
+import { cn } from "@workspace/ui/lib/utils";
 
 import type { TypeFeatureCard, TypeFeatureCards } from "@/lib/contentful/types";
 
@@ -19,10 +20,11 @@ type FeatureCardProps = {
 
 function FeatureCard({ card, ...props }: FeatureCardProps) {
   const updatedCard = useContentfulLiveUpdates(card);
-  const { title, icon, richText } = updatedCard?.fields ?? {};
+  const { title, icon, richText, cardLink } = updatedCard?.fields ?? {};
   const inspectorProps = useContentfulInspectorMode({
     entryId: updatedCard?.sys?.id,
   });
+
   return (
     <div
       className="rounded-2xl relative md:min-h-[300px] p-7 bg-white dark:bg-zinc-900 overflow-hidden z-10"
@@ -72,11 +74,21 @@ export function FeatureCardsWithIcon(props: FeatureCardsWithIconProps) {
   const inspectorProps = useContentfulInspectorMode({
     entryId: updatedProps.sys.id,
   });
-  const { eyebrow, title, richText, cards } = updatedProps.fields ?? {};
+
+  const { eyebrow, title, richText, cards = [] } = updatedProps.fields ?? {};
+  const cardCount = cards.length;
+
+  const getGridCols = () => {
+    if (cardCount >= 4) return "lg:grid-cols-4";
+    if (cardCount === 3) return "lg:grid-cols-3";
+    if (cardCount === 2) return "lg:grid-cols-2";
+    return "lg:grid-cols-1";
+  };
+
   return (
     <section id="features" className="my-6 md:my-14 mx-auto">
       <div className="container relative mx-auto px-4 md:px-6">
-        <div className="flex w-full relative flex-col items-center z-1">
+        <div className="flex flex-col items-center z-1">
           <div className="flex flex-col items-center space-y-4 text-center sm:space-y-6 md:text-center">
             {eyebrow && (
               <Badge {...inspectorProps({ fieldId: "eyebrow" })}>
@@ -96,17 +108,40 @@ export function FeatureCardsWithIcon(props: FeatureCardsWithIconProps) {
             />
           </div>
         </div>
-        <div className="mx-auto mt-20 relative grid gap-12 lg:grid-cols-3 z-1">
-          {cards?.map((card, index) => {
-            return (
+
+        <div
+          className={cn(
+            "mx-auto mt-20 relative grid gap-12 z-1",
+            getGridCols(),
+          )}
+        >
+          {cards.map((card, index) => {
+            const cardKey = `FeatureCard-${card?.sys?.id ?? index}`;
+            const cardElement = (
               <FeatureCard
-                key={`FeatureCard-${card?.sys.id || `feature-card-${index}`}-${index}`}
+                key={cardKey}
                 card={card}
                 {...inspectorProps({ fieldId: "cards" })}
               />
             );
+
+            const cardLink = card?.fields?.cardLink;
+            return cardLink ? (
+              <a
+                key={cardKey}
+                href={cardLink}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                {cardElement}
+              </a>
+            ) : (
+              cardElement
+            );
           })}
         </div>
+
+        {/* Background blobs */}
         <div className="absolute bottom-[-80px] left-[-100px] size-[300px] md:bg-[#EDF7F7] md:dark:bg-[#11182780] blur-[25px] rounded-full z-0" />
         <div className="absolute bottom-[-80px] right-[350px] size-[300px] md:bg-[#EDF7F7] md:dark:bg-[#11182770] blur-[25px] rounded-full z-0" />
       </div>
