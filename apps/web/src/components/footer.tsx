@@ -1,21 +1,13 @@
+import Image from "next/image";
 import Link from "next/link";
 
 import type { GlobalSettings } from "@/lib/contentful/query";
 import { getGlobalSettings } from "@/lib/contentful/query";
-import type {
-  TypeNavbarColumnLink,
-  TypeNavbarLink,
-} from "@/lib/contentful/types";
+import type { TypeNavbarColumnLink } from "@/lib/contentful/types";
 import { safeAsync } from "@/safe-async";
 
 import { Logo } from "./logo";
-import {
-  FacebookIcon,
-  InstagramIcon,
-  LinkedinIcon,
-  XIcon,
-  YoutubeIcon,
-} from "./social-icons";
+import { LinkedinIcon, XIcon } from "./social-icons";
 
 // Type definitions for footer columns
 type FooterColumn = TypeNavbarColumnLink<"WITHOUT_UNRESOLVABLE_LINKS">;
@@ -200,17 +192,25 @@ function Footer({ settingsData }: { settingsData: GlobalSettings }) {
               </div>
             )}
           </div>
-          <div className="mt-20 border-t pt-8">
-            <div className="flex flex-col justify-between gap-4  text-center text-sm font-normal text-muted-foreground lg:flex-row lg:items-center lg:text-left mx-auto max-w-7xl px-4 md:px-6 font-mono uppercase">
+          <div className="mt-40 pt-8">
+            <div className="flex flex-col justify-between gap-4  text-center text-lg font-normal text-muted-foreground lg:flex-row lg:items-center lg:text-left mx-auto max-w-7xl px-4 md:px-6 font-mono uppercase text-zinc-600 dark:text-zinc-400">
               <p>POWERED BY VERCEL & CONTENTFUL</p>
-              <div>
+              <div className="relative">
                 <Link
                   href={"https://robotostudio.com"}
                   target="_blank"
                   rel="noopener noreferrer"
+                  className="text-zinc-950 dark:text-zinc-50"
                 >
                   {siteTitle}
                 </Link>
+                <Image
+                  src={"/footer-logo.svg"}
+                  alt="Powered by Robotostudio"
+                  width={264}
+                  height={226}
+                  className="absolute top-[-90%] left-[58%] -translate-x-1/2 -translate-y-1/2 min-w-64 select-none"
+                />
               </div>
               <p>© {year} TURBO START Contentful</p>
             </div>
