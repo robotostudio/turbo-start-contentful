@@ -226,7 +226,7 @@ function NavbarColumnLink({ column }: { column: NavbarLinkItem }) {
       <NavigationMenuLink
         className={cn(
           navigationMenuTriggerStyle(),
-          "text-muted-foreground dark:text-neutral-300",
+          "text-zinc-700 dark:text-zinc-300",
         )}
       >
         {column.fields.label}
@@ -249,7 +249,7 @@ export function NavbarColumn({ column }: { column: NavbarColumnLink }) {
 
   return (
     <NavigationMenuList>
-      <NavigationMenuItem className="text-muted-foreground dark:text-neutral-300">
+      <NavigationMenuItem className="text-zinc-700 dark:text-zinc-300">
         <NavigationMenuTrigger>{column.fields.label}</NavigationMenuTrigger>
         <NavigationMenuContent>
           <ul className={cn("p-3", layoutClass)}>
@@ -283,7 +283,7 @@ export function DesktopNavbar({
   const { columns, buttons } = settingsData?.fields?.navbar?.fields ?? {};
 
   return (
-    <div className="grid grid-cols-[1fr_auto] items-center gap-8">
+    <>
       <NavigationMenu className="">
         {columns?.map((column) =>
           column?.sys.contentType.sys.id === "navbarColumnLink" ? (
@@ -308,7 +308,7 @@ export function DesktopNavbar({
           buttonClassName="rounded-[10px]"
         />
       </div>
-    </div>
+    </>
   );
 }
 
