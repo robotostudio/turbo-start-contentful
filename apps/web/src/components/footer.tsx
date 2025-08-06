@@ -193,7 +193,7 @@ function Footer({ settingsData }: { settingsData: GlobalSettings }) {
             )}
           </div>
           <div className="mt-40 pt-8">
-            <div className="flex flex-col justify-between gap-4  text-center text-lg font-normal text-muted-foreground lg:flex-row lg:items-center lg:text-left mx-auto max-w-7xl px-4 md:px-6 font-mono uppercase text-zinc-600 dark:text-zinc-400">
+            <div className="flex flex-col justify-between gap-4  text-center md:text-lg font-normal text-muted-foreground lg:flex-row lg:items-center lg:text-left mx-auto max-w-7xl px-4 md:px-6 font-mono uppercase text-zinc-600 dark:text-zinc-400">
               <p>POWERED BY VERCEL & CONTENTFUL</p>
               <div className="relative">
                 <Link
@@ -209,7 +209,7 @@ function Footer({ settingsData }: { settingsData: GlobalSettings }) {
                   alt="Powered by Robotostudio"
                   width={264}
                   height={226}
-                  className="absolute top-[-90%] left-[58%] -translate-x-1/2 -translate-y-1/2 min-w-64 select-none"
+                  className="absolute top-[-90%] left-[58%] -translate-x-1/2 -translate-y-1/2 min-w-64 select-none pointer-events-none"
                 />
               </div>
               <p>© {year} TURBO START Contentful</p>
