@@ -47,7 +47,7 @@ export function HeroBlock(props: HeroBlockProps) {
             </h1>
             <ContentfulRichText
               richText={richText}
-              className="text-base md:text-lg text-balance mb-8"
+              className="text-base md:text-lg text-balance mb-8 max-w-xl"
               {...inspectorProps({ fieldId: "richText" })}
             />
 
@@ -62,7 +62,7 @@ export function HeroBlock(props: HeroBlockProps) {
           </div>
 
           {image && (
-            <div className="relative max-h-[500px] aspect-square w-full overflow-hidden">
+            <div className="relative max-h-[500px] aspect-square w-full overflow-hidden [mask-image:radial-gradient(circle_at_center,black_0%,black_0%,transparent_85%)] select-none dark:invert">
               <ContentfulImage
                 image={image}
                 loading="eager"
@@ -72,7 +72,6 @@ export function HeroBlock(props: HeroBlockProps) {
                 className="mix-blend-darken"
                 {...inspectorProps({ fieldId: "image" })}
               />
-              <div className="absolute inset-0 bg-[radial-gradient(ellipse_50%_50%_at_50%_50%,_transparent_0%,transparent_100%)]" />
             </div>
           )}
         </div>
