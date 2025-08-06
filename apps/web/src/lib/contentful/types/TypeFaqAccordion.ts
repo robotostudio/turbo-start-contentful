@@ -13,6 +13,7 @@ export interface TypeFaqAccordionFields {
   title: EntryFieldTypes.Symbol;
   subtitle?: EntryFieldTypes.Symbol;
   faqs?: EntryFieldTypes.Array<EntryFieldTypes.EntryLink<TypeFaqSkeleton>>;
+  link?: EntryFieldTypes.Symbol;
 }
 
 export type TypeFaqAccordionSkeleton = EntrySkeletonType<
