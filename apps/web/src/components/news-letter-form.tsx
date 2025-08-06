@@ -15,7 +15,7 @@ export function NewsLetterForm({ className }: { className?: string }) {
       )}
       action={newsletterSubmission}
     >
-      <div className="flex bg-zinc-200 items-center border rounded-2xl p-2 drop-shadow-lg md:w-96 justify-between pl-4">
+      <div className="flex bg-zinc-200 items-center border dark:border-zinc-50 rounded-2xl p-2 drop-shadow-lg md:w-96 justify-between pl-4">
         <input
           type="email"
           name="email"
@@ -36,7 +36,7 @@ function SubscribeNewsletterButton() {
       type="submit"
       size="sm"
       disabled={pending}
-      className="rounded-lg shrink-0 px-4 py-2"
+      className="rounded-lg shrink-0 px-4 py-2 dark:bg-black dark:text-white"
       aria-label={pending ? "Subscribing..." : "Subscribe to newsletter"}
     >
       <span className="flex items-center justify-center gap-2">
