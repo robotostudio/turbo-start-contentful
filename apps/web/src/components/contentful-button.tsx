@@ -39,7 +39,7 @@ export function ContentfulButton({
       size={size}
       {...props}
       asChild
-      className={cn("rounded-[10px]", className)}
+      className={cn("rounded-[8px]", className)}
     >
       <Link
         href={url}
