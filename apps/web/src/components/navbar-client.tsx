@@ -301,12 +301,12 @@ export function DesktopNavbar({
       </NavigationMenu>
 
       <div className="justify-self-end flex items-center gap-4">
-        <ModeToggle />
         <ContentfulButtons
           buttons={buttons}
           className="flex items-center gap-4"
           buttonClassName="rounded-[10px]"
         />
+        <ModeToggle />
       </div>
     </>
   );
