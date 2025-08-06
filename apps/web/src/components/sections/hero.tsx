@@ -25,7 +25,7 @@ export function HeroBlock(props: HeroBlockProps) {
   return (
     <section
       id="hero"
-      className="relative py-20 md:py-32 md:pb-56 overflow-hidden"
+      className="relative py-20 pt-32 md:py-40 overflow-hidden"
     >
       <div className="absolute z-0 inset-0 bg-[url('/hero-bg.png')] bg-cover bg-center pointer-events-none opacity-[20%]" />
       <div className="absolute z-1 inset-0 rounded-full bg-zinc-100 dark:bg-zinc-900 blur-[250px] pointer-events-none" />
@@ -47,7 +47,7 @@ export function HeroBlock(props: HeroBlockProps) {
             </h1>
             <ContentfulRichText
               richText={richText}
-              className="text-base md:text-lg text-balance mb-8 max-w-xl"
+              className="text-base md:text-lg mb-8 max-w-[450px]"
               {...inspectorProps({ fieldId: "richText" })}
             />
 
