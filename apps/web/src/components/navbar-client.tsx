@@ -350,7 +350,7 @@ const ClientSideNavbar = ({
     <motion.section
       className={cn(
         "py-3 z-20 fixed top-0 inset-x-0 transition-colors duration-300",
-        isScrolled && "border bg-background",
+        isScrolled && "bg-background",
       )}
     >
       <div className="container mx-auto px-4 md:px-6">
@@ -362,6 +362,12 @@ const ClientSideNavbar = ({
           )}
         </nav>
       </div>
+      <div
+        className={cn(
+          "absolute bottom-0 h-px w-full transition-opacity duration-300 delay-300",
+          isScrolled ? "opacity-100 bg-border" : "opacity-0",
+        )}
+      />
     </motion.section>
   );
 };
