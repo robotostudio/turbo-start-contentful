@@ -209,7 +209,7 @@ function Footer({ settingsData }: { settingsData: GlobalSettings }) {
                   alt="Powered by Robotostudio"
                   width={264}
                   height={226}
-                  className="absolute top-[-90%] left-[58%] -translate-x-1/2 -translate-y-1/2 min-w-64 select-none pointer-events-none"
+                  className="absolute top-[-90%] left-[50%] lg:left-[58%] -translate-x-1/2 -translate-y-1/2 min-w-64 select-none pointer-events-none"
                 />
               </div>
               <p>© {year} TURBO START Contentful</p>

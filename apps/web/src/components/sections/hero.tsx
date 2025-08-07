@@ -25,7 +25,7 @@ export function HeroBlock(props: HeroBlockProps) {
   return (
     <section
       id="hero"
-      className="relative py-20 pt-32 md:py-40 overflow-hidden"
+      className="relative pb-28 pt-32 md:py-40 overflow-hidden"
     >
       <div className="absolute z-0 inset-0 bg-[url('/hero-bg.png')] bg-cover bg-center pointer-events-none opacity-[20%]" />
       <div className="absolute z-1 inset-0 rounded-full bg-zinc-100 dark:bg-zinc-900 blur-[250px] pointer-events-none" />
