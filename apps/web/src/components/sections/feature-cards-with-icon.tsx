@@ -72,11 +72,11 @@ function FeatureCard({ card, ...props }: FeatureCardProps) {
         )}
       />
 
-      <span className="mb-9 flex w-fit p-3 items-center justify-center rounded-full bg-background dark:bg-[#FF5500] drop-shadow-sm z-10">
+      <span className="mb-9 flex w-fit p-3 items-center justify-center rounded-full bg-background dark:bg-muted-foreground drop-shadow-sm z-10">
         {icon && (
           <ContentfulImage
             image={icon}
-            className="dark:invert size-6"
+            className="size-6"
             {...inspectorProps({ fieldId: "icon" })}
           />
         )}

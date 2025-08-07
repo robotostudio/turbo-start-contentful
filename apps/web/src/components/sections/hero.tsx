@@ -62,14 +62,14 @@ export function HeroBlock(props: HeroBlockProps) {
           </div>
 
           {image && (
-            <div className="relative max-h-[500px] aspect-square w-full overflow-hidden [mask-image:radial-gradient(circle_at_center,black_0%,black_0%,transparent_85%)] select-none dark:invert">
+            <div className="relative max-h-[500px] w-full overflow-hidden [mask-image:radial-gradient(circle_at_center,black_0%,black_0%,transparent_85%)] dark:[mask-image:radial-gradient(circle_at_center,black_0%,black_0%,transparent_70%)] select-none">
               <ContentfulImage
                 image={image}
                 loading="eager"
                 priority
                 fetchPriority="high"
                 quality={80}
-                className="mix-blend-darken"
+                className="object-cover object-center"
                 {...inspectorProps({ fieldId: "image" })}
               />
             </div>
