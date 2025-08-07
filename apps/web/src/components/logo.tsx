@@ -1,5 +1,6 @@
 import type { Asset } from "contentful";
 import Image from "next/image";
+import Link from "next/link";
 
 export function Logo({
   logo,
@@ -12,15 +13,17 @@ export function Logo({
     return null;
   }
   return (
-    <Image
-      src={`https:${logo?.fields?.file?.url}`}
-      alt={alt ?? "logo"}
-      width={167}
-      height={32}
-      className="w-[167px] h-[32px] dark:invert"
-      loading="eager"
-      decoding="sync"
-      priority
-    />
+    <Link href="/">
+      <Image
+        src={`https:${logo?.fields?.file?.url}`}
+        alt={alt ?? "logo"}
+        width={167}
+        height={32}
+        className="h-[32px] dark:invert"
+        loading="eager"
+        decoding="sync"
+        priority
+      />
+    </Link>
   );
 }

@@ -23,8 +23,8 @@ export default async function BlogIndexPage() {
 
   if (!result.success) {
     return (
-      <main className="min-h-screen bg-black text-white">
-        <div className="container mx-auto px-4 py-24 md:px-6">
+      <main className="min-h-screen">
+        <div className="container mx-auto px-4 py-24 pt-32 md:px-6">
           <BlogHeader title="Blog" description="Blog" />
           <div className="mt-8 text-center text-gray-400">Not Found</div>
         </div>
@@ -34,8 +34,8 @@ export default async function BlogIndexPage() {
   const { featured, blogs } = result.data;
 
   return (
-    <main className="min-h-screen bg-black text-white">
-      <div className="container mx-auto px-4 py-24 md:px-6">
+    <main className="min-h-screen">
+      <div className="container mx-auto px-4 py-24 pt-32 md:px-6">
         <BlogHeader title="Blog" description="Blog" />
         <div className="mt-12">
           <FeaturedBlogCard blog={featured} />

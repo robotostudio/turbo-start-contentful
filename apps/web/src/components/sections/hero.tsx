@@ -23,54 +23,53 @@ export function HeroBlock(props: HeroBlockProps) {
 
   const { badge, title, richText, buttons, image } = updatedBlog.fields ?? {};
   return (
-    <section id="hero" className="mt-4 md:my-16">
-      <div className="container mx-auto px-4 md:px-6">
-        <div className="grid items-center gap-8 lg:grid-cols-2">
-          <div className="grid h-full grid-rows-[auto_1fr_auto] gap-4 items-center justify-items-center text-center lg:items-start lg:justify-items-start lg:text-left">
+    <section
+      id="hero"
+      className="relative pb-28 pt-32 md:py-40 overflow-hidden"
+    >
+      <div className="absolute z-0 inset-0 bg-[url('/hero-bg.png')] bg-cover bg-center pointer-events-none opacity-[20%]" />
+      <div className="absolute z-1 inset-0 rounded-full bg-zinc-100 dark:bg-zinc-900 blur-[250px] pointer-events-none" />
+      <div className="absolute -bottom-20 -inset-x-10 h-[180px] bg-[linear-gradient(90deg,_rgba(250,250,250,0.8)_0%,_#FAFAFA_50%,_rgba(250,250,250,1)_100%)] dark:bg-[linear-gradient(90deg,_rgba(0,0,0,0.8)_0%,_rgba(0,0,0,0.8)_50%,_rgba(0,0,0,1)_100%)] blur-[40px] pointer-events-none z-5" />
+
+      <div className="container relative z-10 mx-auto px-4 md:px-6">
+        <div className="grid place-items-center gap-8 lg:grid-cols-2">
+          <div className="grid h-full items-center justify-items-center text-center lg:items-start lg:justify-items-start lg:text-left">
             {badge && (
-              <Badge
-                variant="secondary"
-                {...inspectorProps({ fieldId: "badge" })}
-              >
+              <Badge className="mb-4" {...inspectorProps({ fieldId: "badge" })}>
                 {badge}
               </Badge>
             )}
-            <div className="grid gap-4">
-              <h1
-                className="text-4xl lg:text-6xl font-semibold text-balance"
-                {...inspectorProps({ fieldId: "title" })}
-              >
-                {title}
-              </h1>
-              <ContentfulRichText
-                richText={richText}
-                className="text-base md:text-lg font-normal"
-                {...inspectorProps({ fieldId: "richText" })}
-              />
-            </div>
+            <h1
+              className="text-4xl lg:text-7xl font-medium text-balance mb-6"
+              {...inspectorProps({ fieldId: "title" })}
+            >
+              {title}
+            </h1>
+            <ContentfulRichText
+              richText={richText}
+              className="text-base md:text-lg mb-8 max-w-[450px]"
+              {...inspectorProps({ fieldId: "richText" })}
+            />
 
             {buttons && (
               <ContentfulButtons
                 buttons={buttons}
                 buttonClassName="w-full sm:w-auto"
-                className="w-full sm:w-fit grid gap-2 sm:grid-flow-col lg:justify-start mb-8"
+                className="w-full sm:w-fit grid gap-4 sm:grid-flow-col lg:justify-start mb-8"
                 {...inspectorProps({ fieldId: "buttons" })}
               />
             )}
           </div>
 
           {image && (
-            <div className="h-96 w-full">
+            <div className="relative max-h-[500px] w-full overflow-hidden [mask-image:radial-gradient(circle_at_center,black_0%,black_0%,transparent_85%)] dark:[mask-image:radial-gradient(circle_at_center,black_0%,black_0%,transparent_70%)] select-none">
               <ContentfulImage
                 image={image}
                 loading="eager"
-                width={800}
-                height={800}
                 priority
                 fetchPriority="high"
-                // format="avif"
                 quality={80}
-                className="max-h-96 w-full rounded-3xl object-cover"
+                className="object-cover object-center"
                 {...inspectorProps({ fieldId: "image" })}
               />
             </div>

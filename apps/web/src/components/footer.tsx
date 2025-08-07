@@ -1,21 +1,13 @@
+import Image from "next/image";
 import Link from "next/link";
 
 import type { GlobalSettings } from "@/lib/contentful/query";
 import { getGlobalSettings } from "@/lib/contentful/query";
-import type {
-  TypeNavbarColumnLink,
-  TypeNavbarLink,
-} from "@/lib/contentful/types";
+import type { TypeNavbarColumnLink } from "@/lib/contentful/types";
 import { safeAsync } from "@/safe-async";
 
 import { Logo } from "./logo";
-import {
-  FacebookIcon,
-  InstagramIcon,
-  LinkedinIcon,
-  XIcon,
-  YoutubeIcon,
-} from "./social-icons";
+import { LinkedinIcon, XIcon } from "./social-icons";
 
 // Type definitions for footer columns
 type FooterColumn = TypeNavbarColumnLink<"WITHOUT_UNRESOLVABLE_LINKS">;
@@ -139,7 +131,7 @@ function Footer({ settingsData }: { settingsData: GlobalSettings }) {
     <section className="mt-20 pb-8">
       <div className="container mx-auto">
         <footer className="h-[500px] lg:h-auto">
-          <div className="flex flex-col items-center justify-between gap-10 text-center lg:flex-row lg:text-left mx-auto max-w-7xl px-4 md:px-6">
+          <div className="flex flex-col items-center justify-between gap-10 text-center lg:flex-row lg:text-left mx-auto px-4 md:px-6">
             <div className="flex w-full max-w-96 shrink flex-col items-center justify-between gap-6 md:gap-8 lg:items-start">
               <div>
                 <span className="flex items-center justify-center gap-4 lg:justify-start">
@@ -200,19 +192,27 @@ function Footer({ settingsData }: { settingsData: GlobalSettings }) {
               </div>
             )}
           </div>
-          <div className="mt-20 border-t pt-8">
-            <div className="flex flex-col justify-between gap-4  text-center text-sm font-normal text-muted-foreground lg:flex-row lg:items-center lg:text-left mx-auto max-w-7xl px-4 md:px-6">
-              <p>
-                © {year} {siteTitle}. All rights reserved.
-              </p>
-              <ul className="flex justify-center gap-4 lg:justify-start">
-                <li className="hover:text-primary">
-                  <Link href="/terms">Terms and Conditions</Link>
-                </li>
-                <li className="hover:text-primary">
-                  <Link href="/privacy">Privacy Policy</Link>
-                </li>
-              </ul>
+          <div className="mt-40 pt-8">
+            <div className="flex flex-col justify-between gap-4 text-center lg:flex-row lg:items-center lg:text-left mx-auto px-4 md:px-6 font-mono uppercase text-zinc-600 dark:text-zinc-400 text-sm">
+              <p>POWERED BY VERCEL & CONTENTFUL</p>
+              <div className="relative">
+                <Link
+                  href={"https://robotostudio.com"}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-zinc-950 dark:text-zinc-50"
+                >
+                  {siteTitle}
+                </Link>
+                <Image
+                  src={"/footer-logo.svg"}
+                  alt="Powered by Robotostudio"
+                  width={264}
+                  height={226}
+                  className="absolute top-[-90%] left-[50%] lg:left-[58%] -translate-x-1/2 -translate-y-1/2 min-w-64 select-none pointer-events-none"
+                />
+              </div>
+              <p>© {year} TURBO START Contentful</p>
             </div>
           </div>
         </footer>
