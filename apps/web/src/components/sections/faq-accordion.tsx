@@ -38,7 +38,7 @@ export function FaqAccordion(props: FaqAccordionProps) {
               {title}
             </h2>
             <h3
-              className="text-lg font-normal text-zinc-700 text-balance dark:text-zinc-400"
+              className="text-base md:text-lg text-balance max-w-3xl text-zinc-700 dark:text-zinc-300"
               {...inspectorProps({ fieldId: "subtitle" })}
             >
               {subtitle}
@@ -80,7 +80,7 @@ export function FaqAccordion(props: FaqAccordionProps) {
                 <p className="text-lg font-medium leading-7">
                   Get in touch with sales
                 </p>
-                <Badge className="rounded-full p-1">
+                <Badge className="rounded-full p-1 before:rounded-full">
                   <ArrowUpRight
                     size={20}
                     className="text-[#374151] dark:text-neutral-300"
