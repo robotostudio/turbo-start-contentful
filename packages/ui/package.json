@@ -17,7 +17,7 @@
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "lucide-react": "0.487.0",
-    "react": "19.1.0",
+    "react": "19.1.1",
     "react-dom": "19.1.0",
     "tailwind-merge": "^3.1.0",
     "tailwindcss-animate": "^1.0.7"
@@ -25,7 +25,7 @@
   "devDependencies": {
     "@turbo/gen": "^2.5.0",
     "@types/node": "^22.15.21",
-    "@types/react": "19.1.0",
+    "@types/react": "19.1.10",
     "@types/react-dom": "19.1.0",
     "@workspace/eslint-config": "workspace:*",
     "@workspace/typescript-config": "workspace:*",
