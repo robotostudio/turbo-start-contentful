@@ -16,7 +16,7 @@ export async function generateMetadata() {
     title: seoTitle || title,
     description: seoDescription || description,
     slug,
-    seoNoIndex,
+    ...(seoNoIndex !== undefined && { seoNoIndex }),
     contentType: "home",
     contentId,
   });

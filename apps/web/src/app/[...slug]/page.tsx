@@ -42,7 +42,7 @@ export async function generateMetadata({
     title: seoTitle || title,
     description: seoDescription || description,
     slug: pageSlug,
-    seoNoIndex,
+    ...(seoNoIndex !== undefined && { seoNoIndex }),
     contentType: contentType?.sys?.id,
     contentId: contentId,
   });

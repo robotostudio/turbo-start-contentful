@@ -48,7 +48,7 @@ export const nextJsConfig = [
     plugins: {
       "react-hooks": pluginReactHooks,
     },
-    settings: { react: { version: "detect" } },
+    settings: { react: { version: "19.0" } },
     rules: {
       ...pluginReactHooks.configs.recommended.rules,
       "prettier/prettier": "error",
@@ -57,6 +57,12 @@ export const nextJsConfig = [
       "react/react-in-jsx-scope": "off",
       "@typescript-eslint/consistent-type-imports": "error",
       "react/prop-types": "off",
+      // eslint-plugin-react@7.x uses removed ESLint v8 context API (getFilename)
+      // under ESLint 10 flat config — disable until plugin ships a flat-config fix.
+      "react/display-name": "off",
+      // Closing UI state (e.g. mobile menu) on route change is idiomatic in
+      // Next.js App Router — the effect syncs UI to router state, not to React.
+      "react-hooks/set-state-in-effect": "off",
     },
   },
 ];

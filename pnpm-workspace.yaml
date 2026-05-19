@@ -1,3 +1,24 @@
 packages:
   - "apps/*"
   - "packages/*"
+allowBuilds:
+  esbuild: true
+  scrollmirror: true
+  sharp: true
+minimumReleaseAgeExclude:
+  - '@types/node@25.9.0'
+  - '@typescript-eslint/eslint-plugin@8.59.4'
+  - '@typescript-eslint/parser@8.59.4'
+  - '@typescript-eslint/project-service@8.59.4'
+  - '@typescript-eslint/scope-manager@8.59.4'
+  - '@typescript-eslint/tsconfig-utils@8.59.4'
+  - '@typescript-eslint/type-utils@8.59.4'
+  - '@typescript-eslint/types@8.59.4'
+  - '@typescript-eslint/typescript-estree@8.59.4'
+  - '@typescript-eslint/utils@8.59.4'
+  - '@typescript-eslint/visitor-keys@8.59.4'
+  - framer-motion@12.39.0
+  - motion-dom@12.39.0
+  - motion-utils@12.39.0
+  - motion@12.39.0
+  - typescript-eslint@8.59.4

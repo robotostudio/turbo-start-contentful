@@ -18,18 +18,12 @@ export function ContentfulButton({
   size,
   ...props
 }: ContentfulButtonProps) {
-  if (!button?.fields) {
-    console.warn("Button has no fields:", button);
-    return null;
-  }
+  if (!button?.fields) return null;
 
   const { label, variant, href } = button.fields;
   const url = getButtonUrl(button);
 
-  if (!url || !label) {
-    console.warn("Button missing required fields:", { label, url, button });
-    return null;
-  }
+  if (!url || !label) return null;
 
   const isExternal = href && (href.startsWith("http") || href.startsWith("//"));
 
@@ -87,8 +81,8 @@ export function ContentfulButtons({
         <ContentfulButton
           key={button.sys.id}
           button={button}
-          className={buttonClassName}
-          size={size}
+          {...(buttonClassName !== undefined && { className: buttonClassName })}
+          {...(size !== undefined && { size })}
           {...props}
         />
       ))}

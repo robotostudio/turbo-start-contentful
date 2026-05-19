@@ -5,6 +5,7 @@ import {
   useContentfulLiveUpdates,
 } from "@contentful/live-preview/react";
 import { Badge } from "@workspace/ui/components/badge";
+import Image from "next/image";
 
 import type { TypeHero } from "@/lib/contentful/types";
 
@@ -15,19 +16,29 @@ import { ContentfulRichText } from "../contentful-richtext";
 export type HeroBlockProps = TypeHero<"WITHOUT_UNRESOLVABLE_LINKS">;
 
 export function HeroBlock(props: HeroBlockProps) {
-  const updatedBlog = useContentfulLiveUpdates(props);
+  const updatedProps = useContentfulLiveUpdates(props);
 
   const inspectorProps = useContentfulInspectorMode({
-    entryId: updatedBlog.sys.id,
+    entryId: updatedProps.sys.id,
   });
 
-  const { badge, title, richText, buttons, image } = updatedBlog.fields ?? {};
+  const { badge, title, richText, buttons, image } = updatedProps.fields ?? {};
   return (
     <section
       id="hero"
       className="relative pb-28 pt-32 md:py-40 overflow-hidden"
     >
-      <div className="absolute z-0 inset-0 bg-[url('/hero-bg.png')] bg-cover bg-center pointer-events-none opacity-[20%]" />
+      <Image
+        src="/hero-bg.png"
+        alt=""
+        fill
+        priority
+        fetchPriority="high"
+        sizes="100vw"
+        quality={70}
+        className="object-cover object-center pointer-events-none opacity-20 z-0"
+        aria-hidden="true"
+      />
       <div className="absolute z-1 inset-0 rounded-full bg-zinc-100 dark:bg-zinc-900 blur-[250px] pointer-events-none" />
       <div className="absolute -bottom-20 -inset-x-10 h-[180px] bg-[linear-gradient(90deg,_rgba(250,250,250,0.8)_0%,_#FAFAFA_50%,_rgba(250,250,250,1)_100%)] dark:bg-[linear-gradient(90deg,_rgba(0,0,0,0.8)_0%,_rgba(0,0,0,0.8)_50%,_rgba(0,0,0,1)_100%)] blur-[40px] pointer-events-none z-5" />
 

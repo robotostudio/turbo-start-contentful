@@ -29,7 +29,7 @@ import { motion, useMotionValueEvent, useScroll } from "motion/react";
 import dynamic from "next/dynamic";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 
 import { useIsMobile } from "@/hooks/use-is-mobile";
 import type { GlobalSettings } from "@/lib/contentful/query";
@@ -76,7 +76,7 @@ function MenuItemLink({
   return (
     <Link
       className={cn(
-        "flex select-none gap-4 rounded-md p-3 leading-none outline-none transition-colors hover:bg-accent hover:text-accent-foreground items-center focus:bg-accent focus:text-accent-foreground",
+        "flex select-none gap-4 rounded-md p-3 leading-none outline-hidden transition-colors hover:bg-accent hover:text-accent-foreground items-center focus:bg-accent focus:text-accent-foreground",
       )}
       aria-label={`Link to ${item.title ?? item.href}`}
       onClick={() => setIsOpen?.(false)}
@@ -209,7 +209,7 @@ function MobileNavbar({ settingsData }: { settingsData: GlobalSettings }) {
             })}
           </div>
 
-          <div className="border-t pt-4">
+          <div className="border-t border-border pt-4">
             <ContentfulButtons
               buttons={buttons ?? []}
               buttonClassName="w-full"
@@ -224,21 +224,18 @@ function MobileNavbar({ settingsData }: { settingsData: GlobalSettings }) {
 
 function NavbarColumnLink({ column }: { column: NavbarLinkItem }) {
   return (
-    <Link
-      aria-label={`Link to ${column.fields.label ?? column.fields.href}`}
-      href={column.fields.href ?? ""}
-      legacyBehavior
-      passHref
-    >
-      <NavigationMenuLink
+    <NavigationMenuLink asChild>
+      <Link
+        aria-label={`Link to ${column.fields.label ?? column.fields.href}`}
+        href={column.fields.href ?? ""}
         className={cn(
           navigationMenuTriggerStyle(),
           "text-zinc-700 dark:text-zinc-300 bg-transparent",
         )}
       >
         {column.fields.label}
-      </NavigationMenuLink>
-    </Link>
+      </Link>
+    </NavigationMenuLink>
   );
 }
 
@@ -249,11 +246,6 @@ function getColumnLayoutClass(itemCount: number) {
 }
 
 export function NavbarColumn({ column }: { column: NavbarColumnLink }) {
-  const layoutClass = useMemo(
-    () => getColumnLayoutClass(column.fields.links?.length ?? 0),
-    [column.fields.links?.length],
-  );
-
   return (
     <NavigationMenuList>
       <NavigationMenuItem className="text-zinc-700 dark:text-zinc-300 bg-transparent">
@@ -261,7 +253,12 @@ export function NavbarColumn({ column }: { column: NavbarColumnLink }) {
           {column.fields.label}
         </NavigationMenuTrigger>
         <NavigationMenuContent>
-          <ul className={cn("p-3", layoutClass)}>
+          <ul
+            className={cn(
+              "p-3",
+              getColumnLayoutClass(column.fields.links?.length ?? 0),
+            )}
+          >
             {column.fields.links?.map((item: NavbarLinkType) => {
               if (!item?.fields) return null;
               return (
@@ -331,10 +328,6 @@ const ClientSideNavbar = ({
   const isMobile = useIsMobile();
   const { scrollYProgress } = useScroll();
   const [isScrolled, setIsScrolled] = useState(false);
-
-  useEffect(() => {
-    setIsScrolled(false);
-  }, []);
 
   useMotionValueEvent(scrollYProgress, "change", (current) => {
     if (typeof current === "number") {

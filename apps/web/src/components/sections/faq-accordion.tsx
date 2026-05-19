@@ -50,13 +50,13 @@ export function FaqAccordion(props: FaqAccordionProps) {
             type="single"
             collapsible
             className="w-full"
-            defaultValue="3"
+            defaultValue={faqs?.[0]?.sys.id ?? ""}
             {...inspectorProps({ fieldId: "faqs" })}
           >
             {faqs?.map((faq, index) => (
               <AccordionItem
-                value={faq?.sys.id || `faq-${index}`}
-                key={`AccordionItem-${faq?.sys.id || `faq-${index}`}-${index}`}
+                value={faq?.sys.id ?? `faq-${index}`}
+                key={faq?.sys.id ?? `faq-${index}`}
                 className="my-4 border-none px-4 py-2 text-lg hover:no-underline group bg-white dark:bg-zinc-900 rounded-2xl"
               >
                 <AccordionTrigger className="h-full">
@@ -76,7 +76,7 @@ export function FaqAccordion(props: FaqAccordionProps) {
               <p className="mb-1 text-lg text-zinc-700 dark:text-zinc-400">
                 More questions?
               </p>
-              <Link href={link ?? "#"} className="flex items-center gap-2">
+              <Link href={link} className="flex items-center gap-2">
                 <p className="text-lg font-medium leading-7">
                   Get in touch with sales
                 </p>

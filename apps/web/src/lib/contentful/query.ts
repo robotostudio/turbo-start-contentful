@@ -5,11 +5,15 @@ import type {
   TypeBlog,
   TypeBlogSkeleton,
   TypeGlobalSettings,
+  TypeGlobalSettingsSkeleton,
   TypePage,
   TypePageSkeleton,
 } from "./types";
 
-export async function getPageBySlug(slug: string, preview = false) {
+export async function getPageBySlug(
+  slug: string,
+  preview = false,
+): Promise<TypePage<"WITHOUT_UNRESOLVABLE_LINKS">> {
   try {
     const client = getClient(preview);
 
@@ -23,14 +27,17 @@ export async function getPageBySlug(slug: string, preview = false) {
       throw new Error(`No page found with slug: ${slug}`);
     }
 
-    return res.items[0];
+    return res.items[0]!;
   } catch (error) {
     console.error(`Error fetching page with slug ${slug}:`, error);
     throw new Error(parseContentfulError(error));
   }
 }
 
-export async function getPageByID(id: string, preview = false) {
+export async function getPageByID(
+  id: string,
+  preview = false,
+): Promise<TypePage<"WITHOUT_UNRESOLVABLE_LINKS"> | undefined> {
   try {
     const client = getClient(preview);
 
@@ -53,14 +60,14 @@ export async function getPageByID(id: string, preview = false) {
       throw new Error(`No page found with id: ${id}`);
     }
 
-    return res.items[0] as TypePage<"WITHOUT_UNRESOLVABLE_LINKS">;
+    return res.items[0];
   } catch (error) {
     console.error(`Error fetching page with id ${id}:`, error);
     throw new Error(parseContentfulError(error));
   }
 }
 
-export async function getAllPageSlugs() {
+export async function getAllPageSlugs(): Promise<string[]> {
   try {
     const client = getClient();
     const res = await client.getEntries<TypePageSkeleton>({
@@ -75,7 +82,7 @@ export async function getAllPageSlugs() {
   }
 }
 
-export async function getBlogPaths() {
+export async function getBlogPaths(): Promise<string[]> {
   try {
     const client = getClient();
     const res = await client.getEntries<TypeBlogSkeleton>({
@@ -89,11 +96,12 @@ export async function getBlogPaths() {
   }
 }
 
-export async function getGlobalSettingsUncached(preview = false) {
+export async function getGlobalSettingsUncached(
+  preview = false,
+): Promise<TypeGlobalSettings<"WITHOUT_UNRESOLVABLE_LINKS">> {
   try {
-    console.count("global-settings");
     const client = getClient(preview);
-    const res = await client.getEntries({
+    const res = await client.getEntries<TypeGlobalSettingsSkeleton>({
       content_type: "globalSettings",
       include: 10,
     });
@@ -102,7 +110,7 @@ export async function getGlobalSettingsUncached(preview = false) {
       throw new Error("No global settings found");
     }
 
-    return res.items[0] as TypeGlobalSettings<"WITHOUT_UNRESOLVABLE_LINKS">;
+    return res.items[0]!;
   } catch (error) {
     console.error("Error fetching global settings:", error);
     throw new Error(parseContentfulError(error));
@@ -113,20 +121,15 @@ export const getGlobalSettings = cache(getGlobalSettingsUncached);
 
 export type GlobalSettings = Awaited<ReturnType<typeof getGlobalSettings>>;
 
-export async function getAllBlogs(preview = false) {
+export async function getAllBlogs(preview = false): Promise<{
+  featured: TypeBlog<"WITHOUT_UNRESOLVABLE_LINKS"> | undefined;
+  blogs: TypeBlog<"WITHOUT_UNRESOLVABLE_LINKS">[];
+}> {
   try {
     const client = getClient(preview);
 
-    const {
-      items: [globalSettings],
-    } = await client.getEntries({
-      content_type: "globalSettings",
-      include: 10,
-      select: ["fields.featuredBlog"],
-    });
-
-    const featuredBlog = globalSettings?.fields
-      ?.featuredBlog as TypeBlog<"WITHOUT_UNRESOLVABLE_LINKS">;
+    const globalSettings = await getGlobalSettings(preview);
+    const featuredBlog = globalSettings?.fields?.featuredBlog;
     const featuredId = featuredBlog?.sys?.id;
 
     const res = await client.getEntries<TypeBlogSkeleton>({
@@ -138,7 +141,7 @@ export async function getAllBlogs(preview = false) {
     });
     return {
       featured: featuredBlog,
-      blogs: res.items as TypeBlog<"WITHOUT_UNRESOLVABLE_LINKS">[],
+      blogs: res.items,
     };
   } catch (error) {
     console.error("Error fetching blogs:", error);
@@ -146,7 +149,10 @@ export async function getAllBlogs(preview = false) {
   }
 }
 
-export async function getBlogByID(id: string, preview = false) {
+export async function getBlogByID(
+  id: string,
+  preview = false,
+): Promise<TypeBlog<"WITHOUT_UNRESOLVABLE_LINKS"> | undefined> {
   try {
     const client = getClient(preview);
     const res = await client.getEntries<TypeBlogSkeleton>({
@@ -164,14 +170,17 @@ export async function getBlogByID(id: string, preview = false) {
       limit: 1,
       include: 10,
     });
-    return res.items[0] as TypeBlog<"WITHOUT_UNRESOLVABLE_LINKS">;
+    return res.items[0];
   } catch (error) {
     console.error(`Error fetching blog with id ${id}:`, error);
     throw new Error(parseContentfulError(error));
   }
 }
 
-export async function getBlogBySlug(slug: string, preview = false) {
+export async function getBlogBySlug(
+  slug: string,
+  preview = false,
+): Promise<TypeBlog<"WITHOUT_UNRESOLVABLE_LINKS"> | undefined> {
   try {
     const client = getClient(preview);
     const res = await client.getEntries<TypeBlogSkeleton>({
@@ -180,7 +189,7 @@ export async function getBlogBySlug(slug: string, preview = false) {
       limit: 1,
       include: 10,
     });
-    return res.items[0] as TypeBlog<"WITHOUT_UNRESOLVABLE_LINKS">;
+    return res.items[0];
   } catch (error) {
     console.error(`Error fetching blog with slug ${slug}:`, error);
     throw new Error(parseContentfulError(error));

@@ -1,5 +1,17 @@
+import { timingSafeEqual } from "node:crypto";
+
 import { cookies, draftMode } from "next/headers";
 import { redirect } from "next/navigation";
+
+import { previewSecret, vercelBypassSecret } from "@/lib/env";
+import { SAFE_PATH_RE } from "@/lib/url";
+
+function safeEqual(a: string, b: string): boolean {
+  const aBuf = Buffer.from(a);
+  const bBuf = Buffer.from(b);
+  if (aBuf.length !== bBuf.length) return false;
+  return timingSafeEqual(aBuf, bBuf);
+}
 
 // JWT utilities
 interface VercelJwt {
@@ -13,7 +25,7 @@ function getVercelJwtCookie(request: Request): string | undefined {
   const cookieHeader = request.headers.get("cookie");
   if (!cookieHeader) return undefined;
 
-  const cookies = cookieHeader.split(";").reduce(
+  const cookieMap = cookieHeader.split(";").reduce(
     (acc, cookie) => {
       const parts = cookie.trim().split("=");
       const name = parts[0];
@@ -26,7 +38,7 @@ function getVercelJwtCookie(request: Request): string | undefined {
     {} as Record<string, string>,
   );
 
-  return cookies["_vercel_jwt"];
+  return cookieMap["_vercel_jwt"];
 }
 
 function parseVercelJwtCookie(vercelJwtCookie: string): VercelJwt {
@@ -35,11 +47,10 @@ function parseVercelJwtCookie(vercelJwtCookie: string): VercelJwt {
     throw new Error("Malformed `_vercel_jwt` cookie value");
   }
 
-  const base64 = base64Payload.replace("-", "+").replace("_", "/");
-  const payload = atob(base64);
+  // A4: use Buffer.from with base64url encoding — handles all padding/char substitutions
+  const payload = Buffer.from(base64Payload, "base64url").toString("utf-8");
   const vercelJwt = JSON.parse(payload);
 
-  // Validate the JWT structure
   if (typeof vercelJwt.bypass !== "string") {
     throw new TypeError("'bypass' property in VercelJwt is not a string");
   }
@@ -75,7 +86,10 @@ function parseRequestUrl(requestUrl: string): ParsedUrl {
   const bypassToken = searchParams.get("x-vercel-protection-bypass") || "";
   const contentfulPreviewSecret =
     searchParams.get("x-contentful-preview-secret") || "";
-  const path = decodeURIComponent(rawPath);
+
+  // A2: validate path after decoding — reject open-redirect attempts
+  const decoded = decodeURIComponent(rawPath);
+  const path = SAFE_PATH_RE.test(decoded) ? decoded : "";
 
   return { origin, path, host, bypassToken, contentfulPreviewSecret };
 }
@@ -103,11 +117,22 @@ function buildRedirectUrl({
 }
 
 // Authentication helpers
+
+// A3: dev mode still requires the Contentful preview secret; skips only the
+// Vercel JWT cookie check since Vercel edge is not in front of local dev.
 async function handleDevelopmentMode(
   path: string,
   base: string,
   bypassTokenFromQuery: string,
+  contentfulPreviewSecretFromQuery: string,
 ) {
+  if (!previewSecret) {
+    return new Response("Preview service not configured", { status: 503 });
+  }
+  if (!safeEqual(contentfulPreviewSecretFromQuery, previewSecret)) {
+    return new Response("Forbidden", { status: 403 });
+  }
+
   (await draftMode()).enable();
   const cookieStore = await cookies();
   const cookie = cookieStore.get("__prerender_bypass");
@@ -125,27 +150,18 @@ async function handleDevelopmentMode(
   return redirect(redirectUrl);
 }
 
+// A5: when a query token is present we do NOT return early — we fall through to
+// cookie parsing so the cookie's `aud` is what gets host-checked. If no valid
+// cookie exists, fail 401. This prevents leaked query tokens from working from
+// arbitrary hosts.
 function getAuthCredentials(
   request: Request,
   bypassTokenFromQuery: string,
   contentfulPreviewSecretFromQuery: string,
-  host: string,
 ):
   | { bypassToken: string; aud: string; vercelJwtCookie: string | undefined }
   | Response {
   const vercelJwtCookie = getVercelJwtCookie(request);
-
-  if (bypassTokenFromQuery) {
-    return { bypassToken: bypassTokenFromQuery, aud: host, vercelJwtCookie };
-  }
-
-  if (contentfulPreviewSecretFromQuery) {
-    return {
-      bypassToken: contentfulPreviewSecretFromQuery,
-      aud: host,
-      vercelJwtCookie,
-    };
-  }
 
   if (!vercelJwtCookie) {
     return new Response(
@@ -156,8 +172,14 @@ function getAuthCredentials(
 
   try {
     const vercelJwt = parseVercelJwtCookie(vercelJwtCookie);
+    // When a query token is present, prefer it for the bypass check but keep
+    // the cookie-derived aud so host-binding is enforced.
+    const effectiveBypassToken =
+      bypassTokenFromQuery ||
+      contentfulPreviewSecretFromQuery ||
+      vercelJwt.bypass;
     return {
-      bypassToken: vercelJwt.bypass,
+      bypassToken: effectiveBypassToken,
       aud: vercelJwt.aud,
       vercelJwtCookie,
     };
@@ -176,9 +198,12 @@ function validateAuth(
   aud: string,
   host: string,
 ): Response | null {
+  if (!vercelBypassSecret || !previewSecret) {
+    return new Response("Preview service not configured", { status: 503 });
+  }
   if (
-    bypassToken !== process.env.VERCEL_AUTOMATION_BYPASS_SECRET &&
-    contentfulPreviewSecretFromQuery !== process.env.CONTENTFUL_PREVIEW_SECRET
+    !safeEqual(bypassToken, vercelBypassSecret) &&
+    !safeEqual(contentfulPreviewSecretFromQuery, previewSecret)
   ) {
     return new Response(
       "The bypass token you are authorized with does not match the bypass secret for this deployment. You might need to redeploy or go back and try the link again.",
@@ -206,15 +231,26 @@ export async function GET(request: Request) {
     contentfulPreviewSecret: contentfulPreviewSecretFromQuery,
   } = parseRequestUrl(request.url);
 
+  // A2: reject missing/invalid path before any auth work runs
+  if (!path) {
+    return new Response("Missing required value for query parameter `path`", {
+      status: 400,
+    });
+  }
+
   if (process.env.NODE_ENV === "development") {
-    return handleDevelopmentMode(path, base, bypassTokenFromQuery);
+    return handleDevelopmentMode(
+      path,
+      base,
+      bypassTokenFromQuery,
+      contentfulPreviewSecretFromQuery,
+    );
   }
 
   const authResult = getAuthCredentials(
     request,
     bypassTokenFromQuery,
     contentfulPreviewSecretFromQuery,
-    host,
   );
 
   if (authResult instanceof Response) {
@@ -231,12 +267,6 @@ export async function GET(request: Request) {
   );
   if (authError) return authError;
 
-  if (!path) {
-    return new Response("Missing required value for query parameter `path`", {
-      status: 400,
-    });
-  }
-
   (await draftMode()).enable();
   const bypassTokenForRedirect = vercelJwtCookie
     ? undefined
@@ -244,7 +274,9 @@ export async function GET(request: Request) {
   const redirectUrl = buildRedirectUrl({
     path,
     base,
-    bypassTokenFromQuery: bypassTokenForRedirect,
+    ...(bypassTokenForRedirect !== undefined && {
+      bypassTokenFromQuery: bypassTokenForRedirect,
+    }),
   });
 
   return redirect(redirectUrl);

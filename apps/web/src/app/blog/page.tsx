@@ -38,7 +38,7 @@ export default async function BlogIndexPage() {
       <div className="container mx-auto px-4 py-24 pt-32 md:px-6">
         <BlogHeader title="Blog" description="Blog" />
         <div className="mt-12">
-          <FeaturedBlogCard blog={featured} />
+          {featured && <FeaturedBlogCard blog={featured} />}
         </div>
         {blogs.length > 0 && (
           <div className="mt-16 grid grid-cols-1 gap-12 md:gap-16 lg:grid-cols-2">

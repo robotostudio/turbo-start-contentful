@@ -51,7 +51,7 @@ function SocialLinks({ settingsData }: { settingsData: GlobalSettings }) {
     <ul className="flex items-center space-x-6 text-muted-foreground">
       {socialLinks.map(({ url, Icon, label }, index) => (
         <li
-          key={`social-link-${url}-${index.toString()}`}
+          key={url ?? `social-${index}`}
           className="font-medium hover:text-primary"
         >
           <Link
@@ -108,7 +108,7 @@ export function FooterSkeleton() {
               ))}
             </div>
           </div>
-          <div className="mt-20 flex flex-col justify-between gap-4 border-t pt-8 text-center lg:flex-row lg:items-center lg:text-left">
+          <div className="mt-20 flex flex-col justify-between gap-4 border-t border-border pt-8 text-center lg:flex-row lg:items-center lg:text-left">
             <div className="h-4 w-48 bg-muted rounded animate-pulse" />
             <div className="flex justify-center gap-4 lg:justify-start">
               <div className="h-4 w-32 bg-muted rounded animate-pulse" />
@@ -151,9 +151,9 @@ function Footer({ settingsData }: { settingsData: GlobalSettings }) {
                   if (!column?.fields) return null;
                   return (
                     <div key={`column-${column.sys.id}-${index}`}>
-                      <h3 className="mb-6 font-semibold">
+                      <h2 className="mb-6 font-semibold">
                         {column.fields.label}
-                      </h3>
+                      </h2>
                       {column.fields.links &&
                         column.fields.links.length > 0 && (
                           <ul className="space-y-4 text-sm text-muted-foreground dark:text-zinc-400">

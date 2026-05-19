@@ -1,12 +1,9 @@
 import type {
-  Answer,
   Article,
   ContactPoint,
-  FAQPage,
   ImageObject,
   Organization,
   Person,
-  Question,
   WebPage,
   WebSite,
   WithContext,
@@ -18,46 +15,6 @@ import { getGlobalSettings } from "@/lib/contentful/query";
 import type { TypeBlog } from "@/lib/contentful/types";
 import { safeAsync } from "@/safe-async";
 
-interface RichTextChild {
-  _type: string;
-  text?: string;
-  marks?: string[];
-  _key: string;
-}
-
-interface RichTextBlock {
-  _type: string;
-  children?: RichTextChild[];
-  style?: string;
-  _key: string;
-}
-
-// Flexible FAQ type that can accept different rich text structures
-interface FlexibleFaq {
-  _id: string;
-  title: string;
-  richText?: RichTextBlock[] | null;
-}
-
-// Utility function to safely extract plain text from rich text blocks
-function extractPlainTextFromRichText(
-  richText: RichTextBlock[] | null | undefined,
-): string {
-  if (!Array.isArray(richText)) return "";
-
-  return richText
-    .filter((block) => block._type === "block" && Array.isArray(block.children))
-    .map(
-      (block) =>
-        block.children
-          ?.filter((child) => child._type === "span" && Boolean(child.text))
-          .map((child) => child.text)
-          .join("") ?? "",
-    )
-    .join(" ")
-    .trim();
-}
-
 // Utility function to safely render JSON-LD
 export function JsonLdScript<T>({ data, id }: { data: T; id: string }) {
   return (
@@ -65,36 +22,6 @@ export function JsonLdScript<T>({ data, id }: { data: T; id: string }) {
       {JSON.stringify(data, null, 0)}
     </script>
   );
-}
-
-// FAQ JSON-LD Component
-interface FaqJsonLdProps {
-  faqs: FlexibleFaq[];
-}
-
-export function FaqJsonLd({ faqs }: FaqJsonLdProps) {
-  if (!faqs?.length) return null;
-
-  const validFaqs = faqs.filter((faq) => faq?.title && faq?.richText);
-
-  if (!validFaqs.length) return null;
-
-  const faqJsonLd: WithContext<FAQPage> = {
-    "@context": "https://schema.org",
-    "@type": "FAQPage",
-    mainEntity: validFaqs.map(
-      (faq): Question => ({
-        "@type": "Question",
-        name: faq.title,
-        acceptedAnswer: {
-          "@type": "Answer",
-          text: extractPlainTextFromRichText(faq.richText),
-        } as Answer,
-      }),
-    ),
-  };
-
-  return <JsonLdScript data={faqJsonLd} id="faq-json-ld" />;
 }
 
 // Article JSON-LD Component
@@ -105,7 +32,7 @@ interface ArticleJsonLdProps {
 export function ArticleJsonLd({ article, settings }: ArticleJsonLdProps) {
   if (!article) return null;
 
-  const { title, description, image, richText, slug, authors, publishedDate } =
+  const { title, description, image, slug, authors, publishedDate } =
     article.fields ?? {};
 
   const { siteTitle, logo } = settings?.fields ?? {};
@@ -119,8 +46,8 @@ export function ArticleJsonLd({ article, settings }: ArticleJsonLdProps) {
     "@context": "https://schema.org",
     "@type": "Article",
     headline: title,
-    description: description || undefined,
-    image: imageUrl ? [imageUrl] : undefined,
+    ...(description && { description }),
+    ...(imageUrl && { image: [imageUrl] }),
     author: authors
       ? authors.map(
           (author) =>
@@ -182,22 +109,22 @@ export function OrganizationJsonLd({ settings }: OrganizationJsonLdProps) {
     "@context": "https://schema.org",
     "@type": "Organization",
     name: siteTitle,
-    description: siteDescription || undefined,
+    ...(siteDescription && { description: siteDescription }),
     url: baseUrl,
-    logo: logo?.fields?.file?.url
-      ? ({
-          "@type": "ImageObject",
-          url: `https:${logo?.fields.file.url}`,
-        } as ImageObject)
-      : undefined,
-    contactPoint: contactEmail
-      ? ({
-          "@type": "ContactPoint",
-          email: contactEmail,
-          contactType: "customer service",
-        } as ContactPoint)
-      : undefined,
-    sameAs: socialLinks?.length ? socialLinks : undefined,
+    ...(logo?.fields?.file?.url && {
+      logo: {
+        "@type": "ImageObject",
+        url: `https:${logo.fields.file.url}`,
+      } as ImageObject,
+    }),
+    ...(contactEmail && {
+      contactPoint: {
+        "@type": "ContactPoint",
+        email: contactEmail,
+        contactType: "customer service",
+      } as ContactPoint,
+    }),
+    ...(socialLinks.length && { sameAs: socialLinks }),
   };
 
   return <JsonLdScript data={organizationJsonLd} id="organization-json-ld" />;
@@ -218,7 +145,7 @@ export function WebSiteJsonLd({ settings }: WebSiteJsonLdProps) {
     "@context": "https://schema.org",
     "@type": "WebSite",
     name: siteTitle,
-    description: siteDescription || undefined,
+    ...(siteDescription && { description: siteDescription }),
     url: baseUrl,
     publisher: {
       "@type": "Organization",
@@ -232,14 +159,12 @@ export function WebSiteJsonLd({ settings }: WebSiteJsonLdProps) {
 // Combined JSON-LD Component for pages with multiple structured data
 interface CombinedJsonLdProps {
   article?: TypeBlog<"WITHOUT_UNRESOLVABLE_LINKS">;
-  faqs?: FlexibleFaq[];
   includeWebsite?: boolean;
   includeOrganization?: boolean;
 }
 
 export async function CombinedJsonLd({
   article,
-  faqs,
   includeWebsite = false,
   includeOrganization = false,
 }: CombinedJsonLdProps) {
@@ -260,7 +185,6 @@ export async function CombinedJsonLd({
         <OrganizationJsonLd settings={settingsData} />
       )}
       {article && <ArticleJsonLd article={article} settings={settingsData} />}
-      {faqs && <FaqJsonLd faqs={faqs} />}
     </>
   );
 }
