@@ -1,13 +1,9 @@
 import type { Entry, UnresolvedLink } from "contentful";
 
 import type {
-  TypeCallToAction,
   TypeCallToActionSkeleton,
-  TypeFaqAccordion,
   TypeFaqAccordionSkeleton,
-  TypeFeatureCards,
   TypeFeatureCardsSkeleton,
-  TypeHero,
   TypeHeroSkeleton,
 } from "@/lib/contentful/types";
 
@@ -27,6 +23,8 @@ type PageBuilderSkeleton =
 type PageBuilderArray = (
   | UnresolvedLink<"Entry">
   | Entry<PageBuilderSkeleton, undefined, string>
+  | Entry<PageBuilderSkeleton, "WITHOUT_UNRESOLVABLE_LINKS", string>
+  | undefined
 )[];
 
 interface PageBuilderProps {
@@ -46,12 +44,19 @@ function isValidBlockType(type: string): type is BlockType {
   return type in BLOCK_COMPONENTS;
 }
 
+type AnyPageBuilderEntry =
+  | Entry<PageBuilderSkeleton, undefined, string>
+  | Entry<PageBuilderSkeleton, "WITHOUT_UNRESOLVABLE_LINKS", string>;
+
 function isResolvedEntry(
   block:
     | UnresolvedLink<"Entry">
-    | Entry<PageBuilderSkeleton, undefined, string>,
-): block is Entry<PageBuilderSkeleton, undefined, string> {
+    | Entry<PageBuilderSkeleton, undefined, string>
+    | Entry<PageBuilderSkeleton, "WITHOUT_UNRESOLVABLE_LINKS", string>
+    | undefined,
+): block is AnyPageBuilderEntry {
   return (
+    block !== undefined &&
     "sys" in block &&
     "contentType" in block.sys &&
     "id" in block.sys.contentType.sys
@@ -61,7 +66,6 @@ function isResolvedEntry(
 function ErrorBlock({ id, contentType }: { id: string; contentType: string }) {
   return (
     <div
-      key={id}
       className="p-4 border border-red-200 rounded-md"
       role="alert"
       aria-label={`Component ${contentType} not found`}
@@ -76,7 +80,6 @@ function ErrorBlock({ id, contentType }: { id: string; contentType: string }) {
 function UnresolvedBlock({ id }: { id: string }) {
   return (
     <div
-      key={id}
       className="p-4 border border-yellow-200 rounded-md bg-yellow-50"
       role="alert"
       aria-label="Unresolved content entry"
@@ -96,6 +99,8 @@ export function PageBuilder({ pageBuilder }: PageBuilderProps) {
     <div className="flex flex-col gap-8">
       {pageBuilder.map((block) => {
         if (!isResolvedEntry(block)) {
+          // block is UnresolvedLink | undefined here
+          if (!block) return null;
           return <UnresolvedBlock key={block.sys.id} id={block.sys.id} />;
         }
 
@@ -111,48 +116,11 @@ export function PageBuilder({ pageBuilder }: PageBuilderProps) {
           );
         }
 
-        switch (block.sys.contentType.sys.id) {
-          case "callToAction": {
-            return (
-              <CTABlock
-                key={block.sys.id}
-                {...(block as TypeCallToAction<"WITHOUT_UNRESOLVABLE_LINKS">)}
-              />
-            );
-          }
-          case "faqAccordion": {
-            return (
-              <FaqAccordion
-                key={block.sys.id}
-                {...(block as TypeFaqAccordion<"WITHOUT_UNRESOLVABLE_LINKS">)}
-              />
-            );
-          }
-          case "hero": {
-            return (
-              <HeroBlock
-                key={block.sys.id}
-                {...(block as TypeHero<"WITHOUT_UNRESOLVABLE_LINKS">)}
-              />
-            );
-          }
-          case "featureCards": {
-            return (
-              <FeatureCardsWithIcon
-                key={block.sys.id}
-                {...(block as TypeFeatureCards<"WITHOUT_UNRESOLVABLE_LINKS">)}
-              />
-            );
-          }
-          default:
-            return (
-              <ErrorBlock
-                key={block.sys.id}
-                id={block.sys.id}
-                contentType={contentType}
-              />
-            );
-        }
+        const Component = BLOCK_COMPONENTS[contentType];
+        // Single cast: registry key matches runtime contentType, sound by construction.
+        // TS cannot narrow Entry<union> by the string discriminant, so one cast is unavoidable.
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        return <Component key={block.sys.id} {...(block as any)} />;
       })}
     </div>
   );

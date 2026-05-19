@@ -13,7 +13,18 @@ export const spaceId = assertValue(
 
 export const accessToken = assertValue(
   process.env.CONTENTFUL_ACCESS_TOKEN,
-  "Missing environment variable: NEXT_PUBLIC_SANITY_PROJECT_ID",
+  "Missing environment variable: CONTENTFUL_ACCESS_TOKEN",
 );
 
 export const previewToken = process.env.CONTENTFUL_PREVIEW_ACCESS_TOKEN;
+
+export const draftToken = assertValue(
+  process.env.CONTENTFUL_DRAFT_TOKEN,
+  "Missing environment variable: CONTENTFUL_DRAFT_TOKEN",
+);
+
+export const revalidationSecret = process.env.CONTENTFUL_REVALIDATION_SECRET;
+
+export const previewSecret = process.env.CONTENTFUL_PREVIEW_SECRET;
+
+export const vercelBypassSecret = process.env.VERCEL_AUTOMATION_BYPASS_SECRET;

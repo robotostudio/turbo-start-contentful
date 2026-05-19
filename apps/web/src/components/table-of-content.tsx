@@ -362,8 +362,8 @@ const TableOfContentAnchor: FC<AnchorProps> = ({
           href={href}
           className={cn(
             "hover:text-blue-500 hover:underline line-clamp-1",
-            "transition-colors duration-200 focus:outline-none",
-            "rounded-sm px-1 py-0.5",
+            "transition-colors duration-200 focus:outline-hidden",
+            "rounded-xs px-1 py-0.5",
           )}
           aria-describedby={`${id}-level`}
         >
@@ -417,7 +417,7 @@ export const TableOfContent: FC<TableOfContentProps> = ({
         "sticky top-8 flex flex-col w-full max-w-xs p-4",
         "bg-gradient-to-b from-zinc-50 to-zinc-100",
         "dark:from-zinc-800 dark:to-zinc-900",
-        "shadow-sm rounded-lg border border-zinc-300 dark:border-zinc-700",
+        "shadow-xs rounded-lg border border-zinc-300 dark:border-zinc-700",
         "transition-all duration-200",
         className,
       )}
@@ -430,8 +430,8 @@ export const TableOfContent: FC<TableOfContentProps> = ({
             "flex cursor-pointer items-center justify-between",
             "text-lg font-semibold text-zinc-800 dark:text-zinc-200",
             "hover:text-blue-600 dark:hover:text-blue-400",
-            "transition-colors duration-200 focus:outline-none",
-            "rounded-sm p-1",
+            "transition-colors duration-200 focus:outline-hidden",
+            "rounded-xs p-1",
           )}
           aria-expanded="true"
         >

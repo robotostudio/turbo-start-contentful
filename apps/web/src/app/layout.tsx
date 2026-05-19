@@ -54,11 +54,7 @@ export default async function RootLayout({
             <FooterServer />
           </Suspense>
           <CombinedJsonLd includeWebsite includeOrganization />
-          {isEnabled && (
-            <>
-              <PreviewBar />
-            </>
-          )}
+          {isEnabled && <PreviewBar />}
         </Providers>
       </body>
     </html>

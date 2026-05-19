@@ -15,13 +15,13 @@ import { ContentfulRichText } from "../contentful-richtext";
 export type HeroBlockProps = TypeHero<"WITHOUT_UNRESOLVABLE_LINKS">;
 
 export function HeroBlock(props: HeroBlockProps) {
-  const updatedBlog = useContentfulLiveUpdates(props);
+  const updatedProps = useContentfulLiveUpdates(props);
 
   const inspectorProps = useContentfulInspectorMode({
-    entryId: updatedBlog.sys.id,
+    entryId: updatedProps.sys.id,
   });
 
-  const { badge, title, richText, buttons, image } = updatedBlog.fields ?? {};
+  const { badge, title, richText, buttons, image } = updatedProps.fields ?? {};
   return (
     <section
       id="hero"

@@ -22,8 +22,7 @@
       "outputs": [
         ".next/**",
         "!.next/cache/**",
-        "dist/**",
-        ".sanity/**"
+        "dist/**"
       ]
     },
     "lint": {

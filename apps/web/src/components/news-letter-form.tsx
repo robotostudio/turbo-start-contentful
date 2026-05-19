@@ -1,3 +1,5 @@
+"use client";
+
 import { Button } from "@workspace/ui/components/button";
 import { cn } from "@workspace/ui/lib/utils";
 import { LoaderCircle } from "lucide-react";
@@ -15,13 +17,13 @@ export function NewsLetterForm({ className }: { className?: string }) {
       )}
       action={newsletterSubmission}
     >
-      <div className="flex bg-zinc-200 items-center border dark:border-zinc-50 rounded-2xl p-2 drop-shadow-lg md:w-96 justify-between pl-4">
+      <div className="flex bg-zinc-200 items-center border border-zinc-200 dark:border-zinc-50 rounded-2xl p-2 drop-shadow-lg md:w-96 justify-between pl-4">
         <input
           type="email"
           name="email"
           required
           placeholder="Enter your email address"
-          className="rounded-e-none border-e-0 focus-visible:ring-0 outline-none bg-transparent w-full placeholder:text-zinc-600 text-zinc-600"
+          className="rounded-e-none border-e-0 focus-visible:ring-0 outline-hidden bg-transparent w-full placeholder:text-zinc-600 text-zinc-600"
         />
         <SubscribeNewsletterButton />
       </div>

@@ -16,8 +16,8 @@ alwaysApply: false
 ```
 
 - Always use appropriate semantic HTML
-- Use `SanityImage` for any images generated in Sanity if the component is available
-- Use `Buttons.tsx` resolver for any buttons unless specified otherwise
+- Use `ContentfulImage` for any images generated in Contentful if the component is available
+- Use `contentful-button.tsx` resolver for any buttons unless specified otherwise
 
 ## Internationalization Rules
 

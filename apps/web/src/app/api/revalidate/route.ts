@@ -1,35 +1,71 @@
+import { timingSafeEqual } from "node:crypto";
 import { revalidatePath, revalidateTag } from "next/cache";
 import { NextResponse } from "next/server";
+import { z } from "zod";
+import { revalidationSecret } from "@/lib/env";
 
-// Contentful's webhook will send a POST request to this endpoint to revalidate the page
+const bodySchema = z
+  .object({
+    path: z
+      .string()
+      .regex(/^\/[A-Za-z0-9/_\-]*$/)
+      .optional(),
+    tag: z
+      .string()
+      .regex(/^[A-Za-z0-9_\-]+$/)
+      .optional(),
+  })
+  .refine((v) => v.path || v.tag, { message: "path or tag required" });
+
 export async function POST(request: Request) {
   const requestHeaders = new Headers(request.headers);
   const secret = requestHeaders.get("x-vercel-revalidation-key");
 
-  if (secret !== process.env.CONTENTFUL_REVALIDATION_SECRET) {
+  if (!secret || !revalidationSecret) {
     return NextResponse.json({ message: "Invalid secret" }, { status: 401 });
   }
 
-  const body = await request.json();
-
-  const tag = body.tag;
-  const path = body.path;
-
-  if (!tag && !path) {
-    return NextResponse.json({ message: "No tag provided" }, { status: 400 });
+  if (secret.length !== revalidationSecret.length) {
+    return NextResponse.json({ message: "Invalid secret" }, { status: 401 });
   }
 
-  // revalidate an entire path of an application
-  // e.g. passing blog will revalidate all blog pages
+  if (
+    !timingSafeEqual(Buffer.from(secret), Buffer.from(revalidationSecret))
+  ) {
+    return NextResponse.json({ message: "Invalid secret" }, { status: 401 });
+  }
+
+  const rawBody = await (async () => {
+    try {
+      return await request.json();
+    } catch {
+      return null;
+    }
+  })();
+
+  if (!rawBody) {
+    return NextResponse.json(
+      { message: "Invalid JSON body" },
+      { status: 400 },
+    );
+  }
+
+  const parsed = bodySchema.safeParse(rawBody);
+  if (!parsed.success) {
+    return NextResponse.json(
+      { message: "Invalid request body" },
+      { status: 400 },
+    );
+  }
+
+  const { path, tag } = parsed.data;
+
   if (path) {
     revalidatePath(path);
-    console.log(`Revalidated path: ${path} at ${Date.now()}`);
   }
 
-  // revalidate a specific tag
   if (tag) {
-    revalidateTag(tag);
-    console.log(`Revalidated tag: ${tag} at ${Date.now()}`);
+    revalidateTag(tag, {});
   }
 
   return NextResponse.json({ revalidated: true, now: Date.now() });

@@ -25,7 +25,7 @@ turbo-next-contentful/
 
 ### 🚀 Frontend Application (`apps/web`)
 
-- **Next.js 14 App Router** - Modern React framework with file-based routing
+- **Next.js 16 App Router** - Modern React framework with file-based routing
 - **TypeScript** - Type-safe development experience
 - **Shadcn UI + Tailwind CSS** - Beautiful, accessible UI components
 - **Server Components** - Optimized rendering and performance
@@ -36,7 +36,6 @@ turbo-next-contentful/
 ### 📝 Content Management
 
 - **Contentful CMS** - Headless content management system
-- **GraphQL Integration** - Type-safe content fetching with codegen
 - **Rich Text Rendering** - Custom rich text components
 - **Preview Mode** - Live preview of draft content
 - **Image Optimization** - Automatic image optimization and delivery
@@ -143,7 +142,7 @@ Shared components go in `packages/ui/src/components/`. App-specific components g
 ### Adding Content Types
 
 1. Create content types in Contentful
-2. Run `pnpm run codegen` to generate TypeScript types
+2. Run `pnpm --filter web typegen` to generate TypeScript types
 3. Add components to render the new content types
 
 ### Customizing Styles
@@ -154,7 +153,7 @@ The project uses Tailwind CSS with a shared configuration. Customize `tailwind.c
 
 - `pnpm run dev` - Start development servers
 - `pnpm run build` - Build all applications
-- `pnpm run codegen` - Generate TypeScript types from Contentful schema
+- `pnpm --filter web typegen` - Generate TypeScript types from Contentful schema
 - `pnpm run lint` - Run ESLint across all packages
 - `pnpm run type-check` - Run TypeScript checks
 

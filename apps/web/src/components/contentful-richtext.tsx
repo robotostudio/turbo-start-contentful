@@ -10,11 +10,24 @@ import {
   MARKS,
 } from "@contentful/rich-text-types";
 import { cn } from "@workspace/ui/lib/utils";
+import { Paperclip } from "lucide-react";
 import Link from "next/link";
 
-import type { Maybe } from "@/types";
-
 import { ContentfulImage } from "./contentful-image";
+
+const ALLOWED_URI_SCHEMES = ["http:", "https:", "mailto:"];
+
+function isSafeUri(uri: string): boolean {
+  if (uri.startsWith("/") || uri.startsWith("#") || uri.startsWith("?")) {
+    return true;
+  }
+  try {
+    const { protocol } = new URL(uri);
+    return ALLOWED_URI_SCHEMES.includes(protocol);
+  } catch {
+    return false;
+  }
+}
 
 // Utility function to generate slugs from text content
 function generateSlug(node: Block | Inline): string {
@@ -88,7 +101,7 @@ const renderOptions: Options = {
       const asset = node.data?.target;
       if (!asset?.fields) return null;
 
-      const { file, title, description } = asset.fields;
+      const { file, title } = asset.fields;
       if (!file?.url) return null;
 
       const url = file.url.startsWith("//") ? `https:${file.url}` : file.url;
@@ -115,14 +128,15 @@ const renderOptions: Options = {
             download
             className="inline-flex items-center rounded-md border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
           >
-            📎 {title || file.fileName || "Download file"}
+            <Paperclip className="size-4 inline mr-1" />
+            {title || file.fileName || "Download file"}
           </a>
         </div>
       );
     },
     [INLINES.HYPERLINK]: (node, children) => {
       const uri = node.data?.uri;
-      if (!uri) {
+      if (!uri || !isSafeUri(uri)) {
         return (
           <span className="underline decoration-dotted underline-offset-2">
             Link Broken
@@ -171,7 +185,7 @@ const renderOptions: Options = {
     [MARKS.ITALIC]: (text) => <em>{text}</em>,
     [MARKS.UNDERLINE]: (text) => <u>{text}</u>,
     [MARKS.CODE]: (text) => (
-      <code className="rounded-md border border-white/10 bg-opacity-5 p-1 text-sm lg:whitespace-nowrap">
+      <code className="rounded-md border border-white/10 p-1 text-sm lg:whitespace-nowrap">
         {text}
       </code>
     ),
@@ -179,7 +193,7 @@ const renderOptions: Options = {
 };
 
 export type ContentfulRichTextProps = {
-  richText?: Maybe<Document>;
+  richText?: Document | null | undefined;
   className?: string;
 } & React.ComponentProps<"div">;
 
@@ -193,12 +207,12 @@ export function ContentfulRichText({
   return (
     <div
       className={cn(
-        "prose prose-zinc prose-headings:scroll-m-24 prose-headings:text-opacity-90 prose-p:text-opacity-80 prose-a:decoration-dotted prose-ol:text-opacity-80 prose-ul:text-opacity-80 prose-h2:border-b prose-h2:pb-2 prose-h2:text-3xl prose-h2:font-semibold prose-h2:first:mt-0 max-w-none dark:prose-invert",
+        "prose prose-zinc prose-headings:scroll-m-24 prose-a:decoration-dotted prose-h2:border-b prose-h2:border-border prose-h2:pb-2 prose-h2:text-3xl prose-h2:font-semibold prose-h2:first:mt-0 max-w-none dark:prose-invert",
         className,
       )}
       {...props}
     >
-      {documentToReactComponents(richText as Document, renderOptions)}
+      {documentToReactComponents(richText, renderOptions)}
     </div>
   );
 }

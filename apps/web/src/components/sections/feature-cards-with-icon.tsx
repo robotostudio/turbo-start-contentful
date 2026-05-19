@@ -15,10 +15,10 @@ import { ContentfulRichText } from "../contentful-richtext";
 type FeatureCardsWithIconProps = TypeFeatureCards<"WITHOUT_UNRESOLVABLE_LINKS">;
 
 type FeatureCardProps = {
-  card?: TypeFeatureCard<"WITHOUT_UNRESOLVABLE_LINKS">;
+  card: TypeFeatureCard<"WITHOUT_UNRESOLVABLE_LINKS">;
 };
 
-function FeatureCard({ card, ...props }: FeatureCardProps) {
+function FeatureCard({ card }: FeatureCardProps) {
   const updatedCard = useContentfulLiveUpdates(card);
   const {
     title,
@@ -46,7 +46,6 @@ function FeatureCard({ card, ...props }: FeatureCardProps) {
   return (
     <div
       className="rounded-2xl relative p-7 bg-white dark:bg-zinc-900 overflow-hidden z-10 border border-white dark:border-zinc-900"
-      {...props}
     >
       {/* Ellipse 70 */}
       <div
@@ -72,7 +71,7 @@ function FeatureCard({ card, ...props }: FeatureCardProps) {
         )}
       />
 
-      <span className="mb-9 flex w-fit p-3 items-center justify-center rounded-full bg-background dark:bg-muted-foreground drop-shadow-sm z-10">
+      <span className="mb-9 flex w-fit p-3 items-center justify-center rounded-full bg-background dark:bg-muted-foreground drop-shadow-xs z-10">
         {icon && (
           <ContentfulImage
             image={icon}
@@ -82,10 +81,7 @@ function FeatureCard({ card, ...props }: FeatureCardProps) {
         )}
       </span>
 
-      <div
-        className="relative z-10"
-        {...inspectorProps({ fieldId: "richText" })}
-      >
+      <div className="relative z-10">
         <h3
           className="text-lg font-medium md:text-2xl mb-2"
           {...inspectorProps({ fieldId: "title" })}
@@ -102,6 +98,8 @@ function FeatureCard({ card, ...props }: FeatureCardProps) {
   );
 }
 
+const GRID_COLS = { 1: "lg:grid-cols-1", 2: "lg:grid-cols-2", 3: "lg:grid-cols-3" } as const;
+
 export function FeatureCardsWithIcon(props: FeatureCardsWithIconProps) {
   const updatedProps = useContentfulLiveUpdates(props);
   const inspectorProps = useContentfulInspectorMode({
@@ -110,13 +108,7 @@ export function FeatureCardsWithIcon(props: FeatureCardsWithIconProps) {
 
   const { eyebrow, title, richText, cards = [] } = updatedProps.fields ?? {};
   const cardCount = cards.length;
-
-  const getGridCols = () => {
-    if (cardCount >= 4) return "lg:grid-cols-4 gap-6";
-    if (cardCount === 3) return "lg:grid-cols-3";
-    if (cardCount === 2) return "lg:grid-cols-2";
-    return "lg:grid-cols-1";
-  };
+  const gridClass = cardCount >= 4 ? "lg:grid-cols-4 gap-6" : GRID_COLS[cardCount as 1 | 2 | 3] ?? "lg:grid-cols-1";
 
   return (
     <section id="features" className="my-6 md:my-14 mx-auto">
@@ -145,17 +137,17 @@ export function FeatureCardsWithIcon(props: FeatureCardsWithIconProps) {
         <div
           className={cn(
             "mx-auto mt-20 relative grid gap-12 z-1",
-            getGridCols(),
+            gridClass,
           )}
         >
-          {cards.map((card, index) => {
+          {cards?.filter((c): c is NonNullable<typeof c> => Boolean(c)).map((card, index) => {
             const cardKey = `FeatureCard-${card?.sys?.id ?? index}`;
             const cardElement = (
-              <FeatureCard
-                key={cardKey}
-                card={card}
-                {...inspectorProps({ fieldId: "cards" })}
-              />
+              <div key={cardKey} {...inspectorProps({ fieldId: "cards" })}>
+                <FeatureCard
+                  card={card}
+                />
+              </div>
             );
 
             const cardLink = card?.fields?.cardLink;

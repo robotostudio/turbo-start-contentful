@@ -2,14 +2,20 @@ import * as contentful from "contentful";
 
 import { accessToken, previewToken, spaceId } from "../env";
 
+interface ContentfulApiError {
+  code?: string;
+  sys?: { id?: string };
+  response?: { status?: number };
+  message?: string;
+}
+
 export function getClient(preview = false) {
   const client = contentful.createClient({
     host: preview ? "preview.contentful.com" : "cdn.contentful.com",
     accessToken: preview ? previewToken || accessToken : accessToken,
     space: spaceId,
   });
-
-  return client;
+  return client.withoutUnresolvableLinks;
 }
 
 export function parseContentfulError(error: unknown): string {
@@ -22,7 +28,12 @@ export function parseContentfulError(error: unknown): string {
     return "An unexpected error occurred while fetching content";
   }
 
-  const err = error as any;
+  // Handle generic Error objects first (before structural checks)
+  if (error instanceof Error) {
+    return error.message || "An error occurred while fetching content";
+  }
+
+  const err = error as ContentfulApiError;
 
   // Handle network errors
   if (err.code === "ENOTFOUND" || err.code === "ECONNREFUSED") {
@@ -95,11 +106,6 @@ export function parseContentfulError(error: unknown): string {
       default:
         return `Request failed with status ${err.response.status}`;
     }
-  }
-
-  // Handle generic Error objects
-  if (err instanceof Error) {
-    return err.message || "An error occurred while fetching content";
   }
 
   // Fallback for any other error types

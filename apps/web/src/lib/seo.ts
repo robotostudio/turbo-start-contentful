@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 
-import type { Maybe } from "@/types";
 import { capitalize } from "@/utils";
 
 import { getBaseUrl } from "../config";
@@ -14,7 +13,7 @@ interface SiteConfig {
 }
 
 // Page-specific SEO data interface
-interface PageSeoData extends Metadata {
+interface PageSeoData {
   title?: string;
   description?: string;
   slug?: string;
@@ -23,6 +22,7 @@ interface PageSeoData extends Metadata {
   keywords?: string[];
   seoNoIndex?: boolean;
   seoImage?: unknown;
+  authors?: { name?: string }[];
 }
 
 // OpenGraph image generation parameters
@@ -36,7 +36,7 @@ const siteConfig: SiteConfig = {
   title: "Roboto Studio Demo",
   description: "Roboto Studio Demo",
   twitterHandle: "@studioroboto",
-  keywords: ["roboto", "studio", "demo", "sanity", "next", "react", "template"],
+  keywords: ["roboto", "studio", "demo", "next", "react", "template"],
 };
 
 function generateOgImageUrl(params: OgImageParams = {}): string {
@@ -66,7 +66,7 @@ function extractTitle({
   slug,
   siteTitle,
 }: {
-  pageTitle?: Maybe<string>;
+  pageTitle?: string | null | undefined;
   slug: string;
   siteTitle: string;
 }): string {
@@ -84,7 +84,7 @@ export function getSEOMetadata(page: PageSeoData = {}): Metadata {
     contentType,
     keywords: pageKeywords = [],
     seoNoIndex = false,
-    ...pageOverrides
+    authors: pageAuthors,
   } = page;
 
   const baseUrl = getBaseUrl();
@@ -103,7 +103,6 @@ export function getSEOMetadata(page: PageSeoData = {}): Metadata {
     type: contentType,
     id: contentId,
   });
-  console.log("🚀 ~ getSEOMetadata ~ ogImage:", ogImage);
 
   const fullTitle =
     defaultTitle === siteConfig.title
@@ -116,7 +115,7 @@ export function getSEOMetadata(page: PageSeoData = {}): Metadata {
     description: defaultDescription,
     metadataBase: new URL(baseUrl),
     creator: siteConfig.title,
-    authors: [{ name: siteConfig.title }],
+    authors: pageAuthors ?? [{ name: siteConfig.title }],
     icons: {
       icon: `${baseUrl}/favicon.ico`,
     },
@@ -150,9 +149,5 @@ export function getSEOMetadata(page: PageSeoData = {}): Metadata {
     },
   };
 
-  // Override any defaults with page-specific metadata
-  return {
-    ...defaultMetadata,
-    ...pageOverrides,
-  };
+  return defaultMetadata;
 }

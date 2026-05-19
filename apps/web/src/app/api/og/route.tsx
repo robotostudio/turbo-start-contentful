@@ -3,6 +3,7 @@
 import type { Asset } from "contentful";
 import { ImageResponse } from "next/og";
 import type { ImageResponseOptions } from "next/server";
+import { cache } from "react";
 
 import {
   getBlogByID,
@@ -10,13 +11,14 @@ import {
   getPageBySlug,
 } from "@/lib/contentful/query";
 import { safeAsync } from "@/safe-async";
-import type { Maybe } from "@/types";
 import { getImageUrl, getTitleCase } from "@/utils";
 
 import { getOgMetaData } from "./og-config";
 
 // Removed edge runtime to support Contentful SDK which uses axios
 // export const runtime = "edge";
+
+export const revalidate = 3600;
 
 const errorContent = (
   <div tw="flex flex-col w-full h-full items-center justify-center">
@@ -33,13 +35,13 @@ type SeoImageRenderProps = {
 type ContentProps = Record<string, string>;
 
 type DominantColorSeoImageRenderProps = {
-  image?: Maybe<string>;
-  title?: Maybe<string>;
-  logo?: Maybe<string>;
-  dominantColor?: Maybe<string>;
-  date?: Maybe<string>;
-  _type?: Maybe<string>;
-  description?: Maybe<string>;
+  image?: string | null | undefined;
+  title?: string | null | undefined;
+  logo?: string | null | undefined;
+  dominantColor?: string | null | undefined;
+  date?: string | null | undefined;
+  _type?: string | null | undefined;
+  description?: string | null | undefined;
 };
 
 const seoImageRender = ({ seoImage }: SeoImageRenderProps) => {
@@ -138,7 +140,7 @@ const dominantColorSeoImageRender = ({
   );
 };
 
-async function getTtfFont(
+async function fetchTtfFont(
   family: string,
   axes: string[],
   value: number[],
@@ -152,6 +154,7 @@ async function getTtfFont(
       headers: {
         "User-Agent": "Mozilla/5.0 Firefox/1.0",
       },
+      cache: "force-cache",
     },
   );
 
@@ -162,10 +165,12 @@ async function getTtfFont(
     throw new Error("Failed to extract font URL from CSS");
   }
 
-  return await fetch(ttfUrl).then((res) => res.arrayBuffer());
+  return fetch(ttfUrl, { cache: "force-cache" }).then((res) =>
+    res.arrayBuffer(),
+  );
 }
 
-const getOptions = async ({
+const getOptions = cache(async ({
   width,
   height,
 }: {
@@ -173,9 +178,9 @@ const getOptions = async ({
   height: number;
 }): Promise<ImageResponseOptions> => {
   const [interRegular, interBold, interSemiBold] = await Promise.all([
-    getTtfFont("Inter", ["wght"], [400]),
-    getTtfFont("Inter", ["wght"], [700]),
-    getTtfFont("Inter", ["wght"], [600]),
+    fetchTtfFont("Inter", ["wght"], [400]),
+    fetchTtfFont("Inter", ["wght"], [700]),
+    fetchTtfFont("Inter", ["wght"], [600]),
   ]);
   return {
     width,
@@ -201,7 +206,7 @@ const getOptions = async ({
       },
     ],
   };
-};
+});
 
 const getHomePageContent = async () => {
   const result = await safeAsync(getPageBySlug("/"));
@@ -234,7 +239,7 @@ const getSlugPageContent = async ({ id }: ContentProps) => {
     return undefined;
   }
   const page = result.data;
-  const { seoImage, image, title, description } = page?.fields;
+  const { seoImage, image, title, description } = page?.fields ?? {};
 
   const seoImageUrl = getImageUrl(seoImage);
 
@@ -259,7 +264,7 @@ const getBlogPageContent = async ({ id }: ContentProps) => {
     return undefined;
   }
   const blog = result.data;
-  const { seoImage, image, title, description } = blog?.fields;
+  const { seoImage, image, title, description } = blog?.fields ?? {};
   const seoImageUrl = getImageUrl(seoImage);
   if (seoImageUrl) return seoImageRender({ seoImage: seoImageUrl.url });
   const imageUrl = getImageUrl(image);
