@@ -72,10 +72,11 @@ export default async function BlogSlugPage({
               <ContentfulImage
                 image={image}
                 width={1600}
+                height={900}
                 loading="eager"
                 priority
-                height={900}
-                className="rounded-lg h-auto w-full"
+                sizes="(max-width: 768px) 100vw, 1600px"
+                className="rounded-lg w-full h-auto"
               />
             </div>
           )}

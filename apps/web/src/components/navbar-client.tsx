@@ -224,21 +224,18 @@ function MobileNavbar({ settingsData }: { settingsData: GlobalSettings }) {
 
 function NavbarColumnLink({ column }: { column: NavbarLinkItem }) {
   return (
-    <Link
-      aria-label={`Link to ${column.fields.label ?? column.fields.href}`}
-      href={column.fields.href ?? ""}
-      legacyBehavior
-      passHref
-    >
-      <NavigationMenuLink
+    <NavigationMenuLink asChild>
+      <Link
+        aria-label={`Link to ${column.fields.label ?? column.fields.href}`}
+        href={column.fields.href ?? ""}
         className={cn(
           navigationMenuTriggerStyle(),
           "text-zinc-700 dark:text-zinc-300 bg-transparent",
         )}
       >
         {column.fields.label}
-      </NavigationMenuLink>
-    </Link>
+      </Link>
+    </NavigationMenuLink>
   );
 }
 
