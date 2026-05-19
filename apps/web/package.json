@@ -11,7 +11,12 @@
     "lint:fix": "eslint . --fix",
     "format": "prettier --write .",
     "check-types": "tsc --noEmit",
-    "typegen": ". ./.env && cf-content-types-generator -s \"$CONTENTFUL_SPACE_ID\" -t \"$CONTENTFUL_MANAGEMENT_TOKEN\" -o ./src/lib/contentful/types --v10 && eslint --fix ./src/lib/contentful/types && prettier --write ./src/lib/contentful/types"
+    "typegen": ". ./.env && cf-content-types-generator -s \"$CONTENTFUL_SPACE_ID\" -t \"$CONTENTFUL_MANAGEMENT_TOKEN\" -o ./src/lib/contentful/types --v10 && eslint --fix ./src/lib/contentful/types && prettier --write ./src/lib/contentful/types",
+    "test": "vitest",
+    "test:run": "vitest run",
+    "test:coverage": "vitest run --coverage",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui"
   },
   "dependencies": {
     "@contentful/live-preview": "^4.10.5",
@@ -34,14 +39,35 @@
     "zod": "^4.4.3"
   },
   "devDependencies": {
+    "eslint": "^10.4.0",
+    "@eslint/js": "^9.0.0",
+    "@next/eslint-plugin-next": "^16.2.6",
+    "@typescript-eslint/eslint-plugin": "^8.59.4",
+    "@typescript-eslint/parser": "^8.59.4",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-import": "^2.32.0",
+    "eslint-plugin-only-warn": "^1.2.1",
+    "eslint-plugin-prettier": "^5.5.5",
+    "eslint-plugin-react": "^7.37.5",
+    "eslint-plugin-react-hooks": "^7.1.1",
+    "eslint-plugin-simple-import-sort": "^13.0.0",
+    "eslint-plugin-turbo": "^2.9.14",
+    "globals": "^17.6.0",
+    "typescript-eslint": "^8.59.4",
     "babel-plugin-react-compiler": "19.0.0-beta-e993439-20250328",
+    "@playwright/test": "^1.52.0",
+    "@testing-library/jest-dom": "^6.6.3",
+    "@testing-library/react": "^16.3.0",
     "@types/node": "^25",
     "@types/react": "19.2.14",
     "@types/react-dom": "19.2.3",
+    "@vitest/coverage-v8": "^3.2.2",
     "@workspace/eslint-config": "workspace:^",
     "@workspace/typescript-config": "workspace:*",
+    "jsdom": "^26.1.0",
     "postcss": "^8",
-    "tailwindcss": "^4.1"
+    "tailwindcss": "^4.1",
+    "vitest": "^3.2.2"
   },
   "browserslist": [
     "defaults and supports es6-module",

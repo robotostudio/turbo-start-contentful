@@ -175,40 +175,39 @@ async function fetchTtfFont(
   });
 }
 
-const getOptions = cache(async (
-  width: number,
-  height: number,
-): Promise<ImageResponseOptions> => {
-  const [interRegular, interBold, interSemiBold] = await Promise.all([
-    fetchTtfFont("Inter", ["wght"], [400]),
-    fetchTtfFont("Inter", ["wght"], [700]),
-    fetchTtfFont("Inter", ["wght"], [600]),
-  ]);
-  return {
-    width,
-    height,
-    fonts: [
-      {
-        name: "Inter",
-        data: interRegular,
-        style: "normal",
-        weight: 400,
-      },
-      {
-        name: "Inter",
-        data: interBold,
-        style: "normal",
-        weight: 700,
-      },
-      {
-        name: "Inter",
-        data: interSemiBold,
-        style: "normal",
-        weight: 600,
-      },
-    ],
-  };
-});
+const getOptions = cache(
+  async (width: number, height: number): Promise<ImageResponseOptions> => {
+    const [interRegular, interBold, interSemiBold] = await Promise.all([
+      fetchTtfFont("Inter", ["wght"], [400]),
+      fetchTtfFont("Inter", ["wght"], [700]),
+      fetchTtfFont("Inter", ["wght"], [600]),
+    ]);
+    return {
+      width,
+      height,
+      fonts: [
+        {
+          name: "Inter",
+          data: interRegular,
+          style: "normal",
+          weight: 400,
+        },
+        {
+          name: "Inter",
+          data: interBold,
+          style: "normal",
+          weight: 700,
+        },
+        {
+          name: "Inter",
+          data: interSemiBold,
+          style: "normal",
+          weight: 600,
+        },
+      ],
+    };
+  },
+);
 
 const getHomePageContent = async () => {
   const result = await safeAsync(getPageBySlug("/"));

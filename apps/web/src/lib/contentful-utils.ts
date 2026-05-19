@@ -1,4 +1,4 @@
-import type { TypeButton, TypeBlog, TypePage } from "./contentful/types";
+import type { TypeBlog, TypeButton, TypePage } from "./contentful/types";
 
 // Union type for page-like entries that have SEO fields
 export type PageLikeEntry =

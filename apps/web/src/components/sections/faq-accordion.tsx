@@ -50,7 +50,7 @@ export function FaqAccordion(props: FaqAccordionProps) {
             type="single"
             collapsible
             className="w-full"
-            defaultValue={faqs?.[0]?.sys.id}
+            defaultValue={faqs?.[0]?.sys.id ?? ""}
             {...inspectorProps({ fieldId: "faqs" })}
           >
             {faqs?.map((faq, index) => (

@@ -1,4 +1,4 @@
-function assertValue<T>(v: T | undefined, errorMessage: string): T {
+export function assertValue<T>(v: T | undefined, errorMessage: string): T {
   if (v === undefined) {
     throw new Error(errorMessage);
   }
@@ -7,27 +7,27 @@ function assertValue<T>(v: T | undefined, errorMessage: string): T {
 }
 
 export const spaceId = assertValue(
-  process.env.CONTENTFUL_SPACE_ID,
+  process.env["CONTENTFUL_SPACE_ID"],
   "Missing environment variable: CONTENTFUL_SPACE_ID",
 );
 
 export const accessToken = assertValue(
-  process.env.CONTENTFUL_ACCESS_TOKEN,
+  process.env["CONTENTFUL_ACCESS_TOKEN"],
   "Missing environment variable: CONTENTFUL_ACCESS_TOKEN",
 );
 
-export const previewToken = process.env.CONTENTFUL_PREVIEW_ACCESS_TOKEN;
+export const previewToken = process.env["CONTENTFUL_PREVIEW_ACCESS_TOKEN"];
 
 export const draftToken = assertValue(
-  process.env.CONTENTFUL_DRAFT_TOKEN,
+  process.env["CONTENTFUL_DRAFT_TOKEN"],
   "Missing environment variable: CONTENTFUL_DRAFT_TOKEN",
 );
 
 export const revalidationSecret: string | undefined =
-  process.env.CONTENTFUL_REVALIDATION_SECRET;
+  process.env["CONTENTFUL_REVALIDATION_SECRET"];
 
 export const previewSecret: string | undefined =
-  process.env.CONTENTFUL_PREVIEW_SECRET;
+  process.env["CONTENTFUL_PREVIEW_SECRET"];
 
 export const vercelBypassSecret: string | undefined =
-  process.env.VERCEL_AUTOMATION_BYPASS_SECRET;
+  process.env["VERCEL_AUTOMATION_BYPASS_SECRET"];

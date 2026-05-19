@@ -151,9 +151,9 @@ function Footer({ settingsData }: { settingsData: GlobalSettings }) {
                   if (!column?.fields) return null;
                   return (
                     <div key={`column-${column.sys.id}-${index}`}>
-                      <h3 className="mb-6 font-semibold">
+                      <h2 className="mb-6 font-semibold">
                         {column.fields.label}
-                      </h3>
+                      </h2>
                       {column.fields.links &&
                         column.fields.links.length > 0 && (
                           <ul className="space-y-4 text-sm text-muted-foreground dark:text-zinc-400">

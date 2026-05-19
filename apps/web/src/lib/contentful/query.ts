@@ -27,7 +27,6 @@ export async function getPageBySlug(
       throw new Error(`No page found with slug: ${slug}`);
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     return res.items[0]!;
   } catch (error) {
     console.error(`Error fetching page with slug ${slug}:`, error);
@@ -111,7 +110,6 @@ export async function getGlobalSettingsUncached(
       throw new Error("No global settings found");
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     return res.items[0]!;
   } catch (error) {
     console.error("Error fetching global settings:", error);

@@ -1,9 +1,10 @@
 import { timingSafeEqual } from "node:crypto";
+
 import { draftMode } from "next/headers";
 import { redirect } from "next/navigation";
-import { draftToken } from "@/lib/env";
 
-const SAFE_PATH_RE = /^\/(?!\/)[A-Za-z0-9/_\-?=&%#.]*$/;
+import { draftToken } from "@/lib/env";
+import { SAFE_PATH_RE } from "@/lib/url";
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);

@@ -1,7 +1,10 @@
 import { timingSafeEqual } from "node:crypto";
+
 import { cookies, draftMode } from "next/headers";
 import { redirect } from "next/navigation";
+
 import { previewSecret, vercelBypassSecret } from "@/lib/env";
+import { SAFE_PATH_RE } from "@/lib/url";
 
 function safeEqual(a: string, b: string): boolean {
   const aBuf = Buffer.from(a);
@@ -72,8 +75,6 @@ interface ParsedUrl {
   bypassToken: string;
   contentfulPreviewSecret: string;
 }
-
-const SAFE_PATH_RE = /^\/(?!\/)[A-Za-z0-9/_\-?=&%#.]*$/;
 
 function parseRequestUrl(requestUrl: string): ParsedUrl {
   if (!requestUrl) {
@@ -273,7 +274,9 @@ export async function GET(request: Request) {
   const redirectUrl = buildRedirectUrl({
     path,
     base,
-    bypassTokenFromQuery: bypassTokenForRedirect,
+    ...(bypassTokenForRedirect !== undefined && {
+      bypassTokenFromQuery: bypassTokenForRedirect,
+    }),
   });
 
   return redirect(redirectUrl);

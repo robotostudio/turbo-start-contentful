@@ -46,8 +46,8 @@ export function ArticleJsonLd({ article, settings }: ArticleJsonLdProps) {
     "@context": "https://schema.org",
     "@type": "Article",
     headline: title,
-    description: description || undefined,
-    image: imageUrl ? [imageUrl] : undefined,
+    ...(description && { description }),
+    ...(imageUrl && { image: [imageUrl] }),
     author: authors
       ? authors.map(
           (author) =>
@@ -109,22 +109,22 @@ export function OrganizationJsonLd({ settings }: OrganizationJsonLdProps) {
     "@context": "https://schema.org",
     "@type": "Organization",
     name: siteTitle,
-    description: siteDescription || undefined,
+    ...(siteDescription && { description: siteDescription }),
     url: baseUrl,
-    logo: logo?.fields?.file?.url
-      ? ({
-          "@type": "ImageObject",
-          url: `https:${logo?.fields.file.url}`,
-        } as ImageObject)
-      : undefined,
-    contactPoint: contactEmail
-      ? ({
-          "@type": "ContactPoint",
-          email: contactEmail,
-          contactType: "customer service",
-        } as ContactPoint)
-      : undefined,
-    sameAs: socialLinks?.length ? socialLinks : undefined,
+    ...(logo?.fields?.file?.url && {
+      logo: {
+        "@type": "ImageObject",
+        url: `https:${logo.fields.file.url}`,
+      } as ImageObject,
+    }),
+    ...(contactEmail && {
+      contactPoint: {
+        "@type": "ContactPoint",
+        email: contactEmail,
+        contactType: "customer service",
+      } as ContactPoint,
+    }),
+    ...(socialLinks.length && { sameAs: socialLinks }),
   };
 
   return <JsonLdScript data={organizationJsonLd} id="organization-json-ld" />;
@@ -145,7 +145,7 @@ export function WebSiteJsonLd({ settings }: WebSiteJsonLdProps) {
     "@context": "https://schema.org",
     "@type": "WebSite",
     name: siteTitle,
-    description: siteDescription || undefined,
+    ...(siteDescription && { description: siteDescription }),
     url: baseUrl,
     publisher: {
       "@type": "Organization",

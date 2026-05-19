@@ -253,7 +253,12 @@ export function NavbarColumn({ column }: { column: NavbarColumnLink }) {
           {column.fields.label}
         </NavigationMenuTrigger>
         <NavigationMenuContent>
-          <ul className={cn("p-3", getColumnLayoutClass(column.fields.links?.length ?? 0))}>
+          <ul
+            className={cn(
+              "p-3",
+              getColumnLayoutClass(column.fields.links?.length ?? 0),
+            )}
+          >
             {column.fields.links?.map((item: NavbarLinkType) => {
               if (!item?.fields) return null;
               return (

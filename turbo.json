@@ -2,6 +2,7 @@
   "$schema": "https://turbo.build/schema.json",
   "ui": "stream",
   "globalEnv": [
+    "CI",
     "VERCEL_URL",
     "VERCEL_PROJECT_PRODUCTION_URL",
     "VERCEL_ENV",
@@ -13,6 +14,7 @@
     "CONTENTFUL_DRAFT_TOKEN",
     "CONTENTFUL_PREVIEW_TOKEN",
     "CONTENTFUL_PREVIEW_SECRET",
+    "CONTENTFUL_REVALIDATION_SECRET",
     "VERCEL_AUTOMATION_BYPASS_SECRET"
   ],
   "tasks": {
@@ -33,6 +35,10 @@
     "dev": {
       "cache": false,
       "persistent": true
+    },
+    "test": {
+      "dependsOn": ["^build"],
+      "outputs": ["coverage/**"]
     }
   }
 }

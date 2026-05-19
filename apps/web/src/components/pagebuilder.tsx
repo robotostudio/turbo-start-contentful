@@ -63,7 +63,7 @@ function isResolvedEntry(
   );
 }
 
-function ErrorBlock({ id, contentType }: { id: string; contentType: string }) {
+function ErrorBlock({ contentType }: { id: string; contentType: string }) {
   return (
     <div
       className="p-4 border border-red-200 rounded-md"

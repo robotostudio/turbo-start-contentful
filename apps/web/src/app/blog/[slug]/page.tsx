@@ -27,10 +27,10 @@ export async function generateMetadata({
     slug: blogSlug,
     contentId: contentId,
     contentType: contentType?.sys?.id,
-    seoNoIndex,
-    authors: blog?.fields?.authors?.map((author) => ({
-      name: author?.fields.name,
-    })),
+    ...(seoNoIndex !== undefined && { seoNoIndex }),
+    authors: blog?.fields?.authors?.map((author) =>
+      author?.fields.name !== undefined ? { name: author.fields.name } : {},
+    ),
   });
   return metadata;
 }
@@ -75,6 +75,7 @@ export default async function BlogSlugPage({
                 height={900}
                 loading="eager"
                 priority
+                fetchPriority="high"
                 sizes="(max-width: 768px) 100vw, 1600px"
                 className="rounded-lg w-full h-auto"
               />
@@ -85,7 +86,7 @@ export default async function BlogSlugPage({
 
         <aside className="hidden lg:block">
           <div className="sticky top-24 rounded-lg ">
-            <TableOfContent richText={richText} />
+            <TableOfContent richText={richText ?? null} />
           </div>
         </aside>
       </div>

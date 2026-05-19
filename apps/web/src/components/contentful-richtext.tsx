@@ -13,22 +13,9 @@ import { cn } from "@workspace/ui/lib/utils";
 import { Paperclip } from "lucide-react";
 import Link from "next/link";
 
+import { isSafeUri } from "@/lib/uri";
+
 import { ContentfulImage } from "./contentful-image";
-
-const ALLOWED_URI_SCHEMES = ["http:", "https:", "mailto:"];
-
-function isSafeUri(uri: string): boolean {
-  if (uri.startsWith("//")) return false;
-  if (uri.startsWith("/") || uri.startsWith("#") || uri.startsWith("?")) {
-    return true;
-  }
-  try {
-    const { protocol } = new URL(uri);
-    return ALLOWED_URI_SCHEMES.includes(protocol);
-  } catch {
-    return false;
-  }
-}
 
 // Utility function to generate slugs from text content
 function generateSlug(node: Block | Inline): string {
@@ -88,18 +75,18 @@ const renderOptions: Options = {
         </h6>
       );
     },
-    [BLOCKS.PARAGRAPH]: (node, children) => <p>{children}</p>,
-    [BLOCKS.UL_LIST]: (node, children) => <ul>{children}</ul>,
-    [BLOCKS.OL_LIST]: (node, children) => <ol>{children}</ol>,
-    [BLOCKS.LIST_ITEM]: (node, children) => <li>{children}</li>,
-    [BLOCKS.QUOTE]: (node, children) => (
+    [BLOCKS.PARAGRAPH]: (_node, children) => <p>{children}</p>,
+    [BLOCKS.UL_LIST]: (_node, children) => <ul>{children}</ul>,
+    [BLOCKS.OL_LIST]: (_node, children) => <ol>{children}</ol>,
+    [BLOCKS.LIST_ITEM]: (_node, children) => <li>{children}</li>,
+    [BLOCKS.QUOTE]: (_node, children) => (
       <blockquote className="mt-6 border-l-2 pl-6 italic">
         {children}
       </blockquote>
     ),
     [BLOCKS.HR]: () => <hr className="my-4" />,
     [BLOCKS.EMBEDDED_ASSET]: (node) => {
-      const asset = node.data?.target;
+      const asset = node.data?.["target"];
       if (!asset?.fields) return null;
 
       const { file, title } = asset.fields;
@@ -136,7 +123,7 @@ const renderOptions: Options = {
       );
     },
     [INLINES.HYPERLINK]: (node, children) => {
-      const uri = node.data?.uri;
+      const uri = node.data?.["uri"];
       if (!uri || !isSafeUri(uri)) {
         return (
           <span className="underline decoration-dotted underline-offset-2">
@@ -152,7 +139,6 @@ const renderOptions: Options = {
           className="underline decoration-dotted underline-offset-2"
           href={uri}
           prefetch={false}
-          aria-label={`Link to ${uri}`}
           target={isExternal ? "_blank" : "_self"}
           rel={isExternal ? "noopener noreferrer" : undefined}
         >
@@ -161,7 +147,7 @@ const renderOptions: Options = {
       );
     },
     [INLINES.ENTRY_HYPERLINK]: (node, children) => {
-      const entry = node.data?.target;
+      const entry = node.data?.["target"];
       if (!entry?.fields?.slug) {
         return (
           <span className="underline decoration-dotted underline-offset-2">

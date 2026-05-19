@@ -81,8 +81,8 @@ export function ContentfulButtons({
         <ContentfulButton
           key={button.sys.id}
           button={button}
-          className={buttonClassName}
-          size={size}
+          {...(buttonClassName !== undefined && { className: buttonClassName })}
+          {...(size !== undefined && { size })}
           {...props}
         />
       ))}

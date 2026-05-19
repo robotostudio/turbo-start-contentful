@@ -44,9 +44,7 @@ function FeatureCard({ card }: FeatureCardProps) {
   };
 
   return (
-    <div
-      className="rounded-2xl relative p-7 bg-white dark:bg-zinc-900 overflow-hidden z-10 border border-white dark:border-zinc-900"
-    >
+    <div className="rounded-2xl relative p-7 bg-white dark:bg-zinc-900 overflow-hidden z-10 border border-white dark:border-zinc-900">
       {/* Ellipse 70 */}
       <div
         className={cn(
@@ -98,7 +96,11 @@ function FeatureCard({ card }: FeatureCardProps) {
   );
 }
 
-const GRID_COLS = { 1: "lg:grid-cols-1", 2: "lg:grid-cols-2", 3: "lg:grid-cols-3" } as const;
+const GRID_COLS = {
+  1: "lg:grid-cols-1",
+  2: "lg:grid-cols-2",
+  3: "lg:grid-cols-3",
+} as const;
 
 export function FeatureCardsWithIcon(props: FeatureCardsWithIconProps) {
   const updatedProps = useContentfulLiveUpdates(props);
@@ -108,7 +110,10 @@ export function FeatureCardsWithIcon(props: FeatureCardsWithIconProps) {
 
   const { eyebrow, title, richText, cards = [] } = updatedProps.fields ?? {};
   const cardCount = cards.length;
-  const gridClass = cardCount >= 4 ? "lg:grid-cols-4 gap-6" : GRID_COLS[cardCount as 1 | 2 | 3] ?? "lg:grid-cols-1";
+  const gridClass =
+    cardCount >= 4
+      ? "lg:grid-cols-4 gap-6"
+      : (GRID_COLS[cardCount as 1 | 2 | 3] ?? "lg:grid-cols-1");
 
   return (
     <section id="features" className="my-6 md:my-14 mx-auto">
@@ -135,35 +140,32 @@ export function FeatureCardsWithIcon(props: FeatureCardsWithIconProps) {
         </div>
 
         <div
-          className={cn(
-            "mx-auto mt-20 relative grid gap-12 z-1",
-            gridClass,
-          )}
+          className={cn("mx-auto mt-20 relative grid gap-12 z-1", gridClass)}
         >
-          {cards?.filter((c): c is NonNullable<typeof c> => Boolean(c)).map((card, index) => {
-            const cardKey = `FeatureCard-${card?.sys?.id ?? index}`;
-            const cardElement = (
-              <div key={cardKey} {...inspectorProps({ fieldId: "cards" })}>
-                <FeatureCard
-                  card={card}
-                />
-              </div>
-            );
+          {cards
+            ?.filter((c): c is NonNullable<typeof c> => Boolean(c))
+            .map((card, index) => {
+              const cardKey = `FeatureCard-${card?.sys?.id ?? index}`;
+              const cardElement = (
+                <div key={cardKey} {...inspectorProps({ fieldId: "cards" })}>
+                  <FeatureCard card={card} />
+                </div>
+              );
 
-            const cardLink = card?.fields?.cardLink;
-            return cardLink ? (
-              <a
-                key={cardKey}
-                href={cardLink}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                {cardElement}
-              </a>
-            ) : (
-              cardElement
-            );
-          })}
+              const cardLink = card?.fields?.cardLink;
+              return cardLink ? (
+                <a
+                  key={cardKey}
+                  href={cardLink}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  {cardElement}
+                </a>
+              ) : (
+                cardElement
+              );
+            })}
         </div>
 
         {/* Background blobs */}

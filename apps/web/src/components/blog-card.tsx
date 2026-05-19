@@ -22,6 +22,7 @@ function BlogImage({ image, priority = false }: BlogImageProps) {
       height={400}
       priority={priority}
       loading={priority ? "eager" : "lazy"}
+      fetchPriority={priority ? "high" : "auto"}
       sizes="(max-width: 1024px) 100vw, 800px"
       className="aspect-[16/9] w-full rounded-2xl bg-gray-100 object-cover sm:aspect-[2/1] lg:aspect-[3/2]"
     />

@@ -1,18 +1,20 @@
 import { timingSafeEqual } from "node:crypto";
+
 import { revalidatePath, revalidateTag } from "next/cache";
 import { NextResponse } from "next/server";
 import { z } from "zod";
+
 import { revalidationSecret } from "@/lib/env";
 
 const bodySchema = z
   .object({
     path: z
       .string()
-      .regex(/^\/[A-Za-z0-9/_\-]*$/)
+      .regex(/^\/[A-Za-z0-9/_-]*$/)
       .optional(),
     tag: z
       .string()
-      .regex(/^[A-Za-z0-9_\-]+$/)
+      .regex(/^[A-Za-z0-9_-]+$/)
       .optional(),
   })
   .refine((v) => v.path || v.tag, { message: "path or tag required" });
@@ -29,9 +31,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ message: "Invalid secret" }, { status: 401 });
   }
 
-  if (
-    !timingSafeEqual(Buffer.from(secret), Buffer.from(revalidationSecret))
-  ) {
+  if (!timingSafeEqual(Buffer.from(secret), Buffer.from(revalidationSecret))) {
     return NextResponse.json({ message: "Invalid secret" }, { status: 401 });
   }
 
@@ -44,10 +44,7 @@ export async function POST(request: Request) {
   })();
 
   if (!rawBody) {
-    return NextResponse.json(
-      { message: "Invalid JSON body" },
-      { status: 400 },
-    );
+    return NextResponse.json({ message: "Invalid JSON body" }, { status: 400 });
   }
 
   const parsed = bodySchema.safeParse(rawBody);

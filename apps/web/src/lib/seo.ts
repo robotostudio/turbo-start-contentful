@@ -14,15 +14,15 @@ interface SiteConfig {
 
 // Page-specific SEO data interface
 interface PageSeoData {
-  title?: string;
-  description?: string;
-  slug?: string;
-  contentId?: string;
-  contentType?: string;
-  keywords?: string[];
-  seoNoIndex?: boolean;
+  title?: string | undefined;
+  description?: string | undefined;
+  slug?: string | undefined;
+  contentId?: string | undefined;
+  contentType?: string | undefined;
+  keywords?: string[] | undefined;
+  seoNoIndex?: boolean | undefined;
   seoImage?: unknown;
-  authors?: { name?: string }[];
+  authors?: ({ name?: string | undefined } | { name?: never })[] | undefined;
 }
 
 // OpenGraph image generation parameters
@@ -100,8 +100,8 @@ export function getSEOMetadata(page: PageSeoData = {}): Metadata {
   const allKeywords = [...siteConfig.keywords, ...pageKeywords];
 
   const ogImage = generateOgImageUrl({
-    type: contentType,
-    id: contentId,
+    ...(contentType !== undefined && { type: contentType }),
+    ...(contentId !== undefined && { id: contentId }),
   });
 
   const fullTitle =
