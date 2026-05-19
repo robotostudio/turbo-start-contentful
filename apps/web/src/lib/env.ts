@@ -23,8 +23,11 @@ export const draftToken = assertValue(
   "Missing environment variable: CONTENTFUL_DRAFT_TOKEN",
 );
 
-export const revalidationSecret = process.env.CONTENTFUL_REVALIDATION_SECRET;
+export const revalidationSecret: string | undefined =
+  process.env.CONTENTFUL_REVALIDATION_SECRET;
 
-export const previewSecret = process.env.CONTENTFUL_PREVIEW_SECRET;
+export const previewSecret: string | undefined =
+  process.env.CONTENTFUL_PREVIEW_SECRET;
 
-export const vercelBypassSecret = process.env.VERCEL_AUTOMATION_BYPASS_SECRET;
+export const vercelBypassSecret: string | undefined =
+  process.env.VERCEL_AUTOMATION_BYPASS_SECRET;

@@ -18,6 +18,7 @@ import { ContentfulImage } from "./contentful-image";
 const ALLOWED_URI_SCHEMES = ["http:", "https:", "mailto:"];
 
 function isSafeUri(uri: string): boolean {
+  if (uri.startsWith("//")) return false;
   if (uri.startsWith("/") || uri.startsWith("#") || uri.startsWith("?")) {
     return true;
   }
@@ -128,7 +129,7 @@ const renderOptions: Options = {
             download
             className="inline-flex items-center rounded-md border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
           >
-            <Paperclip className="size-4 inline mr-1" />
+            <Paperclip className="size-4 inline me-1" />
             {title || file.fileName || "Download file"}
           </a>
         </div>

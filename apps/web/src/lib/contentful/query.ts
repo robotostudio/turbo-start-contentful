@@ -124,16 +124,14 @@ export const getGlobalSettings = cache(getGlobalSettingsUncached);
 export type GlobalSettings = Awaited<ReturnType<typeof getGlobalSettings>>;
 
 export async function getAllBlogs(preview = false): Promise<{
-  featured: TypeBlog<"WITHOUT_UNRESOLVABLE_LINKS">;
+  featured: TypeBlog<"WITHOUT_UNRESOLVABLE_LINKS"> | undefined;
   blogs: TypeBlog<"WITHOUT_UNRESOLVABLE_LINKS">[];
 }> {
   try {
     const client = getClient(preview);
 
     const globalSettings = await getGlobalSettings(preview);
-    // featuredBlog is optional in the schema; cast preserves existing call-site contract
-    const featuredBlog = globalSettings?.fields
-      ?.featuredBlog as TypeBlog<"WITHOUT_UNRESOLVABLE_LINKS">;
+    const featuredBlog = globalSettings?.fields?.featuredBlog;
     const featuredId = featuredBlog?.sys?.id;
 
     const res = await client.getEntries<TypeBlogSkeleton>({

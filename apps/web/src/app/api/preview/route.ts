@@ -1,6 +1,14 @@
+import { timingSafeEqual } from "node:crypto";
 import { cookies, draftMode } from "next/headers";
 import { redirect } from "next/navigation";
 import { previewSecret, vercelBypassSecret } from "@/lib/env";
+
+function safeEqual(a: string, b: string): boolean {
+  const aBuf = Buffer.from(a);
+  const bBuf = Buffer.from(b);
+  if (aBuf.length !== bBuf.length) return false;
+  return timingSafeEqual(aBuf, bBuf);
+}
 
 // JWT utilities
 interface VercelJwt {
@@ -120,7 +128,7 @@ async function handleDevelopmentMode(
   if (!previewSecret) {
     return new Response("Preview service not configured", { status: 503 });
   }
-  if (contentfulPreviewSecretFromQuery !== previewSecret) {
+  if (!safeEqual(contentfulPreviewSecretFromQuery, previewSecret)) {
     return new Response("Forbidden", { status: 403 });
   }
 
@@ -193,8 +201,8 @@ function validateAuth(
     return new Response("Preview service not configured", { status: 503 });
   }
   if (
-    bypassToken !== vercelBypassSecret &&
-    contentfulPreviewSecretFromQuery !== previewSecret
+    !safeEqual(bypassToken, vercelBypassSecret) &&
+    !safeEqual(contentfulPreviewSecretFromQuery, previewSecret)
   ) {
     return new Response(
       "The bypass token you are authorized with does not match the bypass secret for this deployment. You might need to redeploy or go back and try the link again.",

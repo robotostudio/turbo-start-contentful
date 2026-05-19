@@ -28,11 +28,6 @@ export function parseContentfulError(error: unknown): string {
     return "An unexpected error occurred while fetching content";
   }
 
-  // Handle generic Error objects first (before structural checks)
-  if (error instanceof Error) {
-    return error.message || "An error occurred while fetching content";
-  }
-
   const err = error as ContentfulApiError;
 
   // Handle network errors
@@ -106,6 +101,11 @@ export function parseContentfulError(error: unknown): string {
       default:
         return `Request failed with status ${err.response.status}`;
     }
+  }
+
+  // Generic Error fallback after structural checks
+  if (error instanceof Error) {
+    return error.message || "An error occurred while fetching content";
   }
 
   // Fallback for any other error types

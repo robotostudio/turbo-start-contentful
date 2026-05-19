@@ -3,20 +3,26 @@ import { draftMode } from "next/headers";
 import { redirect } from "next/navigation";
 import { draftToken } from "@/lib/env";
 
+const SAFE_PATH_RE = /^\/(?!\/)[A-Za-z0-9/_\-?=&%#.]*$/;
+
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const token = searchParams.get("token");
-  const path = searchParams.get("path") || "/";
+  const rawPath = searchParams.get("path") || "/";
+  const path = SAFE_PATH_RE.test(rawPath) ? rawPath : "/";
 
   if (!token) {
     return new Response("Invalid token", { status: 401 });
   }
 
-  if (token.length !== draftToken.length) {
+  const tokenBuf = Buffer.from(token);
+  const draftBuf = Buffer.from(draftToken);
+
+  if (tokenBuf.length !== draftBuf.length) {
     return new Response("Invalid token", { status: 401 });
   }
 
-  if (!timingSafeEqual(Buffer.from(token), Buffer.from(draftToken))) {
+  if (!timingSafeEqual(tokenBuf, draftBuf)) {
     return new Response("Invalid token", { status: 401 });
   }
 

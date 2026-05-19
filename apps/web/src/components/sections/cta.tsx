@@ -31,7 +31,7 @@ export function CTABlock(props: CTABlockProps) {
   });
 
   return (
-    <section id="cta" className="my-6 md:my-14">
+    <section id="cta" className="my-6 md:my-16">
       <div className="container relative max-w-5xl mx-auto px-4 md:px-6">
         <div className="bg-[url('/cta-bg.png')] bg-cover bg-center py-16 rounded-2xl px-4 relative z-10">
           <div className="text-center max-w-3xl mx-auto">

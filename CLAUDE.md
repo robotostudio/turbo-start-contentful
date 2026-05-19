@@ -6,8 +6,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 - **TurboRepo** monorepo, **pnpm@11.1.3**, Node >=20
 - **Next.js 16** (App Router, Turbopack dev, React 19, React Compiler beta enabled)
-- **Contentful** REST SDK (`contentful` package) — not GraphQL despite `codegen.ts` being present (see Quirks)
-- **Shared UI** in `packages/ui` (Shadcn UI + Radix + Tailwind 3.4), transpiled by the app via `next.config.ts`
+- **Contentful** REST SDK (`contentful` package)
+- **Shared UI** in `packages/ui` (Shadcn UI + Radix + Tailwind CSS v4 CSS-first), transpiled by the app via `next.config.ts`
 - TypeScript 5.7.3, ESLint (flat config), Prettier
 
 ## Common Commands
@@ -103,7 +103,7 @@ JSON-LD via `schema-dts` in `apps/web/src/components/json-ld.tsx`.
 
 Required (declared in `turbo.json:globalEnv` and read in `apps/web/src/lib/env.ts`):
 
-```
+```env
 CONTENTFUL_SPACE_ID
 CONTENTFUL_ACCESS_TOKEN              # delivery API
 CONTENTFUL_PREVIEW_ACCESS_TOKEN      # preview API (falls back to access token)
@@ -115,7 +115,7 @@ VERCEL_AUTOMATION_BYPASS_SECRET      # /api/preview Vercel JWT path
 CONTENTFUL_MANAGEMENT_TOKEN          # typegen only
 ```
 
-`.env` lives in `apps/web/`. `apps/web/.env.example` is stale (lists Sanity vars — ignore it).
+`.env` lives in `apps/web/`. See `apps/web/.env.example` for the canonical list.
 
 ## Component Conventions
 
@@ -126,9 +126,8 @@ From `.cursor/rules/`:
 
 ## Quirks / Gotchas
 
-- **GraphQL codegen is unused.** `apps/web/codegen.ts` exists but no script invokes it and `__generated__/` is not present. Content types come from `cf-content-types-generator` (run `pnpm --filter web typegen`). The `@apollo/client` and `graphql` deps are dead code.
-- **Sanity leftovers.** `@sanity/client`, `@sanity/image-url`, `next-sanity`, etc. are in `apps/web/package.json` from a sibling template. Only `next-sanity`'s `PortableTextBlock` type is imported (in `apps/web/src/utils.ts`). `.env.example` and the `name` field in root `package.json` (`next-sanity-turbo`) are also Sanity-flavored.
-- **`env.ts` error message bug**: the `CONTENTFUL_ACCESS_TOKEN` assertion incorrectly says "Missing environment variable: NEXT_PUBLIC_SANITY_PROJECT_ID". Don't be confused by it.
-- **README drift**: README mentions `pnpm run codegen` — that script doesn't exist. Use `typegen`.
 - **`include: 10` everywhere**: queries deep-link-resolve up to 10 levels. Be aware of payload size when adding new linked types.
-- **Draft mode is the only auth** on draft-enabled routes — never expose `CONTENTFUL_DRAFT_TOKEN` or `CONTENTFUL_PREVIEW_SECRET` client-side.
+- **Type-gen is REST-based**: content types in `apps/web/src/lib/contentful/types/` come from `cf-content-types-generator` via `pnpm --filter web typegen` — not GraphQL.
+- **Draft mode is the only auth** on draft-enabled routes — never expose `CONTENTFUL_DRAFT_TOKEN`, `CONTENTFUL_REVALIDATION_SECRET`, `CONTENTFUL_PREVIEW_SECRET`, or `VERCEL_AUTOMATION_BYPASS_SECRET` client-side.
+- **`/api/preview` requires both query bypass token AND `_vercel_jwt` cookie** in production — the cookie's `aud` is what enforces host binding (leaked query tokens alone can't be replayed from another host).
+- **Tailwind is CSS-first (v4)**: there is no `tailwind.config.ts`. Theme tokens, plugins, and source globs live in `packages/ui/src/styles/globals.css` via `@theme`, `@plugin`, `@source`, `@custom-variant dark`.

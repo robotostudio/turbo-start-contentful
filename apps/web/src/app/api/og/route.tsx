@@ -165,18 +165,20 @@ async function fetchTtfFont(
     throw new Error("Failed to extract font URL from CSS");
   }
 
-  return fetch(ttfUrl, { cache: "force-cache" }).then((res) =>
-    res.arrayBuffer(),
-  );
+  return fetch(ttfUrl, { cache: "force-cache" }).then(async (res) => {
+    if (!res.ok) {
+      throw new Error(
+        `Failed to fetch font ${ttfUrl}: ${res.status} ${res.statusText}`,
+      );
+    }
+    return res.arrayBuffer();
+  });
 }
 
-const getOptions = cache(async ({
-  width,
-  height,
-}: {
-  width: number;
-  height: number;
-}): Promise<ImageResponseOptions> => {
+const getOptions = cache(async (
+  width: number,
+  height: number,
+): Promise<ImageResponseOptions> => {
   const [interRegular, interBold, interSemiBold] = await Promise.all([
     fetchTtfFont("Inter", ["wght"], [400]),
     fetchTtfFont("Inter", ["wght"], [700]),
@@ -291,7 +293,7 @@ export async function GET({ url }: Request): Promise<ImageResponse> {
   const type = searchParams.get("type") as keyof typeof block;
   const { width, height } = getOgMetaData(searchParams);
   const para = Object.fromEntries(searchParams.entries());
-  const options = await getOptions({ width, height });
+  const options = await getOptions(width, height);
   const image = block[type] ?? getHomePageContent;
   try {
     const content = await image(para);
