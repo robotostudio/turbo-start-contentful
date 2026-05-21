@@ -18,11 +18,12 @@ export function getButtonUrl(
 
   // Internal page reference for page links
   if (button.fields.internal?.fields?.slug) {
+    const cleanSlug = button.fields.internal.fields.slug.replace(/^\//, "");
     if (button.fields.internal.sys.contentType.sys.id === "page") {
-      return `/${button.fields.internal.fields.slug}`;
+      return `/${cleanSlug}`;
     }
     if (button.fields.internal.sys.contentType.sys.id === "blog") {
-      return `/blog/${button.fields.internal.fields.slug}`;
+      return `/blog/${cleanSlug}`;
     }
   }
 
