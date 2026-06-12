@@ -167,3 +167,7 @@ The project uses Tailwind CSS with a shared configuration. Customize `tailwind.c
 ## Contributing
 
 Contributions are welcome! Please read our contributing guidelines and code of conduct before submitting pull requests.
+
+## License
+
+[MIT](LICENSE) &copy; [Roboto Studio](https://robotostudio.com)
