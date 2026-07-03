@@ -120,7 +120,7 @@ CONTENTFUL_MANAGEMENT_TOKEN          # typegen only
 ## Component Conventions
 
 From `.cursor/rules/`:
-- **New Contentful sections**: follow the Live Preview pattern above and the template in `.cursor/rules/contentful-component-template.mdc`. Section files live in `apps/web/src/components/sections/`, kebab-case (`feature-cards-with-icon.tsx`), `PascalCase` exports, props type `[Component]Props = TypeXxx<"WITHOUT_UNRESOLVABLE_LINKS">`. Wrap in `<section id="…" className="my-6 md:my-16">` with a `container mx-auto px-4 md:px-6` inner div.
+- **New Contentful sections**: follow the Live Preview pattern above and the template in `.cursor/rules/contentful-component-template.mdc`. Section files live in `apps/web/src/components/sections/`, kebab-case (`feature-cards-with-icon.tsx`), `PascalCase` exports, props type `[Component]Props = TypeXxx<"WITHOUT_UNRESOLVABLE_LINKS">`. Wrap in `<section id="…" className="my-6 md:my-16">` with a `container` inner div — the shared `container` utility (`packages/ui/src/styles/globals.css`) already centres and applies the `px-4 md:px-6` gutters, so don't add `mx-auto`/padding.
 - **Layout primitives** (`frontend-rules.mdc`): prefer `grid` over `flex` except for simple parent-child rows; use semantic HTML; route all button rendering through `ContentfulButtons` (`apps/web/src/components/contentful-button.tsx`); images through `ContentfulImage`.
 - **Shared UI**: import from `@workspace/ui/components/<name>` — don't duplicate Shadcn components into the app.
 

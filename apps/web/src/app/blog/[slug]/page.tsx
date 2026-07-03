@@ -59,7 +59,7 @@ export default async function BlogSlugPage({
   const { title, description, image, richText } = blog?.fields ?? {};
 
   return (
-    <div className="container my-16 mt-24 md:mt-32 mx-auto px-4 md:px-6">
+    <div className="container my-16 mt-24 md:mt-32">
       <div className="grid grid-cols-1 gap-8 lg:grid-cols-[1fr_300px]">
         <main>
           <ArticleJsonLd article={blog} />

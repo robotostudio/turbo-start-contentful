@@ -8,6 +8,12 @@
 
 @custom-variant dark (&:where(.dark, .dark *));
 
+/* Central content rail. Overrides Tailwind's built-in `container` by source
+ * order (equal specificity) — revisit on a Tailwind upgrade. */
+@utility container {
+  @apply mx-auto w-full max-w-7xl px-4 md:px-6;
+}
+
 @theme {
   --font-geist: var(--font-geist), ui-sans-serif, system-ui, sans-serif;
   --font-mono: var(--font-mono), ui-monospace, monospace;

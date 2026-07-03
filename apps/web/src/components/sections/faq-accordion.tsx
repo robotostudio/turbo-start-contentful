@@ -27,7 +27,7 @@ export function FaqAccordion(props: FaqAccordionProps) {
   });
   return (
     <section id="faq" className="my-8 md:my-14 relative">
-      <div className="container relative mx-auto px-4 md:px-6">
+      <div className="container relative">
         <div className="flex w-full flex-col items-center relative z-10">
           <div className="flex flex-col items-center space-y-4 text-center sm:space-y-6 md:text-center">
             <Badge {...inspectorProps({ fieldId: "eyebrow" })}>{eyebrow}</Badge>

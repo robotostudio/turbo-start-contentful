@@ -117,7 +117,7 @@ export function FeatureCardsWithIcon(props: FeatureCardsWithIconProps) {
 
   return (
     <section id="features" className="my-6 md:my-14 mx-auto">
-      <div className="container relative mx-auto px-4 md:px-6">
+      <div className="container relative">
         <div className="flex flex-col items-center z-1">
           <div className="flex flex-col items-center space-y-4 text-center sm:space-y-6 md:text-center">
             {eyebrow && (
