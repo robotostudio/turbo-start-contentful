@@ -346,7 +346,7 @@ const ClientSideNavbar = ({
         isScrolled && "border bg-background",
       )}
     >
-      <div className="container mx-auto px-4 md:px-6">
+      <div className="container">
         <nav className="flex items-center justify-between gap-4">
           {isMobile ? (
             <MobileNavbar settingsData={settingsData} />
@@ -402,7 +402,7 @@ function SkeletonDesktopNavbar() {
 export function NavbarSkeletonResponsive() {
   return (
     <motion.section className="py-3 z-20 fixed top-0 inset-x-0">
-      <div className="container mx-auto px-4 md:px-6">
+      <div className="container">
         <nav className="flex items-center justify-between gap-4">
           <SkeletonMobileNavbar />
           <SkeletonDesktopNavbar />

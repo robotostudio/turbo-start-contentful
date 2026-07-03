@@ -42,7 +42,7 @@ export function HeroBlock(props: HeroBlockProps) {
       <div className="absolute z-1 inset-0 rounded-full bg-zinc-100 dark:bg-zinc-900 blur-[250px] pointer-events-none" />
       <div className="absolute -bottom-20 -inset-x-10 h-[180px] bg-[linear-gradient(90deg,_rgba(250,250,250,0.8)_0%,_#FAFAFA_50%,_rgba(250,250,250,1)_100%)] dark:bg-[linear-gradient(90deg,_rgba(0,0,0,0.8)_0%,_rgba(0,0,0,0.8)_50%,_rgba(0,0,0,1)_100%)] blur-[40px] pointer-events-none z-5" />
 
-      <div className="container relative z-10 mx-auto px-4 md:px-6">
+      <div className="container relative z-10">
         <div className="grid place-items-center gap-8 lg:grid-cols-2">
           <div className="grid h-full items-center justify-items-center text-center lg:items-start lg:justify-items-start lg:text-left">
             {badge && (

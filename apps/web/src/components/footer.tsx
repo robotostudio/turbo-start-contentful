@@ -73,7 +73,7 @@ function SocialLinks({ settingsData }: { settingsData: GlobalSettings }) {
 export function FooterSkeleton() {
   return (
     <section className="mt-16 pb-8">
-      <div className="container mx-auto px-4 md:px-6">
+      <div className="container">
         <footer className="h-[500px] lg:h-auto">
           <div className="flex flex-col items-center justify-between gap-10 text-center lg:flex-row lg:text-left">
             <div className="flex w-full max-w-96 shrink flex-col items-center justify-between gap-6 lg:items-start">
@@ -129,94 +129,89 @@ function Footer({ settingsData }: { settingsData: GlobalSettings }) {
 
   return (
     <section className="mt-20 pb-8">
-      <div className="container mx-auto">
-        <footer className="h-[500px] lg:h-auto">
-          <div className="flex flex-col items-center justify-between gap-10 text-center lg:flex-row lg:text-left mx-auto px-4 md:px-6">
-            <div className="flex w-full max-w-96 shrink flex-col items-center justify-between gap-6 md:gap-8 lg:items-start">
-              <div>
-                <span className="flex items-center justify-center gap-4 lg:justify-start">
-                  <Logo logo={logo} alt={siteTitle} />
-                </span>
-                {footerLabel && (
-                  <p className="mt-6 text-sm text-muted-foreground dark:text-zinc-400">
-                    {footerLabel}
-                  </p>
-                )}
-              </div>
-              <SocialLinks settingsData={settingsData} />
+      <footer className="h-[500px] lg:h-auto">
+        <div className="container flex flex-col items-center justify-between gap-10 text-center lg:flex-row lg:text-left">
+          <div className="flex w-full max-w-96 shrink flex-col items-center justify-between gap-6 md:gap-8 lg:items-start">
+            <div>
+              <span className="flex items-center justify-center gap-4 lg:justify-start">
+                <Logo logo={logo} alt={siteTitle} />
+              </span>
+              {footerLabel && (
+                <p className="mt-6 text-sm text-muted-foreground dark:text-zinc-400">
+                  {footerLabel}
+                </p>
+              )}
             </div>
-            {Array.isArray(columns) && columns?.length > 0 && (
-              <div className="grid grid-cols-3 gap-6 lg:gap-28 lg:mr-20">
-                {columns.map((column, index) => {
-                  if (!column?.fields) return null;
-                  return (
-                    <div key={`column-${column.sys.id}-${index}`}>
-                      <h2 className="mb-6 font-semibold">
-                        {column.fields.label}
-                      </h2>
-                      {column.fields.links &&
-                        column.fields.links.length > 0 && (
-                          <ul className="space-y-4 text-sm text-muted-foreground dark:text-zinc-400">
-                            {column.fields.links.map(
-                              (link: FooterLinkType, linkIndex) => {
-                                if (!link?.fields) return null;
-                                return (
-                                  <li
-                                    key={`${link.sys.id}-${linkIndex}-column-${column.sys.id}`}
-                                    className="font-medium hover:text-primary"
-                                  >
-                                    <Link
-                                      href={link.fields.href ?? "#"}
-                                      target={
-                                        link.fields.internal
-                                          ? undefined
-                                          : "_blank"
-                                      }
-                                      rel={
-                                        link.fields.internal
-                                          ? undefined
-                                          : "noopener noreferrer"
-                                      }
-                                    >
-                                      {link.fields.label}
-                                    </Link>
-                                  </li>
-                                );
-                              },
-                            )}
-                          </ul>
+            <SocialLinks settingsData={settingsData} />
+          </div>
+          {Array.isArray(columns) && columns?.length > 0 && (
+            <div className="grid grid-cols-3 gap-6 lg:gap-28 lg:mr-20">
+              {columns.map((column, index) => {
+                if (!column?.fields) return null;
+                return (
+                  <div key={`column-${column.sys.id}-${index}`}>
+                    <h2 className="mb-6 font-semibold">
+                      {column.fields.label}
+                    </h2>
+                    {column.fields.links && column.fields.links.length > 0 && (
+                      <ul className="space-y-4 text-sm text-muted-foreground dark:text-zinc-400">
+                        {column.fields.links.map(
+                          (link: FooterLinkType, linkIndex) => {
+                            if (!link?.fields) return null;
+                            return (
+                              <li
+                                key={`${link.sys.id}-${linkIndex}-column-${column.sys.id}`}
+                                className="font-medium hover:text-primary"
+                              >
+                                <Link
+                                  href={link.fields.href ?? "#"}
+                                  target={
+                                    link.fields.internal ? undefined : "_blank"
+                                  }
+                                  rel={
+                                    link.fields.internal
+                                      ? undefined
+                                      : "noopener noreferrer"
+                                  }
+                                >
+                                  {link.fields.label}
+                                </Link>
+                              </li>
+                            );
+                          },
                         )}
-                    </div>
-                  );
-                })}
-              </div>
-            )}
-          </div>
-          <div className="mt-40 pt-8">
-            <div className="flex flex-col justify-between gap-4 text-center lg:flex-row lg:items-center lg:text-left mx-auto px-4 md:px-6 font-mono uppercase text-zinc-600 dark:text-zinc-400 text-sm">
-              <p>POWERED BY VERCEL & CONTENTFUL</p>
-              <div className="relative">
-                <Link
-                  href={"https://robotostudio.com"}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-zinc-950 dark:text-zinc-50"
-                >
-                  {siteTitle}
-                </Link>
-                <Image
-                  src={"/footer-logo.svg"}
-                  alt="Powered by Robotostudio"
-                  width={264}
-                  height={226}
-                  className="absolute top-[-90%] left-[50%] lg:left-[58%] -translate-x-1/2 -translate-y-1/2 min-w-64 select-none pointer-events-none"
-                />
-              </div>
-              <p>© {year} TURBO START Contentful</p>
+                      </ul>
+                    )}
+                  </div>
+                );
+              })}
             </div>
+          )}
+        </div>
+        <div className="mt-40 pt-8">
+          <div className="container flex flex-col justify-between gap-4 text-center lg:flex-row lg:items-center lg:text-left font-mono uppercase text-zinc-600 dark:text-zinc-400 text-sm">
+            <p>POWERED BY VERCEL & CONTENTFUL</p>
+            <div className="relative">
+              <Link
+                href={"https://robotostudio.com"}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-zinc-950 dark:text-zinc-50"
+              >
+                {siteTitle}
+              </Link>
+              <Image
+                src={"/footer-logo.svg"}
+                alt="Powered by Robotostudio"
+                width={264}
+                height={226}
+                className="absolute top-[-90%] left-[50%] lg:left-[58%] -translate-x-1/2 -translate-y-1/2 min-w-64 select-none pointer-events-none"
+              />
+            </div>
+            <p>© {year} TURBO START Contentful</p>
           </div>
-        </footer>
-      </div>
+        </div>
+      </footer>
     </section>
   );
 }
