@@ -42,7 +42,7 @@ export function [ComponentName](mdc:props: [ComponentName]Props) {
 
   return (
     <section id="[section-id]" className="my-6 md:my-16">
-      <div className="container mx-auto px-4 md:px-6">
+      <div className="container">
         {/* Apply inspector props to each editable field */}
         <h2
           className="text-3xl font-semibold md:text-5xl"
@@ -236,12 +236,15 @@ Use consistent section structure:
 ```typescript
 return (
   <section id="[unique-id]" className="my-6 md:my-16">
-    <div className="container mx-auto px-4 md:px-6">
+    <div className="container">
       {/* Content here */}
     </div>
   </section>
 );
 ```
+
+The shared `container` utility (`packages/ui/src/styles/globals.css`) already applies
+`mx-auto` and the `px-4 md:px-6` gutters — use `container` alone, don't repeat them.
 
 ### 8. Conditional Rendering Pattern
 
