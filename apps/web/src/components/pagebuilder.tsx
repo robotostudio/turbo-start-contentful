@@ -20,7 +20,7 @@ type PageBuilderSkeleton =
   | TypeHeroSkeleton;
 
 // Type for the pageBuilder array that can contain resolved entries or unresolved links
-type PageBuilderArray = (
+export type PageBuilderArray = (
   | UnresolvedLink<"Entry">
   | Entry<PageBuilderSkeleton, undefined, string>
   | Entry<PageBuilderSkeleton, "WITHOUT_UNRESOLVABLE_LINKS", string>

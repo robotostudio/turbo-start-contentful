@@ -1,6 +1,7 @@
 import { draftMode } from "next/headers";
 import { notFound } from "next/navigation";
 
+import { PageBuilderJsonLd } from "@/components/page-builder-json-ld";
 import { PageBuilder } from "@/components/pagebuilder";
 import { getPageBySlug } from "@/lib/contentful/query";
 import { getSEOMetadata } from "@/lib/seo";
@@ -70,5 +71,10 @@ export default async function CatchAllSlugPage({
     return <div>Error: {result.error.message}</div>;
   }
   const pageBuilder = result.data?.fields.pageBuilder;
-  return <PageBuilder pageBuilder={pageBuilder} />;
+  return (
+    <>
+      <PageBuilder pageBuilder={pageBuilder} />
+      <PageBuilderJsonLd pageBuilder={pageBuilder} />
+    </>
+  );
 }
