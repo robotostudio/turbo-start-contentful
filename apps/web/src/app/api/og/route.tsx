@@ -57,7 +57,7 @@ const simpleOgRender = ({ title, _type, siteTitle }: SimpleOgRenderProps) => {
     >
       <div tw="flex items-center justify-between w-full">
         <div tw="flex text-white text-2xl font-semibold">
-          {siteTitle ?? "Turbo Start Contentful"}
+          {siteTitle || "Turbo Start Contentful"}
         </div>
         {/* Type pill: blog posts only */}
         {_type === "blog" && (
@@ -78,7 +78,7 @@ const simpleOgRender = ({ title, _type, siteTitle }: SimpleOgRenderProps) => {
         style={{ lineHeight: 1.05, letterSpacing: "-0.02em", fontWeight: 400 }}
         tw="flex text-[76px] max-w-[90%] text-white"
       >
-        {title ?? siteTitle ?? "Turbo Start Contentful"}
+        {title || siteTitle || "Turbo Start Contentful"}
       </h1>
     </div>
   );
@@ -159,21 +159,30 @@ const getSiteTitle = async () => {
   return result.data?.fields?.siteTitle;
 };
 
+// Serve an uploaded seoImage as-is, else the generated card with siteTitle.
+const renderOgContent = async (
+  seoImage: Asset<"WITHOUT_UNRESOLVABLE_LINKS", string> | undefined,
+  title: string | null | undefined,
+  _type: "page" | "blog",
+) => {
+  const seoImageUrl = getImageUrl(seoImage);
+  if (seoImageUrl) return seoImageRender({ seoImage: seoImageUrl.url });
+  const siteTitle = await getSiteTitle();
+  return simpleOgRender({ title, _type, siteTitle });
+};
+
 const getHomePageContent = async () => {
   const result = await safeAsync(getPageBySlug("/"));
   if (!result.success) {
     console.error("Failed to fetch home page for OG image:", result.error);
     return undefined;
   }
-  const page = result.data;
-  const { seoImage, title } = page?.fields ?? {};
-
-  const seoImageUrl = getImageUrl(
+  const { seoImage, title } = result.data?.fields ?? {};
+  return renderOgContent(
     seoImage as Asset<"WITHOUT_UNRESOLVABLE_LINKS", string>,
+    title,
+    "page",
   );
-  if (seoImageUrl) return seoImageRender({ seoImage: seoImageUrl.url });
-  const siteTitle = await getSiteTitle();
-  return simpleOgRender({ title, _type: "page", siteTitle });
 };
 
 const getSlugPageContent = async ({ id }: ContentProps) => {
@@ -183,13 +192,8 @@ const getSlugPageContent = async ({ id }: ContentProps) => {
     console.error("Failed to fetch page for OG image:", result.error);
     return undefined;
   }
-  const page = result.data;
-  const { seoImage, title } = page?.fields ?? {};
-
-  const seoImageUrl = getImageUrl(seoImage);
-  if (seoImageUrl) return seoImageRender({ seoImage: seoImageUrl.url });
-  const siteTitle = await getSiteTitle();
-  return simpleOgRender({ title, _type: "page", siteTitle });
+  const { seoImage, title } = result.data?.fields ?? {};
+  return renderOgContent(seoImage, title, "page");
 };
 
 const getBlogPageContent = async ({ id }: ContentProps) => {
@@ -199,12 +203,8 @@ const getBlogPageContent = async ({ id }: ContentProps) => {
     console.error("Failed to fetch blog for OG image:", result.error);
     return undefined;
   }
-  const blog = result.data;
-  const { seoImage, title } = blog?.fields ?? {};
-  const seoImageUrl = getImageUrl(seoImage);
-  if (seoImageUrl) return seoImageRender({ seoImage: seoImageUrl.url });
-  const siteTitle = await getSiteTitle();
-  return simpleOgRender({ title, _type: "blog", siteTitle });
+  const { seoImage, title } = result.data?.fields ?? {};
+  return renderOgContent(seoImage, title, "blog");
 };
 
 const block = {
