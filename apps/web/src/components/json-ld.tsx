@@ -15,12 +15,25 @@ import { getGlobalSettings } from "@/lib/contentful/query";
 import type { TypeBlog } from "@/lib/contentful/types";
 import { safeAsync } from "@/safe-async";
 
-// Utility function to safely render JSON-LD
+// Escape <, >, & to \uXXXX so a "</script>" in any CMS field can't break out of
+// the tag. JSON-LD is parsed as data (not executed), so escaping `<` is what
+// matters; the result stays valid JSON for crawlers.
+function serializeJsonLd<T>(data: T): string {
+  return JSON.stringify(data)
+    .replace(/</g, "\\u003c")
+    .replace(/>/g, "\\u003e")
+    .replace(/&/g, "\\u0026");
+}
+
 export function JsonLdScript<T>({ data, id }: { data: T; id: string }) {
   return (
-    <script type="application/ld+json" id={id}>
-      {JSON.stringify(data, null, 0)}
-    </script>
+    <script
+      type="application/ld+json"
+      id={id}
+      // Raw injection so the JSON-LD reaches crawlers unescaped; serializeJsonLd
+      // already escapes <, >, & to prevent script breakout.
+      dangerouslySetInnerHTML={{ __html: serializeJsonLd(data) }}
+    />
   );
 }
 
