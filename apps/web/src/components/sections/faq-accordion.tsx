@@ -3,14 +3,8 @@ import {
   useContentfulInspectorMode,
   useContentfulLiveUpdates,
 } from "@contentful/live-preview/react";
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@workspace/ui/components/accordion";
 import { Badge } from "@workspace/ui/components/badge";
-import { ArrowUpRight } from "lucide-react";
+import { ArrowUpRight, ChevronDown } from "lucide-react";
 import Link from "next/link";
 
 import type { TypeFaqAccordion } from "@/lib/contentful/types";
@@ -46,31 +40,34 @@ export function FaqAccordion(props: FaqAccordionProps) {
           </div>
         </div>
         <div className="mt-[76px] max-w-[700px] mx-auto relative z-10">
-          <Accordion
-            type="single"
-            collapsible
-            className="w-full"
-            defaultValue={faqs?.[0]?.sys.id ?? ""}
-            {...inspectorProps({ fieldId: "faqs" })}
-          >
-            {faqs?.map((faq, index) => (
-              <AccordionItem
-                value={faq?.sys.id ?? `faq-${index}`}
-                key={faq?.sys.id ?? `faq-${index}`}
-                className="my-4 border-none px-4 py-2 text-lg hover:no-underline group bg-white dark:bg-zinc-900 rounded-2xl"
-              >
-                <AccordionTrigger className="h-full">
-                  {faq?.fields?.question}
-                </AccordionTrigger>
-                <AccordionContent className="text-muted-foreground">
-                  <ContentfulRichText
-                    richText={faq?.fields?.answer}
-                    className="text-sm md:text-base"
-                  />
-                </AccordionContent>
-              </AccordionItem>
-            ))}
-          </Accordion>
+          <div className="w-full" {...inspectorProps({ fieldId: "faqs" })}>
+            {faqs?.map((faq, index) => {
+              const itemId = faq?.sys.id ?? `faq-${index}`;
+              return (
+                <details
+                  key={itemId}
+                  name={`faq-${updatedProps.sys.id}`}
+                  open={index === 0}
+                  className="faq-disclosure group my-4 rounded-2xl bg-white dark:bg-zinc-900 px-4 py-2 text-lg"
+                >
+                  <summary className="flex cursor-pointer list-none items-center justify-between gap-4 py-2 outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50 [&::-webkit-details-marker]:hidden">
+                    <h3 className="font-medium text-base">
+                      {faq?.fields?.question}
+                    </h3>
+                    <ChevronDown className="pointer-events-none size-5 shrink-0 text-muted-foreground transition-transform duration-200 group-open:rotate-180" />
+                  </summary>
+                  {faq?.fields?.answer ? (
+                    <div className="pb-2 text-muted-foreground">
+                      <ContentfulRichText
+                        richText={faq.fields.answer}
+                        className="text-sm md:text-base"
+                      />
+                    </div>
+                  ) : null}
+                </details>
+              );
+            })}
+          </div>
           {link && (
             <div className="w-full py-6 text-center flex flex-col items-center">
               <p className="mb-1 text-lg text-zinc-700 dark:text-zinc-400">
