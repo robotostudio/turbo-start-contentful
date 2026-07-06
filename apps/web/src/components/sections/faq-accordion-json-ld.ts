@@ -10,8 +10,10 @@ type FaqList = NonNullable<
 export function faqAccordionToJsonLd(
   faqs: FaqList,
 ): WithContext<FAQPage> | null {
-  const validFaqs = (faqs ?? []).filter((faq): faq is NonNullable<typeof faq> =>
-    Boolean(faq?.fields?.question),
+  const validFaqs = (faqs ?? []).filter(
+    (faq): faq is NonNullable<typeof faq> =>
+      Boolean(faq?.fields?.question) &&
+      richTextToPlainText(faq?.fields?.answer).length > 0,
   );
   if (!validFaqs.length) return null;
 
