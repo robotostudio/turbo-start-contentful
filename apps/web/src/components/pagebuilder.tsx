@@ -48,7 +48,7 @@ type AnyPageBuilderEntry =
   | Entry<PageBuilderSkeleton, undefined, string>
   | Entry<PageBuilderSkeleton, "WITHOUT_UNRESOLVABLE_LINKS", string>;
 
-function isResolvedEntry(
+export function isResolvedEntry(
   block:
     | UnresolvedLink<"Entry">
     | Entry<PageBuilderSkeleton, undefined, string>

@@ -3,7 +3,7 @@ import type { Entry } from "contentful";
 import type { TypeFaqAccordionSkeleton } from "@/lib/contentful/types";
 
 import { JsonLdScript } from "./json-ld";
-import type { PageBuilderArray } from "./pagebuilder";
+import { isResolvedEntry, type PageBuilderArray } from "./pagebuilder";
 import { faqAccordionToJsonLd } from "./sections/faq-accordion-json-ld";
 
 export function PageBuilderJsonLd({
@@ -17,9 +17,7 @@ export function PageBuilderJsonLd({
     <>
       {pageBuilder.map((block) => {
         if (
-          !block ||
-          !("sys" in block) ||
-          !("contentType" in block.sys) ||
+          !isResolvedEntry(block) ||
           block.sys.contentType.sys.id !== "faqAccordion"
         ) {
           return null;
