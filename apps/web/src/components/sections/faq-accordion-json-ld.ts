@@ -1,4 +1,4 @@
-import type { Answer, FAQPage, Question, WithContext } from "schema-dts";
+import type { FAQPage, Question, WithContext } from "schema-dts";
 
 import type { TypeFaqAccordion } from "@/lib/contentful/types";
 import { richTextToPlainText } from "@/utils";
@@ -25,7 +25,7 @@ export function faqAccordionToJsonLd(
         acceptedAnswer: {
           "@type": "Answer",
           text: richTextToPlainText(faq.fields.answer),
-        } as Answer,
+        },
       }),
     ),
   };
