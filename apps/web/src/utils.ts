@@ -1,3 +1,9 @@
+import type {
+  Block,
+  Document,
+  Inline,
+  Text,
+} from "@contentful/rich-text-types";
 import type { Asset } from "contentful";
 import slugify from "slugify";
 
@@ -40,4 +46,21 @@ export function getImageUrl(
   if (!url) return undefined;
   const { width, height } = details?.image ?? {};
   return { url: `https:${url}?w=${width}&h=${height}`, width, height };
+}
+
+type RichTextNode = Block | Inline | Text;
+
+const isTextNode = (node: RichTextNode): node is Text =>
+  node.nodeType === "text";
+
+// Plain text for JSON-LD (structured data needs plain strings, not HTML/JSX).
+export function richTextToPlainText(
+  richText: Document | null | undefined,
+): string {
+  if (!richText?.content) return "";
+  const walk = (nodes: RichTextNode[]): string =>
+    nodes
+      .map((node) => (isTextNode(node) ? node.value : walk(node.content)))
+      .join(" ");
+  return walk(richText.content).replace(/\s+/g, " ").trim();
 }

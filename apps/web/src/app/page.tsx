@@ -1,5 +1,6 @@
 import { draftMode } from "next/headers";
 
+import { PageBuilderJsonLd } from "@/components/page-builder-json-ld";
 import { PageBuilder } from "@/components/pagebuilder";
 import { getPageBySlug } from "@/lib/contentful/query";
 import { getSEOMetadata } from "@/lib/seo";
@@ -34,5 +35,10 @@ export default async function Page() {
     return <div>No page builder found</div>;
   }
 
-  return <PageBuilder pageBuilder={result.data.fields.pageBuilder} />;
+  return (
+    <>
+      <PageBuilder pageBuilder={result.data.fields.pageBuilder} />
+      <PageBuilderJsonLd pageBuilder={result.data.fields.pageBuilder} />
+    </>
+  );
 }
