@@ -178,11 +178,7 @@ const getHomePageContent = async () => {
     return undefined;
   }
   const { seoImage, title } = result.data?.fields ?? {};
-  return renderOgContent(
-    seoImage as Asset<"WITHOUT_UNRESOLVABLE_LINKS", string>,
-    title,
-    "page",
-  );
+  return renderOgContent(seoImage, title, "page");
 };
 
 const getSlugPageContent = async ({ id }: ContentProps) => {
