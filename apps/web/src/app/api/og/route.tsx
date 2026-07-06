@@ -7,6 +7,7 @@ import { cache } from "react";
 
 import {
   getBlogByID,
+  getGlobalSettings,
   getPageByID,
   getPageBySlug,
 } from "@/lib/contentful/query";
@@ -34,14 +35,10 @@ type SeoImageRenderProps = {
 
 type ContentProps = Record<string, string>;
 
-type DominantColorSeoImageRenderProps = {
-  image?: string | null | undefined;
+type SimpleOgRenderProps = {
   title?: string | null | undefined;
-  logo?: string | null | undefined;
-  dominantColor?: string | null | undefined;
-  date?: string | null | undefined;
   _type?: string | null | undefined;
-  description?: string | null | undefined;
+  siteTitle?: string | null | undefined;
 };
 
 const seoImageRender = ({ seoImage }: SeoImageRenderProps) => {
@@ -52,90 +49,37 @@ const seoImageRender = ({ seoImage }: SeoImageRenderProps) => {
   );
 };
 
-const dominantColorSeoImageRender = ({
-  image,
-  title,
-  logo,
-  date,
-  description,
-  _type,
-}: DominantColorSeoImageRenderProps) => {
+const simpleOgRender = ({ title, _type, siteTitle }: SimpleOgRenderProps) => {
   return (
     <div
-      tw={`bg-[${"#12061F"}] flex flex-row overflow-hidden relative w-full`}
-      style={{ fontFamily: "Inter" }}
+      style={{ backgroundColor: "#0A0A0A", fontFamily: "Inter" }}
+      tw="flex flex-col justify-between w-full h-full p-[70px]"
     >
-      <svg
-        width="100%"
-        height="100%"
-        style={{ position: "absolute", top: 0, left: 0 }}
-        aria-hidden="true"
-      >
-        <defs>
-          <linearGradient id="gradient" x1="0%" y1="100%" x2="100%" y2="0%">
-            <stop offset="0%" style={{ stopColor: "transparent" }} />
-            <stop offset="100%" style={{ stopColor: "white" }} />
-          </linearGradient>
-        </defs>
-        <rect width="100%" height="100%" fill="url(#gradient)" opacity="0.2" />
-      </svg>
-
-      <div tw="flex-1 p-10 flex flex-col justify-between relative z-10">
-        <div tw="flex justify-between items-start w-full">
-          {logo && <img src={logo} alt="Logo" height={48} />}
-          <div tw="bg-white flex bg-opacity-20 text-white px-4 py-2 rounded-full text-sm font-medium">
-            {new Date(date ?? new Date()).toLocaleDateString("en-US", {
-              month: "long",
-              day: "numeric",
-              year: "numeric",
-            })}
-          </div>
+      <div tw="flex items-center justify-between w-full">
+        <div tw="flex text-white text-2xl font-semibold">
+          {siteTitle ?? "Turbo Start Contentful"}
         </div>
-
-        <h1 tw="text-5xl font-bold leading-tight max-w-[90%] text-white">
-          {title}
-        </h1>
-        {description && <p tw="text-lg text-white">{description}</p>}
-        {_type && (
+        {/* Type pill: blog posts only */}
+        {_type === "blog" && (
           <div
-            tw={`bg-white text-[${"#12061F"}] flex px-5 py-2 rounded-full text-base font-semibold self-start`}
+            style={{
+              borderColor: "#ffffff",
+              letterSpacing: "0.1em",
+              textTransform: "uppercase",
+            }}
+            tw="flex border text-white px-6 py-3 rounded-full text-xl font-medium"
           >
             {getTitleCase(_type)}
           </div>
         )}
       </div>
 
-      <div tw="w-[630px] h-[630px] flex items-center justify-center p-8 relative z-10">
-        <div tw="w-[566px] h-[566px] bg-white bg-opacity-20 flex flex-col justify-center items-center rounded-3xl shadow-[0_0_0_1px_rgba(255,255,255,0.05),0_2px_4px_-1px_rgba(0,0,0,0.03),0_4px_6px_-1px_rgba(0,0,0,0.05),0_8px_10px_-1px_rgba(0,0,0,0.05)] overflow-hidden">
-          <div tw="flex relative w-full h-full">
-            {image ? (
-              <img
-                src={image}
-                tw="w-full h-full rounded-3xl shadow-2xl"
-                width={566}
-                height={566}
-                alt="Content preview"
-                style={{
-                  objectFit: "cover",
-                }}
-              />
-            ) : logo ? (
-              <div tw="flex items-center justify-center h-full w-full">
-                <img src={logo} alt="Logo" width={400} height={400} />
-              </div>
-            ) : (
-              <div tw="flex items-center justify-center h-full w-full">
-                <img
-                  src={"https://picsum.photos/566/566"}
-                  alt="Logo"
-                  width={400}
-                  height={400}
-                />
-              </div>
-            )}
-          </div>
-        </div>
-      </div>
+      <h1
+        style={{ lineHeight: 1.05, letterSpacing: "-0.02em", fontWeight: 400 }}
+        tw="flex text-[76px] max-w-[90%] text-white"
+      >
+        {title ?? siteTitle ?? "Turbo Start Contentful"}
+      </h1>
     </div>
   );
 };
@@ -209,6 +153,12 @@ const getOptions = cache(
   },
 );
 
+const getSiteTitle = async () => {
+  const result = await safeAsync(getGlobalSettings());
+  if (!result.success) return undefined;
+  return result.data?.fields?.siteTitle;
+};
+
 const getHomePageContent = async () => {
   const result = await safeAsync(getPageBySlug("/"));
   if (!result.success) {
@@ -216,20 +166,14 @@ const getHomePageContent = async () => {
     return undefined;
   }
   const page = result.data;
-  const { seoImage, image, title } = page?.fields ?? {};
+  const { seoImage, title } = page?.fields ?? {};
 
   const seoImageUrl = getImageUrl(
     seoImage as Asset<"WITHOUT_UNRESOLVABLE_LINKS", string>,
   );
   if (seoImageUrl) return seoImageRender({ seoImage: seoImageUrl.url });
-  const imageUrl = getImageUrl(
-    image as Asset<"WITHOUT_UNRESOLVABLE_LINKS", string>,
-  );
-  return dominantColorSeoImageRender({
-    image: imageUrl?.url,
-    title,
-    _type: "page",
-  });
+  const siteTitle = await getSiteTitle();
+  return simpleOgRender({ title, _type: "page", siteTitle });
 };
 
 const getSlugPageContent = async ({ id }: ContentProps) => {
@@ -240,21 +184,12 @@ const getSlugPageContent = async ({ id }: ContentProps) => {
     return undefined;
   }
   const page = result.data;
-  const { seoImage, image, title, description } = page?.fields ?? {};
+  const { seoImage, title } = page?.fields ?? {};
 
   const seoImageUrl = getImageUrl(seoImage);
-
   if (seoImageUrl) return seoImageRender({ seoImage: seoImageUrl.url });
-  const imageUrl = getImageUrl(image);
-  if (imageUrl) {
-    return dominantColorSeoImageRender({
-      image: imageUrl.url,
-      title,
-      description,
-      _type: "page",
-    });
-  }
-  return errorContent;
+  const siteTitle = await getSiteTitle();
+  return simpleOgRender({ title, _type: "page", siteTitle });
 };
 
 const getBlogPageContent = async ({ id }: ContentProps) => {
@@ -265,20 +200,11 @@ const getBlogPageContent = async ({ id }: ContentProps) => {
     return undefined;
   }
   const blog = result.data;
-  const { seoImage, image, title, description } = blog?.fields ?? {};
+  const { seoImage, title } = blog?.fields ?? {};
   const seoImageUrl = getImageUrl(seoImage);
   if (seoImageUrl) return seoImageRender({ seoImage: seoImageUrl.url });
-  const imageUrl = getImageUrl(image);
-  if (imageUrl) {
-    return dominantColorSeoImageRender({
-      image: imageUrl.url,
-      title,
-      description,
-      _type: "blog",
-      date: new Date(blog?.fields?.publishedDate ?? new Date()).toISOString(),
-    });
-  }
-  return errorContent;
+  const siteTitle = await getSiteTitle();
+  return simpleOgRender({ title, _type: "blog", siteTitle });
 };
 
 const block = {
