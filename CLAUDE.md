@@ -59,7 +59,7 @@ Callers wrap query promises in `safeAsync` (`apps/web/src/safe-async.ts:5`) whic
 2. Looks up `block.sys.contentType.sys.id` in `BLOCK_COMPONENTS` (currently: `callToAction`, `faqAccordion`, `hero`, `featureCards`)
 3. Renders the matched section component, or `ErrorBlock` if unknown
 
-**To add a new page builder block:** create the Contentful content type, run `typegen`, add the section component under `apps/web/src/components/sections/`, then register it in both `BLOCK_COMPONENTS` and the switch in `PageBuilder`. Also extend the `PageBuilderSkeleton` union.
+**To add a new page builder block:** create the Contentful content type, run `typegen`, add the section component under `apps/web/src/components/sections/`, then register it in both `BLOCK_COMPONENTS` and the switch in `PageBuilder`. Also extend the `PageBuilderSkeleton` union. **Also add a serializer** for the block in `apps/web/src/lib/contentful/page-builder-to-markdown.ts` (see "Markdown content negotiation" below) — otherwise the block is silently dropped from Markdown output.
 
 ### Contentful Live Preview (CRITICAL — read before adding sections)
 
@@ -88,6 +88,16 @@ The root layout (`apps/web/src/app/layout.tsx:44`) reads `draftMode()` and toggl
 - `disable-draft/route.ts` — disables draft, 1s sleep for state sync, redirects.
 - `revalidate/route.ts` — POST webhook from Contentful. Auth via `x-vercel-revalidation-key` header against `CONTENTFUL_REVALIDATION_SECRET`. Body accepts `{ path }` → `revalidatePath` and/or `{ tag }` → `revalidateTag`.
 - `og/route.tsx` — dynamic OG image generation referenced by `getSEOMetadata`.
+
+### Markdown content negotiation (LLM/agent output)
+
+Any page is available as clean Markdown via two surfaces: append **`.md`** to the URL (`/about.md`, `/blog/post.md`, `/index.md`) **or** send **`Accept: text/markdown`** (q-value aware — `;q=0` returns HTML). Plain requests are untouched.
+
+Markdown is built by **serializing the structured Contentful data, never by stripping rendered React** — so page-builder blocks degrade to semantic Markdown (`## question` + answer) and a component can never leak as a tag. Flow:
+- `apps/web/src/proxy.ts` (Next 16 proxy) detects `.md`/`Accept` and rewrites to `api/markdown/route.ts`, forwarding the content path via the `x-markdown-path` header.
+- `api/markdown/route.ts` maps the path → home / page / blog post / blog index, returns `text/markdown` (`200`) with `Vary: Accept`, `Content-Location`, `X-Robots-Tag: noindex, nofollow`; missing doc → `404`, upstream fetch failure → `503`. Always serves published content.
+- `lib/markdown.ts` assembles the document (header + cover + rich text + blocks); `lib/contentful/rich-text-to-markdown.ts` walks the rich-text `Document`; `lib/contentful/page-builder-to-markdown.ts` is the block registry keyed by `contentType.sys.id` — **unknown types serialize to `""`** (fail-safe). The route is an optional catch-all `api/markdown/[[...path]]/route.ts`, so the content path also works as a clean direct URL (`/api/markdown/blog/post`).
+- **Discoverability:** `getSEOMetadata` (`lib/seo.ts`) emits a per-page `<link rel="alternate" type="text/markdown">` pointing at the `.md` twin; `app/llms.txt/route.ts` carries a "For AI agents" negotiation guide + a page/blog index; `app/llms-full.txt/route.ts` serializes the **entire site** into one Markdown document (RAG dump). Both `llms.txt` and `llms-full.txt` are excluded from the proxy matcher.
 
 ### SEO
 
