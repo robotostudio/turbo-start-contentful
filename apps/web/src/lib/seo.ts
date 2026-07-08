@@ -89,6 +89,9 @@ export function getSEOMetadata(page: PageSeoData = {}): Metadata {
 
   const baseUrl = getBaseUrl();
   const pageUrl = buildPageUrl({ baseUrl, slug });
+  // Advertise the Markdown twin so agents can discover content negotiation.
+  const normalizedSlug = slug.startsWith("/") ? slug : `/${slug}`;
+  const markdownUrl = `${baseUrl}${slug === "/" ? "/index.md" : `${normalizedSlug}.md`}`;
 
   // Build default metadata values
   const defaultTitle = extractTitle({
@@ -130,6 +133,7 @@ export function getSEOMetadata(page: PageSeoData = {}): Metadata {
     },
     alternates: {
       canonical: pageUrl,
+      types: { "text/markdown": markdownUrl },
     },
     openGraph: {
       type: "website",
