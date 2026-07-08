@@ -65,6 +65,17 @@ function buildPageUrl({
   return `${baseUrl}${normalizeSlug(slug)}`;
 }
 
+/** The URL of a page's Markdown twin (`/` → `/index.md`, else `<slug>.md`). */
+function buildMarkdownUrl({
+  baseUrl,
+  slug,
+}: {
+  baseUrl: string;
+  slug: string;
+}): string {
+  return `${baseUrl}${slug === "/" ? "/index.md" : `${normalizeSlug(slug)}.md`}`;
+}
+
 function extractTitle({
   pageTitle,
   slug,
@@ -94,7 +105,7 @@ export function getSEOMetadata(page: PageSeoData = {}): Metadata {
   const baseUrl = getBaseUrl();
   const pageUrl = buildPageUrl({ baseUrl, slug });
   // Advertise the Markdown twin so agents can discover content negotiation.
-  const markdownUrl = `${baseUrl}${slug === "/" ? "/index.md" : `${normalizeSlug(slug)}.md`}`;
+  const markdownUrl = buildMarkdownUrl({ baseUrl, slug });
 
   // Build default metadata values
   const defaultTitle = extractTitle({
