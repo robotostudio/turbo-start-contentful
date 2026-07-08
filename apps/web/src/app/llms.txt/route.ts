@@ -42,6 +42,14 @@ export async function GET(): Promise<Response> {
     console.error("llms.txt: blog fetch failed", blogs.reason);
   }
 
+  // Both content sources failing is a transient upstream error, not an empty site.
+  if (slugs.status === "rejected" && blogs.status === "rejected") {
+    return new Response("Upstream content fetch failed\n", {
+      status: 503,
+      headers: { "content-type": "text/plain; charset=utf-8" },
+    });
+  }
+
   const siteTitle =
     (settings.status === "fulfilled" && settings.value?.fields?.siteTitle) ||
     "Site";

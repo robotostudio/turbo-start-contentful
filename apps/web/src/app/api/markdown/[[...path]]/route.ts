@@ -54,7 +54,8 @@ export async function GET(
     });
   }
 
-  if (markdown) {
+  // Only a null document is "not found"; an empty string is a real (if empty) page.
+  if (markdown !== null) {
     return new Response(markdown, {
       status: 200,
       headers: {

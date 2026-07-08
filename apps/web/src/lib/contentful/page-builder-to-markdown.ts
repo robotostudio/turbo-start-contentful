@@ -145,9 +145,10 @@ function featureCardsToMarkdown(
         return "";
       }
       // Icon is intentionally dropped from Markdown.
-      const title = cf.cardLink
-        ? `### ${mdLink(cf.title ?? "", cf.cardLink)}`
-        : heading(cf.title, 3);
+      const title =
+        cf.cardLink && cf.title?.trim()
+          ? `### ${mdLink(cf.title, cf.cardLink)}`
+          : heading(cf.title, 3);
       return joinSections([title, richTextToMarkdown(cf.richText)]);
     })
     .filter((card) => card.trim())

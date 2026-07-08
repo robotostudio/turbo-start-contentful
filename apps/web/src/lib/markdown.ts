@@ -40,11 +40,25 @@ export async function getPageBySlugForMarkdown(
 
 /** Fetches every page with full fields — used to assemble `llms-full.txt`. */
 export async function getAllPagesForMarkdown(): Promise<PageDoc[]> {
-  const res = await getClient(false).getEntries<TypePageSkeleton>({
-    content_type: "page",
-    include: 10,
-  });
-  return res.items;
+  const client = getClient(false);
+  const all: PageDoc[] = [];
+  const limit = 100;
+  let skip = 0;
+  let total = Infinity;
+  // Paginate so pages beyond the first batch aren't dropped.
+  while (skip < total) {
+    const res = await client.getEntries<TypePageSkeleton>({
+      content_type: "page",
+      include: 10,
+      limit,
+      skip,
+    });
+    all.push(...res.items);
+    total = res.total;
+    if (res.items.length === 0) break;
+    skip += res.items.length;
+  }
+  return all;
 }
 
 export { getAllBlogs, getBlogBySlug };

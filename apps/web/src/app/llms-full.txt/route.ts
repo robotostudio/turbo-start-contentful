@@ -11,6 +11,9 @@ const HEADERS = {
   "cache-control": "public, s-maxage=3600, stale-while-revalidate=86400",
 } as const;
 
+// Re-run the Contentful fetches at most hourly (matches the Cache-Control TTL).
+export const revalidate = 3600;
+
 export async function GET(): Promise<Response> {
   const [settings, pages, blogs] = await Promise.allSettled([
     getGlobalSettings(),
@@ -18,11 +21,22 @@ export async function GET(): Promise<Response> {
     getAllBlogs(),
   ]);
 
+  if (settings.status === "rejected") {
+    console.error("llms-full.txt: settings fetch failed", settings.reason);
+  }
   if (pages.status === "rejected") {
     console.error("llms-full.txt: pages fetch failed", pages.reason);
   }
   if (blogs.status === "rejected") {
     console.error("llms-full.txt: blog fetch failed", blogs.reason);
+  }
+
+  // Both content sources failing is a transient upstream error, not empty content.
+  if (pages.status === "rejected" && blogs.status === "rejected") {
+    return new Response("Upstream content fetch failed\n", {
+      status: 503,
+      headers: { "content-type": "text/plain; charset=utf-8" },
+    });
   }
 
   const siteTitle =

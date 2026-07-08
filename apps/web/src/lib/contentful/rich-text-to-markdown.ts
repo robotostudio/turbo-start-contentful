@@ -82,10 +82,21 @@ function hasMark(node: Text, type: string): boolean {
   return node.marks.some((mark) => mark.type === type);
 }
 
+/** Wraps a code span in a backtick fence longer than any run inside it. */
+function codeSpan(value: string): string {
+  const runs = value.match(/`+/g);
+  const fence = "`".repeat(
+    (runs ? Math.max(...runs.map((r) => r.length)) : 0) + 1,
+  );
+  // Pad when the value starts/ends with a backtick so the fence stays distinct.
+  const pad = value.startsWith("`") || value.endsWith("`") ? " " : "";
+  return `${fence}${pad}${value}${pad}${fence}`;
+}
+
 function renderText(node: Text): string {
   // Code spans are literal — don't escape inside backticks.
   let text = hasMark(node, MARKS.CODE)
-    ? `\`${node.value}\``
+    ? codeSpan(node.value)
     : escapeMarkdown(node.value);
   if (hasMark(node, MARKS.BOLD)) {
     text = `**${text}**`;
