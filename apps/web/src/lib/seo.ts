@@ -50,6 +50,11 @@ function generateOgImageUrl(params: OgImageParams = {}): string {
   return `${baseUrl}/api/og?${searchParams.toString()}`;
 }
 
+/** Ensures a slug has a single leading slash. */
+function normalizeSlug(slug: string): string {
+  return slug.startsWith("/") ? slug : `/${slug}`;
+}
+
 function buildPageUrl({
   baseUrl,
   slug,
@@ -57,8 +62,18 @@ function buildPageUrl({
   baseUrl: string;
   slug: string;
 }): string {
-  const normalizedSlug = slug.startsWith("/") ? slug : `/${slug}`;
-  return `${baseUrl}${normalizedSlug}`;
+  return `${baseUrl}${normalizeSlug(slug)}`;
+}
+
+/** The URL of a page's Markdown twin (`/` → `/index.md`, else `<slug>.md`). */
+function buildMarkdownUrl({
+  baseUrl,
+  slug,
+}: {
+  baseUrl: string;
+  slug: string;
+}): string {
+  return `${baseUrl}${slug === "/" ? "/index.md" : `${normalizeSlug(slug)}.md`}`;
 }
 
 function extractTitle({
@@ -89,6 +104,8 @@ export function getSEOMetadata(page: PageSeoData = {}): Metadata {
 
   const baseUrl = getBaseUrl();
   const pageUrl = buildPageUrl({ baseUrl, slug });
+  // Advertise the Markdown twin so agents can discover content negotiation.
+  const markdownUrl = buildMarkdownUrl({ baseUrl, slug });
 
   // Build default metadata values
   const defaultTitle = extractTitle({
@@ -130,6 +147,7 @@ export function getSEOMetadata(page: PageSeoData = {}): Metadata {
     },
     alternates: {
       canonical: pageUrl,
+      types: { "text/markdown": markdownUrl },
     },
     openGraph: {
       type: "website",

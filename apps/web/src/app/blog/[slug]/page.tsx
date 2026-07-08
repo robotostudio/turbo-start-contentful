@@ -24,7 +24,8 @@ export async function generateMetadata({
   const metadata = getSEOMetadata({
     title,
     description,
-    slug: blogSlug,
+    // Full path so canonical + Markdown alternate resolve (posts live at /blog/*).
+    slug: blogSlug ? `/blog/${blogSlug.replace(/^\//, "")}` : "/blog",
     contentId: contentId,
     contentType: contentType?.sys?.id,
     ...(seoNoIndex !== undefined && { seoNoIndex }),
