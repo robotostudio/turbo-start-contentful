@@ -9,6 +9,9 @@ const HEADERS = {
   "cache-control": "public, s-maxage=3600, stale-while-revalidate=86400",
 } as const;
 
+// Re-run the Contentful fetches at most hourly (matches the Cache-Control TTL).
+export const revalidate = 3600;
+
 function slugToTitle(slug: string): string {
   return (
     slug

@@ -80,3 +80,7 @@ export async function GET(
     },
   });
 }
+
+// HEAD reuses GET so proxied HEAD requests get identical headers/status
+// (explicit rather than relying on Next's implicit GET→HEAD fallback).
+export { GET as HEAD };
