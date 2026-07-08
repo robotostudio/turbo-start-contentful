@@ -50,6 +50,11 @@ function generateOgImageUrl(params: OgImageParams = {}): string {
   return `${baseUrl}/api/og?${searchParams.toString()}`;
 }
 
+/** Ensures a slug has a single leading slash. */
+function normalizeSlug(slug: string): string {
+  return slug.startsWith("/") ? slug : `/${slug}`;
+}
+
 function buildPageUrl({
   baseUrl,
   slug,
@@ -57,8 +62,7 @@ function buildPageUrl({
   baseUrl: string;
   slug: string;
 }): string {
-  const normalizedSlug = slug.startsWith("/") ? slug : `/${slug}`;
-  return `${baseUrl}${normalizedSlug}`;
+  return `${baseUrl}${normalizeSlug(slug)}`;
 }
 
 function extractTitle({
@@ -90,8 +94,7 @@ export function getSEOMetadata(page: PageSeoData = {}): Metadata {
   const baseUrl = getBaseUrl();
   const pageUrl = buildPageUrl({ baseUrl, slug });
   // Advertise the Markdown twin so agents can discover content negotiation.
-  const normalizedSlug = slug.startsWith("/") ? slug : `/${slug}`;
-  const markdownUrl = `${baseUrl}${slug === "/" ? "/index.md" : `${normalizedSlug}.md`}`;
+  const markdownUrl = `${baseUrl}${slug === "/" ? "/index.md" : `${normalizeSlug(slug)}.md`}`;
 
   // Build default metadata values
   const defaultTitle = extractTitle({
