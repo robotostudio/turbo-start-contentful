@@ -91,7 +91,7 @@ The root layout (`apps/web/src/app/layout.tsx:44`) reads `draftMode()` and toggl
 
 ### Markdown content negotiation (LLM/agent output)
 
-Any page is available as clean Markdown via two surfaces: append **`.md`** to the URL (`/about.md`, `/blog/post.md`, `/index.md`) **or** send **`Accept: text/markdown`** (q-value aware — `;q=0` returns HTML). Plain requests are untouched.
+Any page is available as clean Markdown via two surfaces: append **`.md`** to the URL (`/about.md`, `/blog/post.md`, `/index.md`) **or** send **`Accept: text/markdown`** — `lib/markdown-path.ts` also treats **`Accept: text/plain`** as a Markdown signal (agents like Claude Code send it; browsers never do). Negotiation is q-value aware (`;q=0` returns HTML). Plain requests are untouched.
 
 Markdown is built by **serializing the structured Contentful data, never by stripping rendered React** — so page-builder blocks degrade to semantic Markdown (`## question` + answer) and a component can never leak as a tag. Flow:
 - `apps/web/src/proxy.ts` (Next 16 proxy) detects `.md`/`Accept` and rewrites to `api/markdown/route.ts`, forwarding the content path via the `x-markdown-path` header.
