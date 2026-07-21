@@ -413,7 +413,7 @@ export function NavbarSkeletonResponsive() {
     <motion.section className="py-3 z-20 fixed top-0 inset-x-0">
       <div className="container">
         <nav className="flex h-12 items-center justify-between gap-4">
-          <div className="h-[32px] w-[167px] rounded animate-pulse bg-muted" />
+          <div className="h-8 w-[167px] rounded animate-pulse bg-muted" />
           <SkeletonDesktopNavbar />
           <SkeletonMobileNavbar />
         </nav>

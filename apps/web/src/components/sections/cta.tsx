@@ -74,8 +74,8 @@ export function CTABlock(props: CTABlockProps) {
             )}
           </div>
         </div>
-        <div className="absolute top-10 -left-10 w-48 h-80 opacity-75 bg-gradient-to-b from-zinc-300 via-purple-400 to-rose-300 dark:from-orange-800 dark:via-red-600 dark:to-slate-600 rounded-full blur-[100px] z-0" />
-        <div className="absolute bottom-0 -right-10 w-48 h-80 opacity-75 bg-gradient-to-b from-stone-300 to-emerald-200 dark:from-[#64a51ad6] dark:to-[#689516] rounded-full blur-[100px]" />
+        <div className="absolute top-10 -left-10 w-48 h-80 opacity-75 bg-linear-to-b from-zinc-300 via-purple-400 to-rose-300 dark:from-orange-800 dark:via-red-600 dark:to-slate-600 rounded-full blur-[100px] z-0" />
+        <div className="absolute bottom-0 -right-10 w-48 h-80 opacity-75 bg-linear-to-b from-stone-300 to-emerald-200 dark:from-[#64a51ad6] dark:to-[#689516] rounded-full blur-[100px]" />
       </div>
     </section>
   );

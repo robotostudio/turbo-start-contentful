@@ -1,12 +1,13 @@
 "use client";
 
 import { Accordion as AccordionPrimitive } from "@base-ui/react/accordion";
+import { cn } from "@workspace/ui/lib/utils";
 import { Plus } from "lucide-react";
 import type * as React from "react";
 
-import { cn } from "@workspace/ui/lib/utils";
-
-function Accordion(props: React.ComponentProps<typeof AccordionPrimitive.Root>) {
+function Accordion(
+  props: React.ComponentProps<typeof AccordionPrimitive.Root>,
+) {
   return <AccordionPrimitive.Root data-slot="accordion" {...props} />;
 }
 
@@ -52,7 +53,7 @@ function AccordionContent({
 }: React.ComponentProps<typeof AccordionPrimitive.Panel>) {
   return (
     <AccordionPrimitive.Panel
-      className="h-[var(--accordion-panel-height)] overflow-hidden text-sm transition-[height] duration-200 ease-out data-ending-style:h-0 data-starting-style:h-0"
+      className="h-(--accordion-panel-height) overflow-hidden text-sm transition-[height] duration-200 ease-out data-ending-style:h-0 data-starting-style:h-0"
       data-slot="accordion-content"
       {...props}
     >

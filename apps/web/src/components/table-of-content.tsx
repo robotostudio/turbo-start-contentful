@@ -415,7 +415,7 @@ export const TableOfContent: FC<TableOfContentProps> = ({
     <aside
       className={cn(
         "sticky top-8 flex flex-col w-full max-w-xs p-4",
-        "bg-gradient-to-b from-zinc-50 to-zinc-100",
+        "bg-linear-to-b from-zinc-50 to-zinc-100",
         "dark:from-zinc-800 dark:to-zinc-900",
         "shadow-xs rounded-lg border border-zinc-300 dark:border-zinc-700",
         "transition-all duration-200",
