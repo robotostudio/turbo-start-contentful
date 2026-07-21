@@ -283,7 +283,7 @@ function useTableOfContentState(
 ): TableOfContentState {
   return useMemo(() => {
     try {
-      if (!richText || !richText.content || !Array.isArray(richText.content)) {
+      if (!richText?.content || !Array.isArray(richText.content)) {
         return {
           shouldShow: false,
           headings: [],
@@ -422,7 +422,6 @@ export const TableOfContent: FC<TableOfContentProps> = ({
         className,
       )}
       aria-label="Table of contents"
-      role="complementary"
     >
       <details className="group" open>
         <summary
@@ -433,7 +432,6 @@ export const TableOfContent: FC<TableOfContentProps> = ({
             "transition-colors duration-200 focus:outline-hidden",
             "rounded-xs p-1",
           )}
-          aria-expanded="true"
         >
           <span>Table of Contents</span>
           <ChevronDown
