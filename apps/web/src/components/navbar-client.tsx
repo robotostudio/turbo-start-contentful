@@ -6,7 +6,18 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@workspace/ui/components/accordion";
-import { Button, buttonVariants } from "@workspace/ui/components/button";
+import {
+  Drawer,
+  DrawerBackdrop,
+  DrawerClose,
+  DrawerContent,
+  DrawerPopup,
+  DrawerPortal,
+  DrawerTitle,
+  DrawerTrigger,
+  DrawerViewport,
+} from "@workspace/ui/components/base-drawer";
+import { Button } from "@workspace/ui/components/button";
 import {
   NavigationMenu,
   NavigationMenuContent,
@@ -14,24 +25,16 @@ import {
   NavigationMenuLink,
   NavigationMenuList,
   NavigationMenuTrigger,
-  navigationMenuTriggerStyle,
 } from "@workspace/ui/components/navigation-menu";
-import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-} from "@workspace/ui/components/sheet";
+import { useMediaQuery } from "@workspace/ui/hooks/use-media-query";
 import { cn } from "@workspace/ui/lib/utils";
-import { Menu } from "lucide-react";
+import { Menu, X } from "lucide-react";
 import { motion, useMotionValueEvent, useScroll } from "motion/react";
 import dynamic from "next/dynamic";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 
-import { useIsMobile } from "@/hooks/use-is-mobile";
 import type { GlobalSettings } from "@/lib/contentful/query";
 import type {
   TypeNavbarColumnLink,
@@ -41,16 +44,7 @@ import type {
 import { ContentfulButtons } from "./contentful-button";
 import { Logo } from "./logo";
 import { ModeToggle } from "./mode-toggle";
-// import { SanityIcon } from "./sanity-icon";
 
-interface MenuItem {
-  title: string;
-  description: string;
-  icon: React.ReactNode;
-  href?: string;
-}
-
-// Type definitions for navbar columns
 type NavbarColumn =
   | TypeNavbarColumnLink<"WITHOUT_UNRESOLVABLE_LINKS">
   | TypeNavbarLink<"WITHOUT_UNRESOLVABLE_LINKS">;
@@ -62,182 +56,27 @@ type NavbarLinkItem = Extract<
   NavbarColumn,
   { sys: { contentType: { sys: { id: "navbarLink" } } } }
 >;
-
-// Extract the links from navbar column
 type NavbarLinkType = NonNullable<NavbarColumnLink["fields"]["links"]>[number];
 
-function MenuItemLink({
-  item,
-  setIsOpen,
-}: {
-  item: MenuItem;
-  setIsOpen?: (isOpen: boolean) => void;
-}) {
-  return (
-    <Link
-      className={cn(
-        "flex select-none gap-4 rounded-md p-3 leading-none outline-hidden transition-colors hover:bg-accent hover:text-accent-foreground items-center focus:bg-accent focus:text-accent-foreground",
-      )}
-      aria-label={`Link to ${item.title ?? item.href}`}
-      onClick={() => setIsOpen?.(false)}
-      href={item.href ?? "/"}
-    >
-      {item.icon}
-      <div className="">
-        <div className="text-sm font-semibold">{item.title}</div>
-        <p className="text-sm leading-snug text-muted-foreground line-clamp-2">
-          {item.description}
-        </p>
-      </div>
-    </Link>
-  );
-}
+const FOCUS_RING =
+  "outline-hidden focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-inset";
 
-function MobileNavbarAccordionColumn({
-  column,
-  setIsOpen,
-}: {
-  column: NavbarColumnLink;
-  setIsOpen: (isOpen: boolean) => void;
-}) {
-  return (
-    <AccordionItem
-      value={column.fields.label ?? column.sys.id}
-      className="border-b-0"
-    >
-      <AccordionTrigger className="mb-4 py-0 font-semibold hover:no-underline hover:bg-accent hover:text-accent-foreground pr-2 rounded-md">
-        <div
-          className={cn(
-            buttonVariants({ variant: "ghost" }),
-            "justify-start px-2",
-          )}
-        >
-          {column.fields.label}
-        </div>
-      </AccordionTrigger>
-      <AccordionContent className="mt-2">
-        {column.fields.links?.map((item: NavbarLinkType) => {
-          if (!item?.fields) return null;
-          return (
-            <MenuItemLink
-              key={item.sys.id}
-              setIsOpen={setIsOpen}
-              item={{
-                description: item.fields.label ?? "",
-                href: item.fields.href ?? "",
-                // icon: <SanityIcon icon={null} className="size-5 shrink-0" />,
-                icon: null,
-                title: item.fields.label ?? "",
-              }}
-            />
-          );
-        })}
-      </AccordionContent>
-    </AccordionItem>
-  );
-}
+const TRIGGER_CLASS =
+  "h-auto bg-transparent px-3 py-2 text-foreground hover:bg-transparent hover:text-foreground focus:bg-transparent focus:text-foreground data-popup-open:bg-transparent data-popup-open:text-foreground";
 
-function MobileNavbar({ settingsData }: { settingsData: GlobalSettings }) {
-  const { siteTitle, logo } = settingsData?.fields ?? {};
-  const { columns, buttons } = settingsData?.fields?.navbar?.fields ?? {};
-  const [isOpen, setIsOpen] = useState(false);
+const TABLET_QUERY = "(min-width: 768px) and (max-width: 1024px)";
 
-  const path = usePathname();
+const VIEWPORT_ANCHOR = {
+  bottom: "items-end justify-center",
+  right: "items-stretch justify-end",
+} as const;
 
-  // biome-ignore lint/correctness/useExhaustiveDependencies: This is intentional
-  useEffect(() => {
-    setIsOpen(false);
-  }, [path]);
-  return (
-    <div className="flex items-center justify-between w-full">
-      <Logo logo={logo} alt={siteTitle} />
-      <Sheet open={isOpen} onOpenChange={setIsOpen}>
-        <div className="flex justify-end">
-          <SheetTrigger asChild>
-            <Button variant="outline" size="icon">
-              <Menu className="size-4" />
-              <span className="sr-only">Open menu</span>
-            </Button>
-          </SheetTrigger>
-        </div>
-        <SheetContent className="overflow-y-auto">
-          <SheetHeader>
-            <SheetTitle>
-              {logo && <Logo alt={siteTitle} logo={logo} />}
-            </SheetTitle>
-          </SheetHeader>
-
-          <div className="mb-8 mt-8 flex flex-col gap-4">
-            {columns?.map((item) => {
-              if (!item) return null;
-
-              if (item.sys.contentType.sys.id === "navbarLink") {
-                const linkItem = item as NavbarLinkItem;
-                return (
-                  <Link
-                    key={`column-link-${linkItem.fields.label}-${linkItem.sys.id}`}
-                    href={linkItem.fields.href ?? ""}
-                    onClick={() => setIsOpen(false)}
-                    className={cn(
-                      buttonVariants({ variant: "ghost" }),
-                      "justify-start px-2",
-                    )}
-                  >
-                    {linkItem.fields.label}
-                  </Link>
-                );
-              }
-
-              if (item.sys.contentType.sys.id === "navbarColumnLink") {
-                const columnItem = item as NavbarColumnLink;
-                return (
-                  <Accordion
-                    type="single"
-                    collapsible
-                    className="w-full"
-                    key={columnItem.sys.id}
-                  >
-                    <MobileNavbarAccordionColumn
-                      column={columnItem}
-                      setIsOpen={setIsOpen}
-                    />
-                  </Accordion>
-                );
-              }
-
-              return null;
-            })}
-          </div>
-
-          <div className="border-t border-border pt-4">
-            <ContentfulButtons
-              buttons={buttons ?? []}
-              buttonClassName="w-full"
-              className="flex mt-2 flex-col gap-3"
-            />
-          </div>
-        </SheetContent>
-      </Sheet>
-    </div>
-  );
-}
-
-function NavbarColumnLink({ column }: { column: NavbarLinkItem }) {
-  return (
-    <NavigationMenuLink asChild>
-      <Link
-        aria-label={`Link to ${column.fields.label ?? column.fields.href}`}
-        href={column.fields.href ?? ""}
-        className={cn(
-          navigationMenuTriggerStyle(),
-          "text-zinc-700 dark:text-zinc-300 bg-transparent",
-        )}
-      >
-        {column.fields.label}
-      </Link>
-    </NavigationMenuLink>
-  );
-}
+const POPUP_SLIDE = {
+  bottom:
+    "h-[90dvh] border-t origin-bottom [transform:translateY(var(--drawer-swipe-movement-y,0px))] data-starting-style:[transform:translateY(100%)] data-ending-style:[transform:translateY(100%)]",
+  right:
+    "h-dvh max-w-md border-s origin-right [transform:translateX(var(--drawer-swipe-movement-x,0px))] data-starting-style:[transform:translateX(100%)] data-ending-style:[transform:translateX(100%)]",
+} as const;
 
 function getColumnLayoutClass(itemCount: number) {
   if (itemCount <= 4) return "w-80";
@@ -245,77 +84,259 @@ function getColumnLayoutClass(itemCount: number) {
   return "grid grid-cols-3 gap-2 w-[700px]";
 }
 
-export function NavbarColumn({ column }: { column: NavbarColumnLink }) {
+function DesktopColumn({ column }: { column: NavbarColumnLink }) {
   return (
-    <NavigationMenuList>
-      <NavigationMenuItem className="text-zinc-700 dark:text-zinc-300 bg-transparent">
-        <NavigationMenuTrigger className="bg-transparent">
-          {column.fields.label}
-        </NavigationMenuTrigger>
-        <NavigationMenuContent>
-          <ul
-            className={cn(
-              "p-3",
-              getColumnLayoutClass(column.fields.links?.length ?? 0),
-            )}
-          >
-            {column.fields.links?.map((item: NavbarLinkType) => {
-              if (!item?.fields) return null;
-              return (
-                <li key={item.sys.id}>
-                  <MenuItemLink
-                    item={{
-                      title: item.fields.label ?? "",
-                      description: item.fields.label ?? "",
-                      href: item.fields.href ?? "",
-                      icon: null,
-                    }}
-                  />
-                </li>
-              );
-            })}
-          </ul>
-        </NavigationMenuContent>
-      </NavigationMenuItem>
-    </NavigationMenuList>
+    <NavigationMenuItem>
+      <NavigationMenuTrigger className={TRIGGER_CLASS}>
+        {column.fields.label}
+      </NavigationMenuTrigger>
+      <NavigationMenuContent>
+        <ul
+          className={cn(
+            "p-1",
+            getColumnLayoutClass(column.fields.links?.length ?? 0),
+          )}
+        >
+          {column.fields.links?.map((item: NavbarLinkType) => {
+            if (!item?.fields) return null;
+            return (
+              <li key={item.sys.id}>
+                <NavigationMenuLink
+                  className="group items-center gap-3 rounded-md p-3 transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:ring-inset focus-visible:ring-offset-0"
+                  closeOnClick
+                  render={
+                    <Link
+                      aria-label={`Link to ${item.fields.label ?? item.fields.href}`}
+                      href={item.fields.href ?? "/"}
+                    />
+                  }
+                >
+                  <span className="font-medium text-sm leading-none">
+                    {item.fields.label}
+                  </span>
+                </NavigationMenuLink>
+              </li>
+            );
+          })}
+        </ul>
+      </NavigationMenuContent>
+    </NavigationMenuItem>
   );
 }
 
-export function DesktopNavbar({
-  settingsData,
-}: {
-  settingsData: GlobalSettings;
-}) {
-  const { logo, siteTitle } = settingsData?.fields ?? {};
+function DesktopColumnLink({ column }: { column: NavbarLinkItem }) {
+  if (!column.fields.href) return null;
+  return (
+    <NavigationMenuItem>
+      <NavigationMenuLink
+        className="h-auto items-center rounded-md px-3 py-2 font-medium text-sm text-foreground transition-colors hover:text-foreground"
+        render={
+          <Link
+            aria-label={`Link to ${column.fields.label ?? column.fields.href}`}
+            href={column.fields.href}
+          />
+        }
+      >
+        {column.fields.label}
+      </NavigationMenuLink>
+    </NavigationMenuItem>
+  );
+}
+
+function DesktopNavbar({ settingsData }: { settingsData: GlobalSettings }) {
   const { columns, buttons } = settingsData?.fields?.navbar?.fields ?? {};
 
   return (
-    <div className="flex items-center justify-between w-full">
-      <Logo logo={logo} alt={siteTitle} />
-      <NavigationMenu className="">
-        {columns?.map((column) =>
-          column?.sys.contentType.sys.id === "navbarColumnLink" ? (
-            <NavbarColumn
-              key={`nav-${column.sys.id}`}
-              column={column as NavbarColumnLink}
-            />
-          ) : (
-            <NavbarColumnLink
-              key={`nav-${column?.sys.id}`}
-              column={column as NavbarLinkItem}
-            />
-          ),
-        )}
+    <>
+      <NavigationMenu
+        aria-label="Main"
+        className="hidden lg:flex"
+        closeDelay={150}
+        viewport
+      >
+        <NavigationMenuList>
+          {columns?.map((column) => {
+            if (!column) return null;
+            if (column.sys.contentType.sys.id === "navbarColumnLink") {
+              return (
+                <DesktopColumn
+                  column={column as NavbarColumnLink}
+                  key={column.sys.id}
+                />
+              );
+            }
+            return (
+              <DesktopColumnLink
+                column={column as NavbarLinkItem}
+                key={column.sys.id}
+              />
+            );
+          })}
+        </NavigationMenuList>
       </NavigationMenu>
 
-      <div className="justify-self-end flex items-center gap-4">
+      <div className="hidden items-center gap-4 lg:flex">
         <ContentfulButtons
           buttons={buttons}
-          className="flex items-center gap-4"
           buttonClassName="rounded-[10px]"
+          className="flex items-center gap-4"
         />
         <ModeToggle />
       </div>
+    </>
+  );
+}
+
+function MobileNavbar({ settingsData }: { settingsData: GlobalSettings }) {
+  const { siteTitle, logo } = settingsData?.fields ?? {};
+  const { columns, buttons } = settingsData?.fields?.navbar?.fields ?? {};
+
+  const [isOpen, setIsOpen] = useState(false);
+  const isTablet = useMediaQuery(TABLET_QUERY);
+  const liveSide = isTablet ? "right" : "bottom";
+  // Freeze the anchor at open-time and keep it for the whole session, so crossing
+  // the breakpoint (e.g. a tablet rotation) or closing never re-anchors a visible
+  // panel — re-anchoring on close would jump the sheet mid-exit-animation.
+  const [side, setSide] = useState<"bottom" | "right">(liveSide);
+
+  const path = usePathname();
+
+  useEffect(() => {
+    setIsOpen(false);
+  }, [path]);
+
+  function handleOpenChange(next: boolean) {
+    if (next) {
+      setSide(liveSide);
+    }
+    setIsOpen(next);
+  }
+
+  function closeMenu() {
+    setIsOpen(false);
+  }
+
+  return (
+    <div className="flex items-center gap-2 lg:hidden">
+      <ModeToggle />
+      <Drawer
+        onOpenChange={handleOpenChange}
+        open={isOpen}
+        swipeDirection={side === "right" ? "right" : "down"}
+      >
+        <DrawerTrigger
+          render={
+            <Button size="icon" variant="outline">
+              <Menu className="size-4" />
+              <span className="sr-only">Open menu</span>
+            </Button>
+          }
+        />
+
+        <DrawerPortal>
+          <DrawerBackdrop />
+          <DrawerViewport className={VIEWPORT_ANCHOR[side]}>
+            <DrawerPopup
+              className={cn(
+                "w-full pb-[env(safe-area-inset-bottom)]",
+                POPUP_SLIDE[side],
+              )}
+            >
+              <DrawerContent>
+                <div className="flex flex-row items-center justify-between border-b px-6 py-4">
+                  <DrawerTitle className={logo ? "sr-only" : "font-semibold"}>
+                    {siteTitle || "Menu"}
+                  </DrawerTitle>
+                  {logo ? <Logo alt={siteTitle} logo={logo} /> : null}
+                  <DrawerClose
+                    className={cn(
+                      "rounded-sm opacity-70 transition-opacity hover:opacity-100",
+                      FOCUS_RING,
+                    )}
+                  >
+                    <X className="size-5" />
+                    <span className="sr-only">Close</span>
+                  </DrawerClose>
+                </div>
+
+                <nav
+                  aria-label="Main"
+                  className="grid flex-1 content-start gap-1 overflow-y-auto px-6 pt-4"
+                >
+                  <Accordion multiple={false}>
+                    {columns?.map((column) => {
+                      if (!column) return null;
+
+                      if (column.sys.contentType.sys.id === "navbarLink") {
+                        const linkItem = column as NavbarLinkItem;
+                        if (!linkItem.fields.href) return null;
+                        return (
+                          <Link
+                            className={cn(
+                              "-mx-3 flex items-center rounded-md px-3 py-3 font-medium text-sm transition-colors hover:text-primary",
+                              FOCUS_RING,
+                            )}
+                            href={linkItem.fields.href}
+                            key={linkItem.sys.id}
+                            onClick={closeMenu}
+                          >
+                            {linkItem.fields.label}
+                          </Link>
+                        );
+                      }
+
+                      const columnItem = column as NavbarColumnLink;
+                      return (
+                        <AccordionItem
+                          className="border-b-0"
+                          key={columnItem.sys.id}
+                          value={columnItem.sys.id}
+                        >
+                          <AccordionTrigger className="-mx-3 rounded-md px-3 py-3 hover:no-underline">
+                            {columnItem.fields.label}
+                          </AccordionTrigger>
+                          <AccordionContent>
+                            <div className="ml-1 grid gap-1 border-border border-l-2 pl-4">
+                              {columnItem.fields.links?.map(
+                                (item: NavbarLinkType) => {
+                                  if (!item?.fields) return null;
+                                  return (
+                                    <Link
+                                      className={cn(
+                                        "rounded-md px-3 py-2 text-sm transition-colors hover:bg-accent hover:text-accent-foreground",
+                                        FOCUS_RING,
+                                      )}
+                                      href={item.fields.href ?? "/"}
+                                      key={item.sys.id}
+                                      onClick={closeMenu}
+                                    >
+                                      {item.fields.label}
+                                    </Link>
+                                  );
+                                },
+                              )}
+                            </div>
+                          </AccordionContent>
+                        </AccordionItem>
+                      );
+                    })}
+                  </Accordion>
+                </nav>
+
+                {buttons?.length ? (
+                  <div className="mt-auto grid gap-2 border-t p-4">
+                    <ContentfulButtons
+                      buttonClassName="w-full justify-center"
+                      buttons={buttons}
+                      className="grid gap-3"
+                    />
+                  </div>
+                ) : null}
+              </DrawerContent>
+            </DrawerPopup>
+          </DrawerViewport>
+        </DrawerPortal>
+      </Drawer>
     </div>
   );
 }
@@ -325,7 +346,6 @@ const ClientSideNavbar = ({
 }: {
   settingsData: GlobalSettings;
 }) => {
-  const isMobile = useIsMobile();
   const { scrollYProgress } = useScroll();
   const [isScrolled, setIsScrolled] = useState(false);
 
@@ -335,9 +355,7 @@ const ClientSideNavbar = ({
     }
   });
 
-  if (isMobile === undefined) {
-    return null; // Return null on initial render to avoid hydration mismatch
-  }
+  const { logo, siteTitle } = settingsData?.fields ?? {};
 
   return (
     <motion.section
@@ -347,12 +365,10 @@ const ClientSideNavbar = ({
       )}
     >
       <div className="container">
-        <nav className="flex items-center justify-between gap-4">
-          {isMobile ? (
-            <MobileNavbar settingsData={settingsData} />
-          ) : (
-            <DesktopNavbar settingsData={settingsData} />
-          )}
+        <nav className="flex h-12 items-center justify-between gap-4">
+          <Logo alt={siteTitle} logo={logo} />
+          <DesktopNavbar settingsData={settingsData} />
+          <MobileNavbar settingsData={settingsData} />
         </nav>
       </div>
     </motion.section>
@@ -361,39 +377,32 @@ const ClientSideNavbar = ({
 
 function SkeletonMobileNavbar() {
   return (
-    <div className="md:hidden flex items-center justify-between w-full">
-      <div className="h-[32px] w-[167px] rounded animate-pulse bg-muted" />
-      <div className="flex justify-end">
-        <div className="h-12 w-12 rounded-md bg-muted animate-pulse" />
-      </div>
+    <div className="lg:hidden flex items-center gap-2">
+      <div className="h-10 w-10 rounded-md bg-muted animate-pulse" />
+      <div className="h-10 w-10 rounded-md bg-muted animate-pulse" />
     </div>
   );
 }
 
 function SkeletonDesktopNavbar() {
   return (
-    <div className="hidden md:flex items-center justify-between w-full">
-      <div className="h-[32px] w-[167px] rounded animate-pulse bg-muted" />
-      <div className="flex items-center gap-8">
-        <div className="justify-center flex max-w-max flex-1 items-center gap-2">
-          {Array.from({ length: 2 }).map((_, index) => (
-            <div
-              key={`nav-item-skeleton-${index.toString()}`}
-              className="h-12 w-32 rounded bg-muted animate-pulse"
-            />
-          ))}
-        </div>
-
-        <div className="justify-self-end">
-          <div className="flex items-center gap-4">
-            {Array.from({ length: 2 }).map((_, index) => (
-              <div
-                key={`nav-button-skeleton-${index.toString()}`}
-                className="h-12 w-32 rounded-[10px] bg-muted animate-pulse"
-              />
-            ))}
-          </div>
-        </div>
+    <div className="hidden lg:flex items-center gap-8">
+      <div className="justify-center flex max-w-max flex-1 items-center gap-2">
+        {Array.from({ length: 2 }).map((_, index) => (
+          <div
+            key={`nav-item-skeleton-${index.toString()}`}
+            className="h-9 w-24 rounded bg-muted animate-pulse"
+          />
+        ))}
+      </div>
+      <div className="flex items-center gap-4">
+        <div className="h-10 w-10 rounded-[10px] bg-muted animate-pulse" />
+        {Array.from({ length: 2 }).map((_, index) => (
+          <div
+            key={`nav-button-skeleton-${index.toString()}`}
+            className="h-10 w-28 rounded-[10px] bg-muted animate-pulse"
+          />
+        ))}
       </div>
     </div>
   );
@@ -403,16 +412,16 @@ export function NavbarSkeletonResponsive() {
   return (
     <motion.section className="py-3 z-20 fixed top-0 inset-x-0">
       <div className="container">
-        <nav className="flex items-center justify-between gap-4">
-          <SkeletonMobileNavbar />
+        <nav className="flex h-12 items-center justify-between gap-4">
+          <div className="h-[32px] w-[167px] rounded animate-pulse bg-muted" />
           <SkeletonDesktopNavbar />
+          <SkeletonMobileNavbar />
         </nav>
       </div>
     </motion.section>
   );
 }
 
-// Dynamically import the navbar with no SSR to avoid hydration issues
 export const NavbarClient = dynamic(() => Promise.resolve(ClientSideNavbar), {
   ssr: false,
   loading: () => <NavbarSkeletonResponsive />,
