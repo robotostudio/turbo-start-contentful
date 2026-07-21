@@ -102,7 +102,7 @@ function DesktopColumn({ column }: { column: NavbarColumnLink }) {
             return (
               <li key={item.sys.id}>
                 <NavigationMenuLink
-                  className="group items-center gap-3 rounded-md p-3 transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:ring-inset focus-visible:ring-offset-0"
+                  className="group items-center gap-3 rounded-lg p-3 transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:ring-inset focus-visible:ring-offset-0"
                   closeOnClick
                   render={
                     <Link

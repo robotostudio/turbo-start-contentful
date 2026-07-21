@@ -30,11 +30,11 @@ function NavigationMenu({
         <NavMenuPrimitive.Portal>
           <NavMenuPrimitive.Positioner
             align="center"
-            className="isolate z-50 h-[var(--positioner-height)] w-[var(--positioner-width)] max-w-[var(--available-width)] transition-[top,left,right,bottom] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] before:absolute before:inset-x-0 before:-top-6 before:h-6 before:content-[''] data-instant:transition-none"
+            className="isolate z-50 h-(--positioner-height) w-(--positioner-width) max-w-(--available-width) transition-[top,left,right,bottom] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] before:absolute before:inset-x-0 before:-top-6 before:h-6 before:content-[''] data-instant:transition-none"
             collisionPadding={16}
             sideOffset={22}
           >
-            <NavMenuPrimitive.Popup className="relative h-[var(--popup-height)] w-[var(--popup-width)] origin-[var(--transform-origin)] overflow-hidden rounded-md border border-border bg-popover text-popover-foreground shadow-sm outline-none transition-[opacity,transform,width,height,scale,translate] duration-[350ms] ease-[cubic-bezier(0.22,1,0.36,1)] data-ending-style:scale-95 data-starting-style:scale-95 data-ending-style:opacity-0 data-starting-style:opacity-0 data-ending-style:duration-150">
+            <NavMenuPrimitive.Popup className="relative h-(--popup-height) w-(--popup-width) origin-(--transform-origin) overflow-hidden rounded-xl border border-border bg-popover text-popover-foreground shadow-sm outline-none transition-[opacity,transform,width,height,scale,translate] duration-350 ease-[cubic-bezier(0.22,1,0.36,1)] data-ending-style:scale-95 data-starting-style:scale-95 data-ending-style:opacity-0 data-starting-style:opacity-0 data-ending-style:duration-150">
               <NavMenuPrimitive.Viewport
                 className="relative size-full overflow-hidden"
                 data-slot="navigation-menu-viewport"
