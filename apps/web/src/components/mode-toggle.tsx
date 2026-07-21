@@ -4,7 +4,8 @@ import { Button } from "@workspace/ui/components/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
-  DropdownMenuItem,
+  DropdownMenuRadioGroup,
+  DropdownMenuRadioItem,
   DropdownMenuTrigger,
 } from "@workspace/ui/components/dropdown-menu";
 import { Check, Moon, Sun } from "lucide-react";
@@ -37,17 +38,22 @@ export function ModeToggle() {
         }
       />
       <DropdownMenuContent align="end">
-        {THEMES.map(({ id, value, label }) => (
-          <DropdownMenuItem
-            key={id}
-            onClick={() => setTheme(value)}
-            className="flex items-center justify-between"
-            aria-current={mounted && theme === value ? "true" : undefined}
-          >
-            {label}
-            {mounted && theme === value && <Check className="ml-2 h-4 w-4" />}
-          </DropdownMenuItem>
-        ))}
+        <DropdownMenuRadioGroup
+          value={mounted ? theme : ""}
+          onValueChange={(next) => setTheme(String(next))}
+        >
+          {THEMES.map(({ id, value, label }) => (
+            <DropdownMenuRadioItem
+              key={id}
+              value={value}
+              closeOnClick
+              className="flex items-center justify-between"
+            >
+              {label}
+              {mounted && theme === value && <Check className="ms-2 h-4 w-4" />}
+            </DropdownMenuRadioItem>
+          ))}
+        </DropdownMenuRadioGroup>
       </DropdownMenuContent>
     </DropdownMenu>
   );
