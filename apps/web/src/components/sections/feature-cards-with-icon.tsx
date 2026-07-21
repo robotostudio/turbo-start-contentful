@@ -45,7 +45,6 @@ function FeatureCard({ card }: FeatureCardProps) {
 
   return (
     <div className="rounded-2xl relative p-7 bg-white dark:bg-zinc-900 overflow-hidden z-10 border border-white dark:border-zinc-900">
-      {/* Ellipse 70 */}
       <div
         className={cn(
           "absolute w-[225.65px] h-[261.63px] left-[-41.43px] top-[-52.57px] blur-[50px] rounded-full z-5 pointer-events-none",
@@ -53,7 +52,6 @@ function FeatureCard({ card }: FeatureCardProps) {
         )}
       />
 
-      {/* Ellipse 71 */}
       <div
         className={cn(
           "absolute w-[194.28px] h-[256.82px] left-[269.58px] top-[-15.43px] blur-[37.5px] rounded-full z-5 pointer-events-none",
@@ -61,7 +59,6 @@ function FeatureCard({ card }: FeatureCardProps) {
         )}
       />
 
-      {/* Ellipse 72 */}
       <div
         className={cn(
           "absolute w-[194.28px] h-[256.82px] left-[137.82px] top-[-210.42px] blur-[37.5px] rounded-full z-5 pointer-events-none",
@@ -159,6 +156,7 @@ export function FeatureCardsWithIcon(props: FeatureCardsWithIconProps) {
                   href={cardLink}
                   target="_blank"
                   rel="noopener noreferrer"
+                  className="block rounded-2xl outline-hidden focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-0"
                 >
                   {cardElement}
                 </a>
