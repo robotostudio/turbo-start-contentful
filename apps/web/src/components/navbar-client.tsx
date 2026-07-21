@@ -365,11 +365,11 @@ const ClientSideNavbar = ({
       )}
     >
       <div className="container">
-        <nav className="flex h-12 items-center justify-between gap-4">
+        <div className="flex h-12 items-center justify-between gap-4">
           <Logo alt={siteTitle} logo={logo} />
           <DesktopNavbar settingsData={settingsData} />
           <MobileNavbar settingsData={settingsData} />
-        </nav>
+        </div>
       </div>
     </motion.section>
   );
