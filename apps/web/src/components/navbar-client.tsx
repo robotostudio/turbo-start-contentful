@@ -33,7 +33,7 @@ import { motion, useMotionValueEvent, useScroll } from "motion/react";
 import dynamic from "next/dynamic";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 import type { GlobalSettings } from "@/lib/contentful/query";
 import type {
@@ -200,10 +200,12 @@ function MobileNavbar({ settingsData }: { settingsData: GlobalSettings }) {
   const [side, setSide] = useState<"bottom" | "right">(liveSide);
 
   const path = usePathname();
+  const [prevPath, setPrevPath] = useState(path);
 
-  useEffect(() => {
+  if (path !== prevPath) {
+    setPrevPath(path);
     setIsOpen(false);
-  }, [path]);
+  }
 
   function handleOpenChange(next: boolean) {
     if (next) {
