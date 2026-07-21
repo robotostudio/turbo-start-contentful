@@ -13,7 +13,10 @@ export function Logo({
     return null;
   }
   return (
-    <Link href="/">
+    <Link
+      className="inline-block rounded-md outline-hidden focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+      href="/"
+    >
       <Image
         src={`https:${logo?.fields?.file?.url}`}
         alt={alt ?? "logo"}

@@ -283,7 +283,7 @@ function useTableOfContentState(
 ): TableOfContentState {
   return useMemo(() => {
     try {
-      if (!richText || !richText.content || !Array.isArray(richText.content)) {
+      if (!richText?.content || !Array.isArray(richText.content)) {
         return {
           shouldShow: false,
           headings: [],
@@ -415,14 +415,13 @@ export const TableOfContent: FC<TableOfContentProps> = ({
     <aside
       className={cn(
         "sticky top-8 flex flex-col w-full max-w-xs p-4",
-        "bg-gradient-to-b from-zinc-50 to-zinc-100",
+        "bg-linear-to-b from-zinc-50 to-zinc-100",
         "dark:from-zinc-800 dark:to-zinc-900",
         "shadow-xs rounded-lg border border-zinc-300 dark:border-zinc-700",
         "transition-all duration-200",
         className,
       )}
       aria-label="Table of contents"
-      role="complementary"
     >
       <details className="group" open>
         <summary
@@ -433,7 +432,6 @@ export const TableOfContent: FC<TableOfContentProps> = ({
             "transition-colors duration-200 focus:outline-hidden",
             "rounded-xs p-1",
           )}
-          aria-expanded="true"
         >
           <span>Table of Contents</span>
           <ChevronDown
@@ -445,7 +443,7 @@ export const TableOfContent: FC<TableOfContentProps> = ({
           />
         </summary>
 
-        <nav className="mt-4 ml-3" aria-label="Document outline">
+        <nav className="mt-4 ms-3" aria-label="Document outline">
           <ul className="text-sm space-y-1">
             {headings.map((heading, index) => (
               <TableOfContentAnchor

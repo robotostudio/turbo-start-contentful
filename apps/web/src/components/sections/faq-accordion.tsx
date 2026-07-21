@@ -38,9 +38,9 @@ function FaqItem({
     <details
       name={name}
       open={open}
-      className="faq-disclosure group my-4 rounded-2xl bg-white dark:bg-zinc-900 px-4 py-2 text-lg"
+      className="faq-disclosure group my-4 rounded-2xl bg-white dark:bg-zinc-900 px-4 py-2 text-lg outline-hidden has-[summary:focus-visible]:ring-2 has-[summary:focus-visible]:ring-primary"
     >
-      <summary className="flex cursor-pointer list-none items-center justify-between gap-4 py-2 outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50 [&::-webkit-details-marker]:hidden">
+      <summary className="flex cursor-pointer list-none items-center justify-between gap-4 py-2 outline-hidden [&::-webkit-details-marker]:hidden">
         <h3
           className="font-medium text-base"
           {...inspectorProps({ fieldId: "question" })}
@@ -54,7 +54,10 @@ function FaqItem({
           className="pb-2 text-muted-foreground"
           {...inspectorProps({ fieldId: "answer" })}
         >
-          <ContentfulRichText richText={answer} className="text-sm md:text-base" />
+          <ContentfulRichText
+            richText={answer}
+            className="text-sm md:text-base"
+          />
         </div>
       ) : null}
     </details>
@@ -106,7 +109,10 @@ export function FaqAccordion(props: FaqAccordionProps) {
               <p className="mb-1 text-lg text-zinc-700 dark:text-zinc-400">
                 More questions?
               </p>
-              <Link href={link} className="flex items-center gap-2">
+              <Link
+                href={link}
+                className="flex items-center gap-2 rounded-lg outline-hidden focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+              >
                 <p className="text-lg font-medium leading-7">
                   Get in touch with sales
                 </p>
