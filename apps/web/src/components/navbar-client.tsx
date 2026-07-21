@@ -298,7 +298,7 @@ function MobileNavbar({ settingsData }: { settingsData: GlobalSettings }) {
                             {columnItem.fields.label}
                           </AccordionTrigger>
                           <AccordionContent>
-                            <div className="ml-1 grid gap-1 border-border border-l-2 pl-4">
+                            <div className="ms-1 grid gap-1 border-border border-s-2 ps-4">
                               {columnItem.fields.links?.map(
                                 (item: NavbarLinkType) => {
                                   if (!item?.fields) return null;

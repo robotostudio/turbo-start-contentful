@@ -443,7 +443,7 @@ export const TableOfContent: FC<TableOfContentProps> = ({
           />
         </summary>
 
-        <nav className="mt-4 ml-3" aria-label="Document outline">
+        <nav className="mt-4 ms-3" aria-label="Document outline">
           <ul className="text-sm space-y-1">
             {headings.map((heading, index) => (
               <TableOfContentAnchor
