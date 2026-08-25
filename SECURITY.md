@@ -10,4 +10,4 @@ We currently provide security updates for version 1.x of this project.
 
 ---
 
-Thanks for helping keep this project secure! 
+Thanks for helping keep this project secure!

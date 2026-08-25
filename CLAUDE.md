@@ -23,6 +23,7 @@ pnpm format            # prettier --write across the repo
 ```
 
 App-scoped:
+
 ```bash
 pnpm --filter web dev
 pnpm --filter web lint:fix
@@ -55,6 +56,7 @@ Callers wrap query promises in `safeAsync` (`apps/web/src/safe-async.ts:5`) whic
 ### PageBuilder block registry
 
 `apps/web/src/components/pagebuilder.tsx` — `page` content type holds a `pageBuilder` array of references. The component:
+
 1. Detects unresolved links (renders `UnresolvedBlock`)
 2. Looks up `block.sys.contentType.sys.id` in `BLOCK_COMPONENTS` (currently: `callToAction`, `faqAccordion`, `hero`, `featureCards`)
 3. Renders the matched section component, or `ErrorBlock` if unknown
@@ -64,6 +66,7 @@ Callers wrap query promises in `safeAsync` (`apps/web/src/safe-async.ts:5`) whic
 ### Contentful Live Preview (CRITICAL — read before adding sections)
 
 Every section block under `apps/web/src/components/sections/` MUST:
+
 - Start with `"use client";`
 - Apply `useContentfulLiveUpdates(props)` and read fields off the returned `updatedProps.fields ?? {}`
 - Build `inspectorProps = useContentfulInspectorMode({ entryId: updatedProps.sys.id })`
@@ -81,6 +84,7 @@ The root layout (`apps/web/src/app/layout.tsx:44`) reads `draftMode()` and toggl
 ### Preview / draft API surface
 
 `apps/web/src/app/api/`:
+
 - `draft/route.ts` — local/dev entry: validates `?token=` against `CONTENTFUL_DRAFT_TOKEN`, enables draft mode, redirects to `?path=`.
 - `preview/route.ts` — Vercel-deployed entry from Contentful's preview button. Two auth paths:
   - **Dev** (`NODE_ENV=development`): just enables draft + sets `__prerender_bypass` cookie.
@@ -94,6 +98,7 @@ The root layout (`apps/web/src/app/layout.tsx:44`) reads `draftMode()` and toggl
 Any page is available as clean Markdown via two surfaces: append **`.md`** to the URL (`/about.md`, `/blog/post.md`, `/index.md`) **or** send **`Accept: text/markdown`** — `lib/markdown-path.ts` also treats **`Accept: text/plain`** as a Markdown signal (agents like Claude Code send it; browsers never do). Negotiation is q-value aware (`;q=0` returns HTML). Plain requests are untouched.
 
 Markdown is built by **serializing the structured Contentful data, never by stripping rendered React** — so page-builder blocks degrade to semantic Markdown (`## question` + answer) and a component can never leak as a tag. Flow:
+
 - `apps/web/src/proxy.ts` (Next 16 proxy) detects `.md`/`Accept` and rewrites to `api/markdown/route.ts`, forwarding the content path via the `x-markdown-path` header.
 - `api/markdown/route.ts` maps the path → home / page / blog post / blog index, returns `text/markdown` (`200`) with `Vary: Accept`, `Content-Location`, `X-Robots-Tag: noindex, nofollow`; missing doc → `404`, upstream fetch failure → `503`. Always serves published content.
 - `lib/markdown.ts` assembles the document (header + cover + rich text + blocks); `lib/contentful/rich-text-to-markdown.ts` walks the rich-text `Document`; `lib/contentful/page-builder-to-markdown.ts` is the block registry keyed by `contentType.sys.id` — **unknown types serialize to `""`** (fail-safe). The route is an optional catch-all `api/markdown/[[...path]]/route.ts`, so the content path also works as a clean direct URL (`/api/markdown/blog/post`).
@@ -130,6 +135,7 @@ CONTENTFUL_MANAGEMENT_TOKEN          # typegen only
 ## Component Conventions
 
 From `.cursor/rules/`:
+
 - **New Contentful sections**: follow the Live Preview pattern above and the template in `.cursor/rules/contentful-component-template.mdc`. Section files live in `apps/web/src/components/sections/`, kebab-case (`feature-cards-with-icon.tsx`), `PascalCase` exports, props type `[Component]Props = TypeXxx<"WITHOUT_UNRESOLVABLE_LINKS">`. Wrap in `<section id="…" className="my-6 md:my-16">` with a `container` inner div — the shared `container` utility (`packages/ui/src/styles/globals.css`) already centres and applies the `px-4 md:px-6` gutters, so don't add `mx-auto`/padding.
 - **Layout primitives** (`frontend-rules.mdc`): prefer `grid` over `flex` except for simple parent-child rows; use semantic HTML; route all button rendering through `ContentfulButtons` (`apps/web/src/components/contentful-button.tsx`); images through `ContentfulImage`.
 - **Shared UI**: import from `@workspace/ui/components/<name>` — don't duplicate Shadcn components into the app.
