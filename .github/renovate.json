@@ -1,0 +1,5 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "description": "Not a Sanity repo, so no ecosystem presets - Roboto policy only.",
+  "extends": ["local>robotostudio/.github"]
+}

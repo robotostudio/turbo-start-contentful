@@ -6,8 +6,6 @@ Built by [Roboto Studio](https://robotostudio.com/services/contentful) and used 
 
 <img width="2401" height="1260" alt="Turbostart contenful opengraph final" src="https://github.com/user-attachments/assets/8172d614-ed00-4d17-b65f-0661484f0e39" />
 
-
-
 ## What's Inside
 
 This monorepo demonstrates modern web development practices with a focus on developer experience, performance, and maintainability.
@@ -53,7 +51,7 @@ turbo-next-contentful/
 
 ### Prerequisites
 
-- Node.js 18+ 
+- Node.js 18+
 - pnpm (recommended package manager)
 - Contentful account and space
 
@@ -101,22 +99,27 @@ The application supports various content types through Contentful:
 ## Key Features
 
 ### 🎨 Page Builder
+
 Flexible content sections that can be mixed and matched:
+
 - Hero sections with call-to-actions
 - Feature cards with icons
 - FAQ accordions
 - Call-to-action blocks
 
 ### 📱 Responsive Design
+
 Mobile-first approach with Tailwind CSS utilities and responsive components.
 
 ### ⚡ Performance
+
 - Server-side rendering with Next.js App Router
 - Optimized images with Contentful's delivery API
 - Static generation where possible
 - Intelligent caching with TurboRepo
 
 ### 🔍 SEO Ready
+
 - Automatic sitemap generation
 - Structured data (JSON-LD)
 - Meta tags and Open Graph support
