@@ -29,11 +29,10 @@ import {
 import { useMediaQuery } from "@workspace/ui/hooks/use-media-query";
 import { cn } from "@workspace/ui/lib/utils";
 import { Menu, X } from "lucide-react";
-import { motion, useMotionValueEvent, useScroll } from "motion/react";
 import dynamic from "next/dynamic";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import type { GlobalSettings } from "@/lib/contentful/query";
 import type {
@@ -348,19 +347,19 @@ const ClientSideNavbar = ({
 }: {
   settingsData: GlobalSettings;
 }) => {
-  const { scrollYProgress } = useScroll();
   const [isScrolled, setIsScrolled] = useState(false);
 
-  useMotionValueEvent(scrollYProgress, "change", (current) => {
-    if (typeof current === "number") {
-      setIsScrolled(current > 0.01);
-    }
-  });
+  useEffect(() => {
+    const onScroll = () => setIsScrolled(window.scrollY > 8);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
 
   const { logo, siteTitle } = settingsData?.fields ?? {};
 
   return (
-    <motion.section
+    <section
       className={cn(
         "py-3 z-20 fixed top-0 inset-x-0 transition-colors duration-300",
         isScrolled && "border bg-background",
@@ -373,7 +372,7 @@ const ClientSideNavbar = ({
           <MobileNavbar settingsData={settingsData} />
         </div>
       </div>
-    </motion.section>
+    </section>
   );
 };
 
@@ -412,7 +411,7 @@ function SkeletonDesktopNavbar() {
 
 export function NavbarSkeletonResponsive() {
   return (
-    <motion.section className="py-3 z-20 fixed top-0 inset-x-0">
+    <section className="py-3 z-20 fixed top-0 inset-x-0">
       <div className="container">
         <nav className="flex h-12 items-center justify-between gap-4">
           <div className="h-8 w-[167px] rounded animate-pulse bg-muted" />
@@ -420,7 +419,7 @@ export function NavbarSkeletonResponsive() {
           <SkeletonMobileNavbar />
         </nav>
       </div>
-    </motion.section>
+    </section>
   );
 }
 
