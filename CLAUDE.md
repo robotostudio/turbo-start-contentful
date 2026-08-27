@@ -36,8 +36,8 @@ pnpm --filter web typegen    # regenerate Contentful content-type TS in apps/web
 Tests live in `apps/web` — Vitest unit tests in `apps/web/tests/`, Playwright e2e in `apps/web/e2e/`.
 
 ```bash
-pnpm test                       # turbo test — vitest across the workspace
-pnpm --filter web test:run      # vitest, single run (what CI runs)
+pnpm test                       # turbo test — vitest across the workspace (what CI runs)
+pnpm --filter web test:run      # vitest, single run
 pnpm --filter web test:e2e      # playwright
 ```
 
