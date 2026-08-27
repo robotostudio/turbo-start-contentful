@@ -1,6 +1,5 @@
 export type Result<T, E = Error> =
-  | { success: true; data: T }
-  | { success: false; error: E };
+  { success: true; data: T } | { success: false; error: E };
 
 export async function safeAsync<T>(promise: Promise<T>): Promise<Result<T>> {
   try {

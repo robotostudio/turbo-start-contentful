@@ -33,9 +33,7 @@ interface ResolvedBlock {
 }
 
 export type MarkdownPageBuilder =
-  | ReadonlyArray<ResolvedBlock | undefined>
-  | null
-  | undefined;
+  ReadonlyArray<ResolvedBlock | undefined> | null | undefined;
 
 function joinSections(sections: Array<string | null | undefined>): string {
   return sections.filter((section) => section?.trim()).join("\n\n");

@@ -51,7 +51,7 @@ turbo-next-contentful/
 
 ### Prerequisites
 
-- Node.js 18+
+- Node.js 24+
 - pnpm (recommended package manager)
 - Contentful account and space
 

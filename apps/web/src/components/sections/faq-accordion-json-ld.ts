@@ -20,15 +20,13 @@ export function faqAccordionToJsonLd(
   return {
     "@context": "https://schema.org",
     "@type": "FAQPage",
-    mainEntity: validFaqs.map(
-      (faq): Question => ({
-        "@type": "Question",
-        name: faq.fields.question,
-        acceptedAnswer: {
-          "@type": "Answer",
-          text: richTextToPlainText(faq.fields.answer),
-        },
-      }),
-    ),
+    mainEntity: validFaqs.map((faq): Question => ({
+      "@type": "Question",
+      name: faq.fields.question,
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: richTextToPlainText(faq.fields.answer),
+      },
+    })),
   };
 }

@@ -4,7 +4,7 @@ export function LinkedinIcon({ className }: { className?: string }) {
       width="18"
       height="18"
       viewBox="0 0 18 18"
-      fill="none"
+      fill="currentColor"
       xmlns="http://www.w3.org/2000/svg"
       className={className}
     >
@@ -20,7 +20,7 @@ export function XIcon({ className }: { className?: string }) {
       width="20"
       height="18"
       viewBox="0 0 20 18"
-      fill="none"
+      fill="currentColor"
       xmlns="http://www.w3.org/2000/svg"
       className={className}
     >
