@@ -4,11 +4,12 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Stack
 
-- **TurboRepo** monorepo, **pnpm@11.1.3**, Node >=20
+- **TurboRepo** monorepo, **pnpm@11.24.0**, Node >=24
 - **Next.js 16** (App Router, Turbopack dev, React 19, React Compiler beta enabled)
 - **Contentful** REST SDK (`contentful` package)
 - **Shared UI** in `packages/ui` (Shadcn UI + Radix + Tailwind CSS v4 CSS-first), transpiled by the app via `next.config.ts`
-- TypeScript 5.7.3, ESLint (flat config), Prettier
+- TypeScript 5.9.3, ESLint (flat config), Prettier
+- **Vitest** (unit, jsdom) + **Playwright** (e2e) in `apps/web`
 
 ## Common Commands
 
@@ -32,7 +33,13 @@ pnpm --filter web typegen    # regenerate Contentful content-type TS in apps/web
 
 `typegen` requires `CONTENTFUL_SPACE_ID` and `CONTENTFUL_MANAGEMENT_TOKEN` in `apps/web/.env`. It uses `cf-content-types-generator` and runs eslint + prettier on the output.
 
-No test runner is configured.
+Tests live in `apps/web` — Vitest unit tests in `apps/web/tests/`, Playwright e2e in `apps/web/e2e/`.
+
+```bash
+pnpm test                       # turbo test — vitest across the workspace
+pnpm --filter web test:run      # vitest, single run (what CI runs)
+pnpm --filter web test:e2e      # playwright
+```
 
 ## Architecture
 
