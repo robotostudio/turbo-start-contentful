@@ -3,12 +3,12 @@
 //
 // Requires env: CONTENTFUL_SPACE_ID, CONTENTFUL_ENVIRONMENT, CONTENTFUL_MANAGEMENT_TOKEN
 
-import contentful from "contentful-management";
+import { createClient } from "contentful-management";
 
 const { SPACE_ID, ENV_ID, TOKEN } = readEnv();
 const PUBLISH = process.env.SEED_PUBLISH !== "false";
 
-const client = contentful.createClient({ accessToken: TOKEN });
+const client = createClient({ accessToken: TOKEN });
 const space = await client.getSpace(SPACE_ID);
 const env = await space.getEnvironment(ENV_ID);
 
