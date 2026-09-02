@@ -1,4 +1,4 @@
-import { getGlobalSettings } from "@/lib/contentful/query";
+import { getGlobalSettings, isIndexable } from "@/lib/contentful/query";
 import {
   blogPostToMarkdown,
   getAllBlogs,
@@ -9,6 +9,7 @@ import {
 const HEADERS = {
   "content-type": "text/plain; charset=utf-8",
   "cache-control": "public, s-maxage=3600, stale-while-revalidate=86400",
+  "x-robots-tag": "noindex, nofollow",
 } as const;
 
 // Re-run the Contentful fetches at most hourly (matches the Cache-Control TTL).
@@ -46,16 +47,19 @@ export async function GET(): Promise<Response> {
   // Home (slug "/") first, then the rest of the pages.
   const pageDocs =
     pages.status === "fulfilled"
-      ? [...pages.value].sort((a, b) => {
-          if (a.fields.slug === "/") return -1;
-          if (b.fields.slug === "/") return 1;
-          return 0;
-        })
+      ? pages.value
+          .filter((page) => isIndexable(page.fields.seoNoIndex))
+          .sort((a, b) => {
+            if (a.fields.slug === "/") return -1;
+            if (b.fields.slug === "/") return 1;
+            return 0;
+          })
       : [];
   const blogDocs =
     blogs.status === "fulfilled"
       ? [blogs.value.featured, ...blogs.value.blogs].filter(
-          (blog): blog is NonNullable<typeof blog> => Boolean(blog),
+          (blog): blog is NonNullable<typeof blog> =>
+            Boolean(blog && isIndexable(blog.fields.seoNoIndex)),
         )
       : [];
 

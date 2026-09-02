@@ -121,10 +121,12 @@ export function getSEOMetadata(page: PageSeoData = {}): Metadata {
     ...(contentId !== undefined && { id: contentId }),
   });
 
-  const fullTitle =
-    defaultTitle === siteConfig.title
-      ? defaultTitle
-      : `${defaultTitle} | ${siteConfig.title}`;
+  // Editors write seoTitle as a complete meta title — don't double up the site name.
+  const fullTitle = defaultTitle
+    .toLowerCase()
+    .includes(siteConfig.title.toLowerCase())
+    ? defaultTitle
+    : `${defaultTitle} | ${siteConfig.title}`;
 
   // Build default metadata object
   const defaultMetadata: Metadata = {

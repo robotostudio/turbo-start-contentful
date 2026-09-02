@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 
 import { ContentfulImage } from "@/components/contentful-image";
 import { ContentfulRichText } from "@/components/contentful-richtext";
-import { ArticleJsonLd } from "@/components/json-ld";
+import { CombinedJsonLd } from "@/components/json-ld";
 import { TableOfContent } from "@/components/table-of-content";
 import { getBlogBySlug, getBlogPaths } from "@/lib/contentful/query";
 import { getSEOMetadata } from "@/lib/seo";
@@ -18,12 +18,19 @@ export async function generateMetadata({
   const response = await safeAsync(getBlogBySlug(slug));
   if (!response.success) return getSEOMetadata();
   const blog = response.data;
-  const { title, description, slug: blogSlug, seoNoIndex } = blog?.fields ?? {};
+  const {
+    title,
+    description,
+    slug: blogSlug,
+    seoNoIndex,
+    seoTitle,
+    seoDescription,
+  } = blog?.fields ?? {};
   const { id: contentId, contentType } = blog?.sys ?? {};
 
   const metadata = getSEOMetadata({
-    title,
-    description,
+    title: seoTitle || title,
+    description: seoDescription || description,
     // Full path so canonical + Markdown alternate resolve (posts live at /blog/*).
     slug: blogSlug ? `/blog/${blogSlug.replace(/^\//, "")}` : "/blog",
     contentId: contentId,
@@ -63,7 +70,7 @@ export default async function BlogSlugPage({
     <div className="container my-16 mt-24 md:mt-32">
       <div className="grid grid-cols-1 gap-8 lg:grid-cols-[1fr_300px]">
         <main>
-          <ArticleJsonLd article={blog} />
+          <CombinedJsonLd article={blog} />
           <header className="mb-8">
             <h1 className="mt-2 text-4xl font-bold">{title}</h1>
             <p className="mt-4 text-lg text-muted-foreground">{description}</p>

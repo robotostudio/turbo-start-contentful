@@ -3,17 +3,25 @@ const ogImageDimensions = {
   height: 630,
 };
 
+const MIN_DIMENSION = 200;
+const MAX_DIMENSION = 2400;
+
+// Clamp to a sane range so ?width=/&height= can't be used to render-bomb the endpoint.
+const clampDimension = (raw: string | null, fallback: number) => {
+  const parsed = raw === null ? Number.NaN : Number.parseInt(raw, 10);
+  if (Number.isNaN(parsed)) return fallback;
+  return Math.min(Math.max(parsed, MIN_DIMENSION), MAX_DIMENSION);
+};
+
 export const getOgMetaData = (searchParams: URLSearchParams) => {
-  const width = searchParams.get("width") as string;
-  const height = searchParams.get("height") as string;
+  const width = clampDimension(
+    searchParams.get("width"),
+    ogImageDimensions.width,
+  );
+  const height = clampDimension(
+    searchParams.get("height"),
+    ogImageDimensions.height,
+  );
 
-  const ogWidth = Number.isNaN(Number.parseInt(width))
-    ? ogImageDimensions.width
-    : Number.parseInt(width);
-
-  const ogHeight = Number.isNaN(Number.parseInt(height))
-    ? ogImageDimensions.height
-    : Number.parseInt(height);
-
-  return { width: ogWidth, height: ogHeight };
+  return { width, height };
 };
