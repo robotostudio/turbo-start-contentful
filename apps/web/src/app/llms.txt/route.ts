@@ -2,11 +2,13 @@ import {
   getAllBlogs,
   getAllPageSlugs,
   getGlobalSettings,
+  isIndexable,
 } from "@/lib/contentful/query";
 
 const HEADERS = {
   "content-type": "text/plain; charset=utf-8",
   "cache-control": "public, s-maxage=3600, stale-while-revalidate=86400",
+  "x-robots-tag": "noindex, nofollow",
 } as const;
 
 // Re-run the Contentful fetches at most hourly (matches the Cache-Control TTL).
@@ -63,7 +65,9 @@ export async function GET(): Promise<Response> {
   const pageSlugs = slugs.status === "fulfilled" ? slugs.value : [];
   const posts =
     blogs.status === "fulfilled"
-      ? [blogs.value.featured, ...blogs.value.blogs]
+      ? [blogs.value.featured, ...blogs.value.blogs].filter((post) =>
+          isIndexable(post?.fields?.seoNoIndex),
+        )
       : [];
 
   const pageLines = [
@@ -101,6 +105,7 @@ export async function GET(): Promise<Response> {
     ...pageLines,
     "",
     "## Blog",
+    "- [Blog](/blog.md)",
     ...blogLines,
   ].join("\n");
 

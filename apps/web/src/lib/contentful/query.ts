@@ -10,6 +10,12 @@ import type {
   TypePageSkeleton,
 } from "./types";
 
+// Contentful's `[ne]` operator doesn't reliably match entries where the field
+// is absent, so exclusion is done client-side on the fetched value instead.
+export function isIndexable(seoNoIndex?: boolean): boolean {
+  return seoNoIndex !== true;
+}
+
 export async function getPageBySlug(
   slug: string,
   preview = false,
@@ -67,21 +73,28 @@ export async function getPageByID(
   }
 }
 
+// Excludes noindexed pages — safe because, unlike blog slugs, nothing needs
+// the unfiltered set for generateStaticParams.
 export async function getAllPageSlugs(): Promise<string[]> {
   try {
     const client = getClient();
     const res = await client.getEntries<TypePageSkeleton>({
       content_type: "page",
-      select: ["fields.slug"],
+      select: ["fields.slug", "fields.seoNoIndex"],
       "fields.slug[ne]": "/",
     });
-    return res.items.map((item) => item.fields.slug);
+    return res.items
+      .filter((item) => isIndexable(item.fields.seoNoIndex))
+      .map((item) => item.fields.slug);
   } catch (error) {
     console.error("Error fetching page slugs:", error);
     throw new Error(parseContentfulError(error));
   }
 }
 
+// Unfiltered on purpose: also feeds generateStaticParams for /blog/[slug],
+// which must still build noindexed posts (they render with a noindex tag
+// rather than 404). Use getIndexableBlogSlugs for listing surfaces.
 export async function getBlogPaths(): Promise<string[]> {
   try {
     const client = getClient();
@@ -92,6 +105,22 @@ export async function getBlogPaths(): Promise<string[]> {
     return res.items.map((item) => item.fields.slug);
   } catch (error) {
     console.error("Error fetching blog paths:", error);
+    throw new Error(parseContentfulError(error));
+  }
+}
+
+export async function getIndexableBlogSlugs(): Promise<string[]> {
+  try {
+    const client = getClient();
+    const res = await client.getEntries<TypeBlogSkeleton>({
+      content_type: "blog",
+      select: ["fields.slug", "fields.seoNoIndex"],
+    });
+    return res.items
+      .filter((item) => isIndexable(item.fields.seoNoIndex))
+      .map((item) => item.fields.slug);
+  } catch (error) {
+    console.error("Error fetching indexable blog slugs:", error);
     throw new Error(parseContentfulError(error));
   }
 }

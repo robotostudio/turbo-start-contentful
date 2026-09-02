@@ -1,7 +1,7 @@
 import type { MetadataRoute } from "next";
 
 import { getBaseUrl } from "@/config";
-import { getAllPageSlugs, getBlogPaths } from "@/lib/contentful/query";
+import { getAllPageSlugs, getIndexableBlogSlugs } from "@/lib/contentful/query";
 import { safeAsync } from "@/safe-async";
 
 const baseUrl = getBaseUrl();
@@ -10,7 +10,7 @@ const INDEX_PAGES = ["", "/blog"];
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const [blogPages, slugPages] = await Promise.all([
-    safeAsync(getBlogPaths()),
+    safeAsync(getIndexableBlogSlugs()),
     safeAsync(getAllPageSlugs()),
   ]);
   if (!blogPages.success || !slugPages.success) return [];
