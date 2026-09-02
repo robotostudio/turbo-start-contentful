@@ -61,31 +61,31 @@ export function ArticleJsonLd({ article, settings }: ArticleJsonLdProps) {
     headline: title,
     ...(description && { description }),
     ...(imageUrl && { image: [imageUrl] }),
-    author: authors
-      ? authors.map(
-          (author) =>
-            ({
-              "@type": "Person",
-              name: author?.fields.name,
-              url: `${baseUrl}`,
-              image: author?.fields.image?.fields?.file?.url
-                ? ({
-                    "@type": "ImageObject",
-                    url: `https:${author?.fields.image?.fields?.file?.url}`,
-                  } as ImageObject)
-                : undefined,
-            }) as Person,
-        )
-      : [],
+    ...(authors?.length && {
+      author: authors.map(
+        (author) =>
+          ({
+            "@type": "Person",
+            name: author?.fields.name,
+            url: `${baseUrl}`,
+            ...(author?.fields.image?.fields?.file?.url && {
+              image: {
+                "@type": "ImageObject",
+                url: `https:${author?.fields.image?.fields?.file?.url}`,
+              } as ImageObject,
+            }),
+          }) as Person,
+      ),
+    }),
     publisher: {
       "@type": "Organization",
       name: siteTitle || "Website",
-      logo: logo?.fields?.file?.url
-        ? ({
-            "@type": "ImageObject",
-            url: `https:${logo?.fields?.file?.url}`,
-          } as ImageObject)
-        : undefined,
+      ...(logo?.fields?.file?.url && {
+        logo: {
+          "@type": "ImageObject",
+          url: `https:${logo?.fields?.file?.url}`,
+        } as ImageObject,
+      }),
     } as Organization,
     datePublished: new Date(
       publishedDate || new Date().toISOString(),
